@@ -10,8 +10,11 @@
 #define cinstring2(s,t) string s,t; cin>>s>>t;
 #define cinstring3(s,t,u) string s,t,u; cin>>s>>t>>u;
 #define cinchar(c) char c; cin>>c;
+#define cinvll(a,n) vll a(n); rep(i,n) cin>>a[i];
+#define cinvs(a,n) vs a(n); rep(i,n) cin>>a[i];
 //繰り返し系
 #define rep(i,n) for(int i=0;i<n;i++)
+#define rep1(i,n) for(int i=1;i<n;i++)
 using namespace std;
 //型系
 using ll = long long;
@@ -21,6 +24,9 @@ using vi = vector<int>;
 using vvi = vector<vector<int>>;
 using vb = vector<bool>;
 using vvb = vector<vector<bool>>;
+using vc = vector<char>;
+using vvc = vector<vector<char>>;
+using vs = vector<string>;
 using pll = pair<long long,long long>;
 using vpll = vector<pair<long long,long long>>;
 
