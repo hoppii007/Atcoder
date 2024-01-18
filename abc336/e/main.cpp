@@ -39,8 +39,47 @@ string v_join(vector<T> &a,string c){
 	return ret + to_string(a[a.size()-1]);
 }
 
+//dp[i][j][k][l] := i桁決めていて、桁和はjで、mod sをとるとkになる
+//lが1の時最小が確定
+ll dp[16][130][130][2];
 
 int main(void){
-	
+	//dp[i][j][k] = 桁数がi+1で、桁和がjで、mod jがkのやつ
+	//最高桁を1にする
+	//dp[i][j]
+	cinll(n);
+	vll digit;
+	while(n > 0){
+		digit.push_back(n%10);
+		n /= 10;
+	}
+	reverse(digit.begin(),digit.end());
+	ll m = digit.size();
+	ll ans = 0;
+	//桁和がsになる奴を数える
+	rep1(s,127){
+		rep(i,m+1) rep(j,s+1) rep(k,s) rep(l,2){
+			dp[i][j][k][l] = 0;
+		}
+		dp[0][0][0][0] = 1;
+		rep(i,m) rep(j,s+1) rep(k,s) rep(l,2){
+			rep(d,10){
+				ll ni = i+1;
+				ll nj = j + d;
+				ll nk = (10*k + d)%s;
+				ll nl = l;
+				if(nj > s) continue;
+				//以下が確定していないとき
+				if(l == 0){
+					if(d > digit[i]) continue;
+					if(d < digit[i]) nl = 1;
+				}
+				dp[ni][nj][nk][nl] += dp[i][j][k][l];
+			}
+		}
+		ans += dp[m][s][0][1] + dp[m][s][0][0];
+	}
+	cout<<ans<<endl;
+
 	return 0;
 }

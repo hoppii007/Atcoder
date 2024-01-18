@@ -40,6 +40,7 @@ string v_join(vector<T> &a,string c){
 }
 
 
+
 int main(void){
 	
 	return 0;

@@ -39,8 +39,28 @@ string v_join(vector<T> &a,string c){
 	return ret + to_string(a[a.size()-1]);
 }
 
+//xをn進数に変換
+vll toNsinsu(ll x, ll n) {
+	ll cnt = 0;
+	ll xx = x;
+	while (xx > 0) {
+		xx /= n;
+		cnt++;
+	}
+	vll ret(cnt, 0);
+	rep(i, cnt) {
+		ret[i] = x%n;
+		x /= n;
+	}
+	if(ret.size() == 0) ret.push_back(0);
+	return ret;
+}
 
 int main(void){
-	
+	cinll(n);
+	vll ans = toNsinsu(n-1,5);
+	reverse(ans.begin(),ans.end());
+	rep(i,ans.size()) ans[i] *= 2;
+	cout<<v_join<ll>(ans,"")<<endl;
 	return 0;
 }

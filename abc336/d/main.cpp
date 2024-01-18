@@ -41,6 +41,28 @@ string v_join(vector<T> &a,string c){
 
 
 int main(void){
-	
+	cinll(n);
+	cinvll(a,n);
+	//自分含め、左右の下降列の長さ
+	vll l(n);
+	vll r(n);
+	ll now = 1;
+	r[n-1] = now;
+	now++;
+	for(int i=n-2;i>=0;i--){
+		now = min(now,a[i]);
+		r[i] = now++;
+	}
+	now = 1;
+	l[0] = now++;
+	for(int i=1;i<n;i++){
+		now = min(now,a[i]);
+		l[i] = now++;
+	}
+	ll ans = 0;
+	rep(i,n){
+		ans = max(ans,min(l[i],r[i]));
+	}
+	cout<<ans<<endl;
 	return 0;
 }
