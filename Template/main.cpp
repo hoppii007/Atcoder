@@ -15,6 +15,7 @@
 //繰り返し系
 #define rep(i,n) for(int i=0;i<n;i++)
 #define rep1(i,n) for(int i=1;i<n;i++)
+#define mrep(i,n) for(int i=n;i>=0;i--)
 using namespace std;
 //型系
 using ll = long long;
@@ -29,6 +30,8 @@ using vvc = vector<vector<char>>;
 using vs = vector<string>;
 using pll = pair<long long,long long>;
 using vpll = vector<pair<long long,long long>>;
+
+const ll mod = 998244353LL;
 
 //便利系
 //vectorをjoinするやつ
