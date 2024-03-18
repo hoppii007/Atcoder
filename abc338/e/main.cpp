@@ -60,6 +60,31 @@ void input(T&... a){
 
 
 int main(void){
-	
+	cinll(n);
+	vll a(2*n,0);
+	rep(i,n){
+		cinll(c,d);
+		ll from = min(c-1,d-1);
+		ll to = max(c-1,d-1);
+		//cout<<from<<" "<<to<<endl;
+		a[from] = i+1;
+		a[to] = -(i+1);
+	}
+	stack<ll> s;
+	rep(i,2*n){
+	    if(a[i] > 0){
+	        //cout<<a[i]<<"追加"<<endl;
+	        s.push(a[i]);
+	    }
+	    else if(a[i] < 0){
+	        //cout<<a[i]<<"削除"<<endl;
+	        if(s.top() != -a[i]){
+	            cout<<"Yes"<<endl;
+	            return 0;
+	        }
+	        s.pop();
+	    }
+	}
+	cout<<"No"<<endl;
 	return 0;
 }

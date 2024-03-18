@@ -36,6 +36,7 @@ using pll = pair<long long,long long>;
 using vpll = vector<pair<long long,long long>>;
 
 const ll mod = 998244353LL;
+const ll inf = 100100100100100100LL;
 
 //便利系
 //vectorをjoinするやつ
