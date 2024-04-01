@@ -8,6 +8,11 @@
 		"ostream": "cpp",
 		"utility": "cpp",
 		"xstring": "cpp",
-		"xtree": "cpp"
+		"xtree": "cpp",
+		"algorithm": "cpp",
+		"chrono": "cpp",
+		"limits": "cpp",
+		"valarray": "cpp",
+		"cmath": "cpp"
 	}
 }
