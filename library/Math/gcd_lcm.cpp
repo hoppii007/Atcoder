@@ -49,8 +49,20 @@ ll gcd(ll a,ll b){
 //複数個のgcdを求める
 ll gcds(vll a){
     ll ret = a[0];
-    rep1(i,a.size()){
+    rep(i,a.size()){
         ret = gcd(ret,a[i]);
     }
     return ret;
+}
+
+ll lcm(ll a,ll b){
+	return a / gcd(a,b) * b;
+}
+
+ll lcms(vll v){
+	ll ret = v[0];
+	rep(i,v.size()){
+		ret = lcm(ret,v[i]);
+	}
+	return ret;
 }
