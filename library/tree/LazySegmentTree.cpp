@@ -59,8 +59,8 @@ public:
     }
     LazySegmentTree(){}
     void o_update(int k,O o){
+        this->arrayT[k] = f(o,this->arrayT[k]);
         this->arrayO[k] = opO(o,this->arrayO[k]);
-        this->arrayT[k] = f(this->arrayO[k],this->arrayT[k]);
         //葉なら更新履歴をリセットする
         if(l_child(k) >= this->arrayT.size()) this->arrayO[k] = idO;
     }
@@ -109,8 +109,18 @@ public:
         if(r < nowL || nowR < l) return this->idT;
         //完全にかぶっているとき（葉の時は必ずここに来る）
         if(l <= nowL && nowR <= r){
-            //更新履歴の反映は終わってるから、葉なら更新履歴をリセット
-            if(l_child(k) >= this->arrayT.size()) this->arrayO[k] = idO;
+            //葉なら更新は終わってるはずだから返すだけ
+            if(l_child(k) >= this->arrayT.size()){
+                return this->arrayT[k];
+            }
+            //葉じゃなくても更新が終わってるなら返す
+            if(this->arrayO[k] == idO){
+                return this->arrayT[k];
+            }
+            //葉じゃなくて更新も終わってないなら更新して一個下にだけ流して返す
+            o_update(l_child(k),this->arrayO[k]);
+            o_update(r_child(k),this->arrayO[k]);
+            this->arrayO[k] = idO;
             return this->arrayT[k];
         }
         //更新履歴を下に流す
@@ -134,7 +144,7 @@ public:
         int j=0;
         while(n+j < this->arrayT.size()){
             while(j < n){
-                cout<<this->arrayT[n+j-1]<<"/"<<this->arrayO[n+j-1]<<" ";
+                cout<<"("<<this->arrayT[n+j-1].first<<","<<this->arrayT[n+j-1].second<<")"<<"/"<<this->arrayO[n+j-1]<<" ";
                 j++;
             }
             cout<<endl;
