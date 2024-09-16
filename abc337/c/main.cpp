@@ -5,6 +5,7 @@
 #define cinstr(...) string __VA_ARGS__; input(__VA_ARGS__);
 #define cinchar(...) char __VA_ARGS__; input(__VA_ARGS__);
 #define cinvll(a,n) vll a(n); rep(i,n) cin>>a[i];
+#define cinvvll(a,n,m) vvll a(n,vll(m)); rep(i,n) rep(j,m) cin>>a[i][j];
 #define cinvs(a,n) vs a(n); rep(i,n) cin>>a[i];
 //繰り返し系
 #define rep1(n) for(int i=0;i<n;i++)
@@ -18,6 +19,8 @@
 #define mrep3(i,n,a) for(int i=n;i>=a;i--)
 #define mrep4(i,n,a,b) for(int i=n;i>=a;i-=b)
 #define mrep(...) overload4(__VA_ARGS__,mrep4,mrep3,mrep2,mrep1)(__VA_ARGS__)
+//iterator系
+#define all(a) a.begin(),a.end()
 using namespace std;
 //型系
 using ll = long long;
@@ -34,6 +37,7 @@ using pll = pair<long long,long long>;
 using vpll = vector<pair<long long,long long>>;
 
 const ll mod = 998244353LL;
+const ll inf = 100100100100100100LL;
 
 //便利系
 //vectorをjoinするやつ
@@ -58,16 +62,36 @@ void input(T&... a){
 
 
 int main(void){
-	cinll(n);
-	cinvll(a,n);
-	map<ll,ll> index;
-	rep(i,a.size()) index[a[i]] = i;
-	vll ans;
-	ll now = -1;
-	rep(i,a.size()){
-		now = index[now]+1;
-		ans.push_back(now);
+	cinll(h,w,k);
+	cinvs(s,h);
+	vvll rhdot(h+1,vll(w,0));
+	vvll rwdot(h,vll(w+1,0));
+	vvll rhmaru(h+1,vll(w,0));
+	vvll rwmaru(h,vll(w+1,0));
+	rep(j,w) rep(i,h){
+		rhdot[i+1][j] = rhdot[i][j];
+		rhmaru[i+1][j] = rhmaru[i][j];
+		if(s[i][j] == '.') rhdot[i+1][j]++;
+		if(s[i][j] == 'o') rhmaru[i+1][j]++;
 	}
-	out(v_join(ans," "));
+	rep(i,h) rep(j,w){
+		rwdot[i][j+1] = rwdot[i][j];
+		rwmaru[i][j+1] = rwmaru[i][j];
+		if(s[i][j] == '.') rwdot[i][j+1]++;
+		if(s[i][j] == 'o') rwmaru[i][j+1]++;
+	}
+	ll ans = inf;
+	rep(i,h-k) rep(j,w-k){
+		//j番目からj+k-1番目までの数が数えたい
+		ll maru = rwmaru[i][j+k]-rwmaru[i][j];
+		ll dot = rwdot[i][j+k]-rwdot[i][j];
+		if(maru + dot == k) ans = min(ans,dot);
+		
+		maru = rhmaru[i+k][j] - rhmaru[i][j];
+		dot = rhdot[i+k][j] - rhdot[i][j];
+		if(maru + dot == k) ans = min(ans,dot);
+	}
+	if(ans == inf) cout<<-1<<endl;
+	else cout<<ans<<endl;
 	return 0;
 }

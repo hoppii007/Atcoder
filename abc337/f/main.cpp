@@ -5,6 +5,7 @@
 #define cinstr(...) string __VA_ARGS__; input(__VA_ARGS__);
 #define cinchar(...) char __VA_ARGS__; input(__VA_ARGS__);
 #define cinvll(a,n) vll a(n); rep(i,n) cin>>a[i];
+#define cinvvll(a,n,m) vvll a(n,vll(m)); rep(i,n) rep(j,m) cin>>a[i][j];
 #define cinvs(a,n) vs a(n); rep(i,n) cin>>a[i];
 //繰り返し系
 #define rep1(n) for(int i=0;i<n;i++)
@@ -18,6 +19,8 @@
 #define mrep3(i,n,a) for(int i=n;i>=a;i--)
 #define mrep4(i,n,a,b) for(int i=n;i>=a;i-=b)
 #define mrep(...) overload4(__VA_ARGS__,mrep4,mrep3,mrep2,mrep1)(__VA_ARGS__)
+//iterator系
+#define all(a) a.begin(),a.end()
 using namespace std;
 //型系
 using ll = long long;
@@ -34,6 +37,7 @@ using pll = pair<long long,long long>;
 using vpll = vector<pair<long long,long long>>;
 
 const ll mod = 998244353LL;
+const ll inf = 100100100100100100LL;
 
 //便利系
 //vectorをjoinするやつ
@@ -58,6 +62,21 @@ void input(T&... a){
 
 
 int main(void){
+	//最初の辺をのけて、最初の箱が空かないとき(O(1))
+		//入っていたものをfとする
+		//fより前にどこにも入ってないxがあるとき(O(logN))
+			//それが入る
+			//この時空き箱はないので、min(count(x),k)個入ることになる(これは累積和でO(1))
+			//つまり全体の変化としてはdp-fが入ってた個数+min(count(x),k)
+		//fより前にどこにも入ってないxが無いとき(O(1))
+			//この時答えは変わらない
+	//最初の辺をのけて、最初の箱が空くとき(O(1))
+		//入っていたものをfとする
+		//割り当てられてないNが存在するとき(O(1))
+			//その最初の場所をxとする
+			//変化としては、dp-1+min(x以降のCxの個数,k)(累積和でO(1)にできそう)
+		//割り当てられてないNが存在しないとき
+			//答えは変わらない
 	
 	return 0;
 }

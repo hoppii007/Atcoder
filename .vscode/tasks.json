@@ -36,8 +36,17 @@
 		{
 			"label":"submit",
 			"type":"shell",
-			"command": "cd ${fileDirname} && acc submit -s -- -y",
+			"command": "cd ${fileDirname} ; acc submit main.cpp",
 			"dependsOrder": "sequence",
+			"dependsOn":[
+				"C/C++: g++.exe build active file"
+			]
+		},
+		{
+			"label":"run",
+			"type":"shell",
+			"command": "${relativeFileDirname}/main.exe",
+			"dependsOrder":"sequence",
 			"dependsOn":[
 				"C/C++: g++.exe build active file"
 			]

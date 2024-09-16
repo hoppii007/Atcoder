@@ -5,6 +5,7 @@
 #define cinstr(...) string __VA_ARGS__; input(__VA_ARGS__);
 #define cinchar(...) char __VA_ARGS__; input(__VA_ARGS__);
 #define cinvll(a,n) vll a(n); rep(i,n) cin>>a[i];
+#define cinvvll(a,n,m) vvll a(n,vll(m)); rep(i,n) rep(j,m) cin>>a[i][j];
 #define cinvs(a,n) vs a(n); rep(i,n) cin>>a[i];
 //繰り返し系
 #define rep1(n) for(int i=0;i<n;i++)
@@ -36,6 +37,7 @@ using pll = pair<long long,long long>;
 using vpll = vector<pair<long long,long long>>;
 
 const ll mod = 998244353LL;
+const ll inf = 100100100100100100LL;
 
 //便利系
 //vectorをjoinするやつ
@@ -61,9 +63,22 @@ void input(T&... a){
 
 int main(void){
 	cinstr(s);
-	string t = s;
-	sort(all(s));
-	if(s == t) cout<<"Yes"<<endl;
-	else cout<<"No"<<endl;
+	char now = s[0];
+	rep(i,s.size()-1){
+		now = s[i];
+		if(now == 'B' && s[i+1] == 'A'){
+			cout<<"No"<<endl;
+			return 0;
+		}
+		else if(now == 'C' && s[i+1] == 'A'){
+			cout<<"No"<<endl;
+			return 0;
+		}
+		else if(now == 'C' && s[i+1] == 'B'){
+			cout<<"No"<<endl;
+			return 0;
+		}
+	}
+	cout<<"Yes"<<endl;
 	return 0;
 }
