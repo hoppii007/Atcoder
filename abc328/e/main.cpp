@@ -136,8 +136,6 @@ int main(void){
 	Comb comb;
 	vvb combs = comb.vb_combs(m,n-1);
 	for(vb c:combs){
-		//rep(i,c.size()) cout<<(c[i]?1:0)<<" ";
-		//cout<<endl;
 		ll sum = 0;
 		vvll nexts(n);
 		rep(i,c.size()) if(c[i]){

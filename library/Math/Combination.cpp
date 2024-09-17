@@ -31,8 +31,8 @@ using vs = vector<string>;
 using pll = pair<long long,long long>;
 using vpll = vector<pair<long long,long long>>;
 
-//コンボリューションを列挙 -> v_combs
-//コンボリューションを出すとき、どこを使ったかの情報のみを列挙 -> vb_combs
+//コンビネーションを列挙 -> v_combs
+//コンビネーションを出すとき、どこを使ったかの情報のみを列挙 -> vb_combs
 class Comb{
 private:
 	//vは最初全部falseにしといてね
@@ -57,7 +57,7 @@ private:
 public:
 	Comb(){}
 	//vector<bool>の中でk本trueが立つようにする
-	//最終的にはコンボリューションの二次元配列を作る
+	//最終的にはコンビネーションの二次元配列を作る
 	static vvb vb_combs(int n,int k){
 		vb b = vb(n,false);
 		vvb bs;
@@ -65,7 +65,7 @@ public:
 		return bs;
 	}
 
-	//T型の配列aのコンボリューションを列挙する
+	//T型の配列aのコンビネーションを列挙する
 	template<typename T>
 	vector<vector<T>> v_combs(vector<T> &a, int k){
 		vvb bs = vb_combs(a.size(),k);
