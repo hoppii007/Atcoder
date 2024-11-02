@@ -45,7 +45,7 @@
 		{
 			"label":"run",
 			"type":"shell",
-			"command": "Get-Content ${relativeFileDirname}/input.txt | ${relativeFileDirname}/main.exe",
+			"command": "${relativeFileDirname}/main.exe",
 			"dependsOrder":"sequence",
 			"dependsOn":[
 				"C/C++: g++.exe build active file"
