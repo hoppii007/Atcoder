@@ -8,16 +8,16 @@
 #define cinvvll(a,n,m) vvll a(n,vll(m)); rep(i,n) rep(j,m) cin>>a[i][j];
 #define cinvs(a,n) vs a(n); rep(i,n) cin>>a[i];
 //繰り返し系
-#define rep1(n) for(int i=0;i<n;i++)
-#define rep2(i,n) for(int i=0;i<n;i++)
-#define rep3(i,a,n) for(int i=a;i<n;i++)
-#define rep4(i,a,n,b) for(int i=a;i<n;i+=b)
+#define rep1(n) for(ll i=0;i<n;i++)
+#define rep2(i,n) for(ll i=0;i<n;i++)
+#define rep3(i,a,n) for(ll i=a;i<n;i++)
+#define rep4(i,a,n,b) for(ll i=a;i<n;i+=b)
 #define overload4(a,b,c,d,e,...) e
 #define rep(...) overload4(__VA_ARGS__,rep4,rep3,rep2,rep1)(__VA_ARGS__)
-#define mrep1(n) for(int i=n;i>=0;i--)
-#define mrep2(i,n) for(int i=n;i>=0;i--)
-#define mrep3(i,n,a) for(int i=n;i>=a;i--)
-#define mrep4(i,n,a,b) for(int i=n;i>=a;i-=b)
+#define mrep1(n) for(ll i=n;i>=0;i--)
+#define mrep2(i,n) for(ll i=n;i>=0;i--)
+#define mrep3(i,n,a) for(ll i=n;i>=a;i--)
+#define mrep4(i,n,a,b) for(ll i=n;i>=a;i-=b)
 #define mrep(...) overload4(__VA_ARGS__,mrep4,mrep3,mrep2,mrep1)(__VA_ARGS__)
 //iterator系
 #define all(a) a.begin(),a.end()
