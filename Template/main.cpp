@@ -1,7 +1,9 @@
 #include<bits/stdc++.h>
 //入力系
 #define cinll(...) ll __VA_ARGS__; input(__VA_ARGS__);
+#define cinill(...) ll __VA_ARGS__; input_index(__VA_ARGS__);
 #define cinint(...) int __VA_ARGS__; input(__VA_ARGS__);
+#define ciniint(...) int __VA_ARGS__; input_index(__VA_ARGS__);
 #define cinstr(...) string __VA_ARGS__; input(__VA_ARGS__);
 #define cinchar(...) char __VA_ARGS__; input(__VA_ARGS__);
 #define cinvll(a,n) vll a(n); rep(i,n) cin>>a[i];
@@ -42,10 +44,21 @@ const ll inf = 100100100100100100LL;
 //便利系
 //vectorをjoinするやつ
 template<typename T>
-string v_join(vector<T> &a,string c){
+string join(const vector<T> &a,string c){
 	string ret = "";
-	rep(i,a.size()-1) ret += (to_string(a[i]) + c);
-	return ret + to_string(a[a.size()-1]);
+	if(a.size()==0) return ret;
+	
+    //もともとstringなら
+	if constexpr (std::is_same_v<T, std::string> || std::is_same_v<T, char>) {
+	    rep(i,a.size()-1) ret += a[i]+c;
+	    return ret + a[a.size()-1];
+    }
+    //もともとstringじゃなければto_stringして結合
+	else{
+	    rep(i,a.size()-1) ret += to_string(a[i]) + c;
+	    return ret + to_string(a[a.size()-1]);
+	}
+	
 }
 //空白区切り表示
 template<class T, class... Ts>
@@ -54,14 +67,23 @@ void out(const T& a,const Ts&... b){
 	(cout<< ... << (cout << ' ',b));
 	cout<<endl;
 }
+template<class T>
+void out(const vector<T> &a){
+    out(join(a," "));
+}
 //入力
 template<class... T>
 void input(T&... a){
 	(cin >> ... >> a);
 }
 
+template<class... T>
+void input_index(T&... a){
+    (cin >> ... >> a);
+    ((a--), ...);
+}
 
 int main(void){
-	
+    
 	return 0;
 }
