@@ -50,7 +50,37 @@
 			"dependsOn":[
 				"C/C++: g++.exe build active file"
 			]
-		}
+		},
+
+		//macの設定
+		{
+			"label":"mac_build",
+			"type":"shell",
+			"command": "/usr/local/bin/g++-12 ${relativeFileDirname}/main.cpp -o ${relativeFileDirname}/main.out",
+		},
+		{
+			"label":"mac_test",
+			"type":"shell",
+			"command": "oj test -c ${relativeFileDirname}/main.out -d ${relativeFileDirname}/tests"
+		},
+		{
+			"label":"mac_build_test",
+			"type":"shell",
+			"dependsOn":["mac_build", "mac_test"],
+			"dependsOrder": "sequence",
+		},
+		{
+			"label": "mac_run",
+			"type": "shell",
+			"command": "${relativeFileDirname}/main.out",
+		},
+		{
+			"label": "mac_build_run",
+			"type": "shell",
+			"dependsOn": ["mac_build", "mac_run"],
+			"dependsOrder": "sequence",
+		},
+
     ],
     "version": "2.0.0"
 }

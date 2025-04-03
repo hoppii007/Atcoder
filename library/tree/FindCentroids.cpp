@@ -69,7 +69,7 @@ void input(T&... a){
 //size_of_subtree : 各頂点を根としたときの部分ぎの大きさ。最初は全部0にしとく
 //nexts : 次に行ける場所全部
 //これを呼び出すときに渡したvが根となる。
-void find_centroids(const ll &n, vll &centroids, vll &size_of_subtree, vvll &nexts, ll v, ll parent_of_v = -1){
+void findCentroids(const ll &n, vll &centroids, vll &size_of_subtree, vvll &nexts, ll v, ll parent = -1){
 	//まずは自分をカウント
 	size_of_subtree[v] = 1;
 	//全子供のサイズがn/2以下か
@@ -77,9 +77,9 @@ void find_centroids(const ll &n, vll &centroids, vll &size_of_subtree, vvll &nex
 	//全部の子供のやつを求める
 	for(ll next : nexts[v]){
 		//親にはいかなくていい
-		if(next == parent_of_v) continue;
+		if(next == parent) continue;
 		//子供の部分木のサイズを求める
-		find_centroids(n, centroids, size_of_subtree, nexts, next, v);
+		findCentroids(n, centroids, size_of_subtree, nexts, next, v);
 		//子供の部分木のサイズを自分のサイズに加算
 		size_of_subtree[v] += size_of_subtree[next];
 		//子供の部分木のサイズがn/2を超えたらアウト

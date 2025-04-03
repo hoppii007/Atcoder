@@ -12,6 +12,10 @@
 - タスクのキー設定はこれ[https://qiita.com/sakano/items/685b6a15dd600ccd34bd]
 - 問題のダウンロードを全部ダウンロードするようにする[https://qiita.com/NaokiOsako/items/dcbc0a91e1bbca8ee45d]
 - 提出時の確認をしないようにするにはこれ[https://www.blog.harashio.jp/engineering/kyopro/2023/xkw5hw7mxyzf2a3rz55c/]
+- accでログインできない時はこれ[https://github.com/Tatamo/atcoder-cli/issues/66]
+- macでg++がclangを読み込んでしまうやつは、brew install gccでg++を入れて、/usr/loca/bin/g++-{version}を使えばいい
+- tasks.json,keybinding.jsonの格納場所[https://chaba-lab.com/vscode-setting-files-path-20240808/]
+- macでのkeybinding.jsonは素直にctrl+shift+pで出てくるやつを編集するのが良さそう
 
 # How To Use?
 ## abc335の作り方

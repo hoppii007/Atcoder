@@ -1,0 +1,7 @@
+"//O(logB)でa^b % modが計算できる",
+"ll mpow(ll a,ll b){",
+"    if(b == 0) return 1;",
+"    if(b == 1) return a%mod;",
+"    if(b%2 == 0) return mpow((a*a)%mod,b/2)%mod;",
+"    else return (a%mod)*mpow((a*a)%mod,(b-1)/2)%mod;",
+"}",

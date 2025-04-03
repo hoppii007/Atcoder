@@ -1,7 +1,7 @@
 //区間更新、区間クエリはこいつにおまかせ！
 ///////注意/////////
-//・T,opT,idTがモナドになっている
-//・O,opO,idOがモナドになっている
+//・T,opT,idTがモノイドになっている
+//・O,opO,idOがモノイドになっている
 //・f(o,(opT(t1,t2))) = opT(f(o,t1),f(o,t2))
 //・f(opO(o1,o2),t) = f(o1,f(op2,t))
 //・f(idO,t) = t
@@ -15,11 +15,11 @@
 template<typename T,typename O>
 class LazySegmentTree{
 public:
-    //要素のモナド
+    //要素のモノイド
     T idT;
     T (*opT)(T,T);
     vector<T> arrayT;
-    //作用素のモナド（この値について作用が一つ求まる）
+    //作用素のモノイド（この値について作用が一つ求まる）
     O idO;
     O (*opO)(O,O);
     vector<O> arrayO;
