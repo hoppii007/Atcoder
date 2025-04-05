@@ -1,0 +1,108 @@
+{
+  "contest": {
+    "id": "adt_all_20241218_2",
+    "title": "AtCoder Daily Training ALL 2024/12/18 18:00start",
+    "url": "https://atcoder.jp/contests/adt_all_20241218_2"
+  },
+  "tasks": [
+    {
+      "id": "abc322_a",
+      "label": "A",
+      "title": "First ABC 2",
+      "url": "https://atcoder.jp/contests/adt_all_20241218_2/tasks/abc322_a",
+      "directory": {
+        "path": "a",
+        "testdir": "tests",
+        "submit": "main.cpp"
+      }
+    },
+    {
+      "id": "abc275_a",
+      "label": "B",
+      "title": "Find Takahashi",
+      "url": "https://atcoder.jp/contests/adt_all_20241218_2/tasks/abc275_a",
+      "directory": {
+        "path": "b",
+        "testdir": "tests",
+        "submit": "main.cpp"
+      }
+    },
+    {
+      "id": "abc259_b",
+      "label": "C",
+      "title": "Counterclockwise Rotation",
+      "url": "https://atcoder.jp/contests/adt_all_20241218_2/tasks/abc259_b",
+      "directory": {
+        "path": "c",
+        "testdir": "tests",
+        "submit": "main.cpp"
+      }
+    },
+    {
+      "id": "abc367_b",
+      "label": "D",
+      "title": "Cut .0",
+      "url": "https://atcoder.jp/contests/adt_all_20241218_2/tasks/abc367_b",
+      "directory": {
+        "path": "d",
+        "testdir": "tests",
+        "submit": "main.cpp"
+      }
+    },
+    {
+      "id": "abc363_c",
+      "label": "E",
+      "title": "Avoid K Palindrome 2",
+      "url": "https://atcoder.jp/contests/adt_all_20241218_2/tasks/abc363_c",
+      "directory": {
+        "path": "e",
+        "testdir": "tests",
+        "submit": "main.cpp"
+      }
+    },
+    {
+      "id": "abc373_c",
+      "label": "F",
+      "title": "Max Ai+Bj",
+      "url": "https://atcoder.jp/contests/adt_all_20241218_2/tasks/abc373_c",
+      "directory": {
+        "path": "f",
+        "testdir": "tests",
+        "submit": "main.cpp"
+      }
+    },
+    {
+      "id": "abc257_d",
+      "label": "G",
+      "title": "Jumping Takahashi 2",
+      "url": "https://atcoder.jp/contests/adt_all_20241218_2/tasks/abc257_d",
+      "directory": {
+        "path": "g",
+        "testdir": "tests",
+        "submit": "main.cpp"
+      }
+    },
+    {
+      "id": "abc303_e",
+      "label": "H",
+      "title": "A Gift From the Stars",
+      "url": "https://atcoder.jp/contests/adt_all_20241218_2/tasks/abc303_e",
+      "directory": {
+        "path": "h",
+        "testdir": "tests",
+        "submit": "main.cpp"
+      }
+    },
+    {
+      "id": "abc304_f",
+      "label": "I",
+      "title": "Shift Table",
+      "url": "https://atcoder.jp/contests/adt_all_20241218_2/tasks/abc304_f",
+      "directory": {
+        "path": "i",
+        "testdir": "tests",
+        "submit": "main.cpp"
+      }
+    }
+  ]
+}

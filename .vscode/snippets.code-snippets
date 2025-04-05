@@ -92,6 +92,54 @@
 			"}",
 		]
 	},
+	"is_kaibun" :{
+		"prefix": "sni_is_kaibun",
+		"body": [
+			"//回文判定",
+			"bool isKaibun(string s){",
+			"    rep(i,s.size()/2) if(s[i] != s[(ll)s.size()-1-i]) return false;",
+			"    return true;",
+			"}",
+		]
+	},
+	"substr" :{
+		"prefix": "sni_substr",
+		"body": [
+			"//部分文字列を切り出す",
+			"//閉区間[i,j]でとる",
+			"string substr(string s, ll i, ll j){",
+			"    string t = \"\";",
+			"    rep(ii,i,j+1) t += string(1,s[ii]);",
+			"    return t;",
+			"}",
+		]
+	},
+	"next_permu":{
+		"prefix": "sni_next_permu",
+		"body": [
+			"//順列全列挙",
+			"//列挙するvectorは昇順sortしてから使ってね",
+			"do{",
+			"",
+			"}while(next_permutation(all($1)));",
+		]
+	},
+	"nibutan":{
+		"prefix": "sni_nibutan",
+		"body": [
+			"//二分探索のジャッジ用のやつ",
+			"auto nibutan_judge = [&](ll mid){",
+			"    return true;",
+			"};",
+			"ll ok = -1;",
+			"ll ng = inf;",
+			"while(abs(ok-ng) > 1){",
+			"    ll mid = (ok+ng)/2;",
+			"    if(nibutan_judge(mid)) ok = mid;",
+			"    else ng = mid;",
+			"}",
+		]
+	},
 	//木
 	"unionfind": {
 		"prefix": "sni_unionfind",
@@ -437,8 +485,8 @@
 			"};",
 		]
 	},
-	"isprime":{
-		"prefix": "sni_isprime",
+	"is_prime":{
+		"prefix": "sni_is_prime",
 		"body": [
 			"// O(log a)",
 			"bool isPrime(ll a){",
@@ -476,6 +524,7 @@
 		"prefix": "sni_zaatu",
 		"body": [
 			"//座標圧縮した後の座標が返ってくる",
+			"//元の数字 -> 圧縮後の座標が取れるmap",
 			"map<ll,ll> zaatu(vll &a){",
 			"    set<ll> s;",
 			"    rep(i,a.size()) s.insert(a[i]);",
@@ -483,6 +532,37 @@
 			"    ll i = 0;",
 			"    for(ll t: s) ret[t] = i++;",
 			"    return ret;",
+			"}",
+		]
+	},
+	"is_square":{
+		"prefix": "sni_is_square",
+		"body": [
+			"//四つの頂点の情報をもらい、正方形かどうかを判別する",
+			"//overlapIsOutがtrueなら、ぴったりなってる時ダメにする",
+			"bool isSquare(pll a,pll b,pll c,pll d, bool overlapIsOut = true){",
+			"    vpll ps = {a,b,c,d};",
+			"    sort(all(ps));",
+			"    swap(ps[2], ps[3]);",
+			"    //長さチェック",
+			"    ll dx = ps[3].first-ps[0].first;",
+			"    ll dy = ps[3].second-ps[0].second;",
+			"    ll len = dx*dx + dy*dy;",
+			"    if(overlapIsOut && len == 0) return false; ",
+			"    rep(i,ps.size()){",
+			"        dx = ps[(i+1)%4].first - ps[i].first;",
+			"        dy = ps[(i+1)%4].second - ps[i].second;",
+			"        if(dx*dx + dy*dy != len) return false;",
+			"    }",
+			"    //角度チェック",
+			"    rep(i,ps.size()){",
+			"        ll dx1 = ps[(i+1)%4].first - ps[i].first;",
+			"        ll dy1 = ps[(i+1)%4].second - ps[i].second;",
+			"        ll dx2 = ps[(i+2)%4].first - ps[(i+1)%4].first;",
+			"        ll dy2 = ps[(i+2)%4].second - ps[(i+1)%4].second;",
+			"        if(dy1 * dy2 != -dx1 * dx2) return false;",
+			"    }",
+			"    return true;",
 			"}",
 		]
 	},

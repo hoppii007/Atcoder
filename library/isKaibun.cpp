@@ -1,0 +1,6 @@
+
+//回文判定
+bool isKaibun(string s){
+    rep(i,s.size()/2) if(s[i] != s[(ll)s.size()-1-i]) return false;
+    return true;
+}

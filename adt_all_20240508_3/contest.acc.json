@@ -1,0 +1,108 @@
+{
+  "contest": {
+    "id": "adt_all_20240508_3",
+    "title": "AtCoder Daily Training ALL 2024/05/08 20:00start",
+    "url": "https://atcoder.jp/contests/adt_all_20240508_3"
+  },
+  "tasks": [
+    {
+      "id": "abc345_a",
+      "label": "A",
+      "title": "Leftrightarrow",
+      "url": "https://atcoder.jp/contests/adt_all_20240508_3/tasks/abc345_a",
+      "directory": {
+        "path": "a",
+        "testdir": "tests",
+        "submit": "main.cpp"
+      }
+    },
+    {
+      "id": "abc256_a",
+      "label": "B",
+      "title": "2^N",
+      "url": "https://atcoder.jp/contests/adt_all_20240508_3/tasks/abc256_a",
+      "directory": {
+        "path": "b",
+        "testdir": "tests",
+        "submit": "main.cpp"
+      }
+    },
+    {
+      "id": "abc308_b",
+      "label": "C",
+      "title": "Default Price",
+      "url": "https://atcoder.jp/contests/adt_all_20240508_3/tasks/abc308_b",
+      "directory": {
+        "path": "c",
+        "testdir": "tests",
+        "submit": "main.cpp"
+      }
+    },
+    {
+      "id": "abc282_b",
+      "label": "D",
+      "title": "Let's Get a Perfect Score",
+      "url": "https://atcoder.jp/contests/adt_all_20240508_3/tasks/abc282_b",
+      "directory": {
+        "path": "d",
+        "testdir": "tests",
+        "submit": "main.cpp"
+      }
+    },
+    {
+      "id": "abc297_c",
+      "label": "E",
+      "title": "PC on the Table",
+      "url": "https://atcoder.jp/contests/adt_all_20240508_3/tasks/abc297_c",
+      "directory": {
+        "path": "e",
+        "testdir": "tests",
+        "submit": "main.cpp"
+      }
+    },
+    {
+      "id": "abc265_c",
+      "label": "F",
+      "title": "Belt Conveyor",
+      "url": "https://atcoder.jp/contests/adt_all_20240508_3/tasks/abc265_c",
+      "directory": {
+        "path": "f",
+        "testdir": "tests",
+        "submit": "main.cpp"
+      }
+    },
+    {
+      "id": "abc334_d",
+      "label": "G",
+      "title": "Reindeer and Sleigh",
+      "url": "https://atcoder.jp/contests/adt_all_20240508_3/tasks/abc334_d",
+      "directory": {
+        "path": "g",
+        "testdir": "tests",
+        "submit": "main.cpp"
+      }
+    },
+    {
+      "id": "abc254_e",
+      "label": "H",
+      "title": "Small d and k",
+      "url": "https://atcoder.jp/contests/adt_all_20240508_3/tasks/abc254_e",
+      "directory": {
+        "path": "h",
+        "testdir": "tests",
+        "submit": "main.cpp"
+      }
+    },
+    {
+      "id": "abc319_f",
+      "label": "I",
+      "title": "Fighter Takahashi",
+      "url": "https://atcoder.jp/contests/adt_all_20240508_3/tasks/abc319_f",
+      "directory": {
+        "path": "i",
+        "testdir": "tests",
+        "submit": "main.cpp"
+      }
+    }
+  ]
+}

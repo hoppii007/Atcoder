@@ -1,0 +1,13 @@
+",
+"//二分探索のジャッジ用のやつ",
+"auto nibutan_judge = [&](ll mid){",
+"    return true;",
+"};",
+"ll ok = -1;",
+"ll ng = inf;",
+"while(abs(ok-ng) > 1){",
+"    ll mid = (ok+ng)/2;",
+"    if(nibutan_judge(mid)) ok = mid;",
+"    else ng = mid;",
+"}",
+"
