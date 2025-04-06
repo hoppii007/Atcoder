@@ -83,16 +83,99 @@ void input_index(T&... a){
     ((a--), ...);
 }
 
-int main(void){
-    cinll(n);
-	ll x = 0, y = 0;
-	rep(i,n){
-		cinll(a,b);
-		x += a;
-		y += b;
+struct UnionFind {
+public:
+	vll par; // par[i]:iの親の番号　(例) par[3] = 2 : 3の親が2
+	vll kosu;
+	ll Count; //全体として何個の集合があるか
+
+	vector<set<ll>> breaks;
+	
+	UnionFind(ll n) : par(n),kosu(n),Count(n) { //最初は全てが根であるとして初期化
+		rep(i,n){
+			par[i] = i;
+			kosu[i] = 1;
+		}
+		breaks = vector<set<ll>>(n);
 	}
-	if(x < y) cout<<"Aoki"<<endl;
-	else if(x > y) cout<<"Takahashi"<<endl;
-	else cout<<"Draw"<<endl;
+
+	ll root(ll x) { // データxが属する木の根を再帰で得る：root(x) = {xの木の根}
+		if (par[x] == x) return x;
+		return par[x] = root(par[x]);
+	}
+
+	void unite(ll x, ll y) { // xとyの木を併合
+		ll rx = root(x); //xの根をrx
+		ll ry = root(y); //yの根をry
+		if (rx == ry) return; //xとyの根が同じ(=同じ木にある)時はそのまま
+		
+		if(breaks[rx].size() < breaks[ry].size()){
+			for(ll b: breaks[rx].size()) breaks[ry].insert(b);
+			par[rx] = ry; //xとyの根
+			kosu[ry] += kosu[rx];
+			breaks[rx] = set<ll>();
+		}
+		else{
+			for(ll b: breaks[ry].size()) breaks[rx].insert(b);
+			par[ry] = rx; //xとyの根
+			kosu[rx] += kosu[ry];
+			breaks[ry] = set<ll>();
+		}
+		Count--;
+	}
+
+	bool same(ll x, ll y) { // 2つのデータx, yが属する木が同じならtrueを返す
+		ll rx = root(x);
+		ll ry = root(y);
+		return rx == ry;
+	}
+	
+	ll size(ll x){
+		return kosu[root(x)];
+	}
+	ll size(){
+		return Count;
+	}
+};
+
+vpll canMoveKinbo(vvc &s, ll i, ll j){
+	vpll ret;
+	if(i-1 >= 0 && s[i-1][j] == '.') ret.push_back({i-1,j});
+	if(j-1 >= 0 && s[i][j-1] == '.') ret.push_back({i,j-1});
+	if(i+1 < s.size() && s[i+1][j] == '.') ret.push_back({i+1,j});
+	if(j+1 < s[0].size() && s[i][j+1] == '.') ret.push_back({i,j+1});
+	return ret;
+}
+
+//trueだったら第1引数が手前に来る
+//p2 < p1として作ると降順になる
+//p1 < p2として作ると昇順になる
+
+///////////////////////////////////////
+//priority_queueは後ろからとることに注意//
+///////////////////////////////////////
+
+//mainに以下をコピー（型を入力）
+//pushとtopとpopを使うからね
+
+struct comp{
+	bool operator()(const pll &p1,const pll &p2) const{
+		return p1.first > p2.first;
+	}
+};
+
+//1回前下痢したら行けるところ
+
+vpll inKinbos(vvc &s, ll i, ll j){
+	vpll ret;
+	if(i-1 >= 0 ) ret.push_back({i-1,j});
+	if(j-1 >= 0) ret.push_back({i,j-1});
+	if(i+1 < s.size()) ret.push_back({i+1,j});
+	if(j+1 < s[0].size()) ret.push_back({i,j+1});
+	return ret;
+}
+
+int main(void){
+
 	return 0;
 }
