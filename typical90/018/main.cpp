@@ -40,6 +40,7 @@ using vpll = vector<pair<long long,long long>>;
 
 const ll mod = 998244353LL;
 const ll inf = 100100100100100100LL;
+const double PI=3.1415926535897932384626433832795028841971;
 
 //便利系
 //vectorをjoinするやつ
@@ -83,7 +84,43 @@ void input_index(T&... a){
     ((a--), ...);
 }
 
+double doubleDistance(pair<double,double> p1, pair<double,double> p2){
+	double dx = p1.first - p2.first;
+	double dy = p1.second - p2.second;
+	return sqrt(dx*dx + dy*dy);
+}
+
+//原点中心に反時計回りに回転（ラジアン）
+//xy平面で
+pair<double, double> doubleRotate(pair<double,double> p, double theta){
+    double nx = cos(theta)*p.first - sin(theta)*p.second;
+    double ny = sin(theta)*p.first + cos(theta)*p.second;
+    return {nx, ny};
+}
+
+
+pair<double,double> r(double e, double t, double l){
+	double wariai = e/t;
+	double theta = -2*PI*wariai;
+	double y = 0;
+	double z = -l/2;
+	pair<double,double> np = doubleRotate({y,z}, theta);
+	np.second += l/2;
+	return np;
+}
+
 int main(void){
-    
+    double t;
+	cin>>t;
+	double l,x,y;
+	cin>>l>>x>>y;
+	cinll(q);
+	while(q--){
+		double e;
+		cin>>e;
+		pair<double,double> np = r(e,t,l);
+		double lxy = doubleDistance({x,y}, {0,np.first});
+		cout<<fixed<<setprecision(15)<<atan2(np.second, lxy)/(2*PI)*360<<endl;
+	}
 	return 0;
 }

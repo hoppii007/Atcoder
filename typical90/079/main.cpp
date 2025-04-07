@@ -83,7 +83,43 @@ void input_index(T&... a){
     ((a--), ...);
 }
 
+ll undo(vvll &a){
+	ll te = 0;
+	rep(i,(ll)a.size()-1) rep(j,(ll)a[0].size()-1){
+		if(a[i][j] > 0){
+			ll mi = a[i][j];
+			te += mi;
+			a[i][j] -= mi;
+			a[i+1][j] -= mi;
+			a[i][j+1] -= mi;
+			a[i+1][j+1] -= mi;
+		}
+		else if(a[i][j] < 0){
+			ll mi = a[i][j];
+			te += abs(mi);
+			a[i][j] -= mi;
+			a[i+1][j] -= mi;
+			a[i][j+1] -= mi;
+			a[i+1][j+1] -= mi;
+		}
+	}
+	return te;
+}
+
 int main(void){
-    
+    cinll(h,w);
+	vvll a(h,vll(w));
+	vvll b(h,vll(w));
+	rep(i,h) rep(j,w) cin>>a[i][j];
+	rep(i,h) rep(j,w) cin>>b[i][j];
+	vvll c(h,vll(w));
+	rep(i,h) rep(j,w) c[i][j] = a[i][j]-b[i][j];
+	ll ate = undo(c);
+	rep(i,h) rep(j,w) if(c[i][j] != 0) {
+		cout<<"No"<<endl;
+		return 0;
+	}
+	cout<<"Yes"<<endl;
+	cout<<ate<<endl;
 	return 0;
 }

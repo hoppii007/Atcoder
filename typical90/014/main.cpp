@@ -84,6 +84,15 @@ void input_index(T&... a){
 }
 
 int main(void){
-    
+    cinll(n);
+	cinvll(a,n);
+	cinvll(b,n);
+	sort(all(a));
+	sort(all(b));
+	ll ans = 0;
+	rep(i,n){
+		ans += abs(a[i]-b[i]);
+	}
+	cout<<ans<<endl;
 	return 0;
 }

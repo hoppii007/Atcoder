@@ -83,7 +83,49 @@ void input_index(T&... a){
     ((a--), ...);
 }
 
+//iからj個分の合計(i ~ i+j-1までの合計)
+ll sum(vll &a, vll &s, ll i, ll j){
+	if(j == 0) return 0;
+	i %= a.size();
+	if(i+j-1 < a.size()) return s[i+j]-s[i];
+	return s[a.size()] - s[i] + s[(i+j)%a.size()] - s[0];
+
+}
+
 int main(void){
-    
+    cinll(n);
+	cinvll(a,n);
+	vll s(n+1,0);
+	rep(i,n) s[i+1] = s[i] + a[i];
+	if(s[n]%10 != 0){
+		cout<<"No"<<endl;
+		return 0;
+	}
+	ll target = s[n]/10;
+
+
+	rep(i,n){
+		//i番目から始める
+		//target以上になる最小を求める
+		//NNNYYYYYみたいになる
+
+		//二分探索のジャッジ用のやつ
+		auto nibutan_judge = [&](ll mid){
+			if(sum(a,s,i, mid) >= target) return true;
+			return false;
+		};
+		ll ok = n;
+		ll ng = 0;
+		while(abs(ok-ng) > 1){
+			ll mid = (ok+ng)/2;
+			if(nibutan_judge(mid)) ok = mid;
+			else ng = mid;
+		}
+		if(sum(a,s,i,ok) == target){
+			cout<<"Yes"<<endl;
+			return 0;
+		}
+	}
+	cout<<"No"<<endl;
 	return 0;
 }

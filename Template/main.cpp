@@ -40,6 +40,7 @@ using vpll = vector<pair<long long,long long>>;
 
 const ll mod = 998244353LL;
 const ll inf = 100100100100100100LL;
+const double PI=3.1415926535897932384626433832795028841971;
 
 //便利系
 //vectorをjoinするやつ

@@ -48,21 +48,61 @@ ll gcd(ll a,ll b){
 
 //複数個のgcdを求める
 ll gcds(vll a){
+    std::function<ll(ll,ll)> subGcd = [&](ll a, ll b){
+        ll mi = min(a,b);
+        ll ma = max(a,b);
+        a = ma;
+        b = mi;
+        ll r;
+        while(r=a%b){
+            a = b;
+            b = r;
+        }
+        return b;
+    };
     ll ret = a[0];
     rep(i,a.size()){
-        ret = gcd(ret,a[i]);
+        ret = subGcd(ret,a[i]);
     }
     return ret;
 }
 
+//gcd(a,b)*aが出るからオーバーフローに注意
 ll lcm(ll a,ll b){
-	return a / gcd(a,b) * b;
+    std::function<ll(ll,ll)> subGcd = [&](ll a, ll b){
+        ll mi = min(a,b);
+        ll ma = max(a,b);
+        a = ma;
+        b = mi;
+        ll r;
+        while(r=a%b){
+            a = b;
+            b = r;
+        }
+        return b;
+    };
+    return a / subGcd(a,b) * b;
 }
 
 ll lcms(vll v){
-	ll ret = v[0];
-	rep(i,v.size()){
-		ret = lcm(ret,v[i]);
-	}
-	return ret;
+    std::function<ll(ll,ll)> subGcd = [&](ll a, ll b){
+        ll mi = min(a,b);
+        ll ma = max(a,b);
+        a = ma;
+        b = mi;
+        ll r;
+        while(r=a%b){
+            a = b;
+            b = r;
+        }
+        return b;
+    };
+    std::function<ll(ll,ll)> subLcm = [&](ll a, ll b){
+        return a / subGcd(a,b) * b;
+    };
+    ll ret = v[0];
+    rep(i,v.size()){
+        ret = subLcm(ret,v[i]);
+    }
+    return ret;
 }

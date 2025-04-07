@@ -83,7 +83,43 @@ void input_index(T&... a){
     ((a--), ...);
 }
 
+bool isNG(vvb &ngs, vll ns){
+	rep(i,(ll)ns.size()-1) if(ngs[ns[i]][ns[i+1]]) return true;
+	return false;
+}
+
+ll bitcount(ll n){
+	ll ans = 0;
+	while(n > 0){
+		if(n&1LL) ans++;
+		n >>= 1LL;
+	}
+	return ans;
+}
+
 int main(void){
-    
+    cinll(n);
+	vvll a(n, vll(n));
+	rep(i,n) rep(j,n) cin>>a[i][j];
+	vll ns;
+	rep(i,n) ns.push_back(i);
+	cinll(m);
+	vvb ngs(n, vb(n, false));
+	rep(i,m){
+		cinll(x,y);
+		x--; y--;
+		ngs[x][y] = true;
+		ngs[y][x] = true;
+	}
+	vvll dp((1LL<<n), vll(n, inf));
+	rep(i,n) dp[1LL<<i][i] = a[i][0];
+	
+	rep(i,1,(1LL<<n)) rep(j,n) rep(k,n) if(!ngs[j][k]) if(i&(1LL<<k) == 0LL){
+		dp[i+1LL<<k][k] = min(dp[i+1LL<<k][k], dp[i][j]+a[k][bitcount(i)]);
+	}
+	ll ans = inf;
+	rep(i,n) ans = min(ans, dp[1LL<<n - 1][i]);
+	cout<<ans<<endl;
+
 	return 0;
 }

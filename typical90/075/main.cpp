@@ -83,7 +83,42 @@ void input_index(T&... a){
     ((a--), ...);
 }
 
+//素因数分解
+//O(√n)
+map<ll,ll> primefact(ll n){
+	ll a = 2;
+	map<ll,ll> ret;
+	if(n == 1) return ret;
+	while(a*a <= n){
+		if(n%a == 0){
+			n /= a;
+			ret[a]++;
+		}
+		else{
+			a++;
+		}
+	}
+	ret[n]++;
+	return ret;
+}
+
+//O(log n)で、a^b >= nとなる最大のbを求める（logの切り捨て的な）
+ll mylog(ll n, ll a){
+	ll ret = 0;
+	ll now = 1;
+	while(now < n){
+		now *= a;
+		ret++;
+	}
+	return ret;
+}
+
 int main(void){
-    
+    cinll(n);
+	map<ll,ll> pf = primefact(n);
+	ll ans = 0;
+	for(pll p: pf) ans += p.second;
+	ll logu = mylog(ans,2);
+	cout<<logu<<endl;
 	return 0;
 }

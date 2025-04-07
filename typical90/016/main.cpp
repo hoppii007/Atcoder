@@ -84,6 +84,16 @@ void input_index(T&... a){
 }
 
 int main(void){
-    
+    cinll(n,a,b,c);
+	vll s = {a,b,c};
+	sort(all(s));
+	reverse(all(s));
+	ll ans = inf;
+	rep(i,10000) if(i*s[0] <= n) rep(j, 10000) if(i*s[0]+j*s[1] <= n){
+		ll remain = n-i*s[0]-j*s[1];
+		//cout<<i<<" "<<j<<" "<<remain<<endl;
+		if(remain%s[2] == 0) ans = min(ans, (i+j+remain/s[2]));
+	}
+	cout<<ans<<endl;
 	return 0;
 }

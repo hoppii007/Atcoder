@@ -84,6 +84,29 @@ void input_index(T&... a){
 }
 
 int main(void){
-    
+    cinll(n,q);
+	cinvll(a,n);
+	ll s = 0;
+	while(q--){
+		cinll(t,x,y);
+		x--; y--;
+		if(t == 1){
+			ll nx = (x-s)%n;
+			while(nx < 0) nx += n;
+			ll ny = (y-s)%n;
+			while(ny < 0) ny += n;
+			ll tmp = a[ny];
+			a[ny] = a[nx];
+			a[nx] = tmp;
+		}
+		else if(t == 2){
+			s++;
+		}
+		else {
+			ll nx = (x-s)%n;
+			while(nx < 0) nx += n;
+			cout<<a[nx]<<endl;
+		}
+	}
 	return 0;
 }

@@ -84,6 +84,18 @@ void input_index(T&... a){
 }
 
 int main(void){
-    
+    cinll(n,k);
+	priority_queue<ll> q;
+	rep(i,n){
+		cinll(a,b);
+		q.push(b);
+		q.push(a-b);
+	}
+	ll ans = 0;
+	rep(i,k){
+		ans += q.top();
+		q.pop();
+	}
+	cout<<ans<<endl;
 	return 0;
 }

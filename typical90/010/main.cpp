@@ -84,6 +84,21 @@ void input_index(T&... a){
 }
 
 int main(void){
-    
+    cinll(n);
+	vll c1(n,0), c2(n,0);
+	rep(i,n){
+		cinll(c,p);
+		if(c == 1) c1[i] = p;
+		else c2[i] = p;
+	}
+	vll sc1(n+1,0), sc2(n+1,0);
+	rep(i,n) sc1[i+1] = sc1[i] + c1[i];
+	rep(i,n) sc2[i+1] = sc2[i] + c2[i];
+	cinll(q);
+	while(q--){
+		cinll(l,r);
+		l--; r--;
+		cout<<sc1[r+1]-sc1[l]<<" "<<sc2[r+1]-sc2[l]<<endl;
+	}
 	return 0;
 }

@@ -83,7 +83,24 @@ void input_index(T&... a){
     ((a--), ...);
 }
 
+//gcdを求める
+ll gcd(ll a,ll b){
+	if(a<b) return gcd(b,a);
+	ll r;
+	while((r=a%b)){
+		a = b;
+		b = r;
+	}
+	return b;
+}
+
 int main(void){
-    
+    cinll(a,b);
+	ll g = gcd(a,b);
+	ll lar = 1000000000000000000LL;
+	if(a/g <= lar/b) {
+		cout<<a/g*b<<endl;
+	}
+	else cout<<"Large"<<endl;
 	return 0;
 }

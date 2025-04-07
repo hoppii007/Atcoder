@@ -84,6 +84,22 @@ void input_index(T&... a){
 }
 
 int main(void){
-    
+    cinll(n);
+	cinvll(a,n);
+	cinvll(b,n);
+	cinvll(c,n);
+
+	vll na(46,0), nb(46,0), nc(46,0);
+	rep(i,n){
+		na[a[i]%46]++;
+		nb[b[i]%46]++;
+		nc[c[i]%46]++;
+	}
+	ll ans = 0;
+	rep(i,46) rep(j,46){
+		ll k = (46*3-(i+j))%46;
+		ans += na[i]*nb[j]*nc[k];
+	}
+	cout<<ans<<endl;
 	return 0;
 }

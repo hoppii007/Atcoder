@@ -83,7 +83,29 @@ void input_index(T&... a){
     ((a--), ...);
 }
 
+//O(log n)で、a^b <= nとなる最大のbを求める（logの切り捨て的な）
+ll mylog(ll n, ll a){
+	ll ret = 0;
+	ll now = 1;
+	while(now <= n){
+		if(now == n) return ret;
+		now *= a;
+		ret++;
+	}
+	return ret-1;
+}
+
+//O(logB)でa^bが計算できる
+ll mypow(ll a,ll b){
+	if(b == 0) return 1;
+	if(b == 1) return a;
+	if(b%2 == 0) return mypow(a*a,b/2);
+	else return a*mypow(a*a,(b-1)/2);
+}
+
 int main(void){
-    
+	cinll(a,b,c);
+	if(mypow(c,b) > a) cout<<"Yes"<<endl;
+	else cout<<"No"<<endl;
 	return 0;
 }

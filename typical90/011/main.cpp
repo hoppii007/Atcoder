@@ -83,7 +83,37 @@ void input_index(T&... a){
     ((a--), ...);
 }
 
+struct S{
+public: 
+	ll d,c,s;
+	S(): d(0), c(0), s(0){}
+	S(ll d, ll c, ll s): d(d), c(c), s(s){}
+};
+
+//trueだったら第1引数が手前に来る
+//p1 < p2として作ると昇順になる
+//p2 < p1として作ると降順になる
+
+//sort(all(v), compf);みたいに使ってね
+bool compf(const S &p1,const S &p2) {
+	return p1.d < p2.d;
+}
+
 int main(void){
-    
+    cinll(n);
+	vector<S> a(n);
+	rep(i,n) cin>>a[i].d>>a[i].c>>a[i].s;
+	sort(all(a), compf);
+	vvll dp(n, vll(5001, 0));
+	if(a[0].c <= a[0].d) dp[0][a[0].c] = a[0].s;
+	rep(i,1,n) rep(j,5001){
+		if(j > a[i].d) break;
+		dp[i][j] = dp[i-1][j];
+		if(j == a[i].c) dp[i][j] = max(dp[i][j], a[i].s);
+		if(j-a[i].c >= 0 && dp[i-1][j-a[i].c] > 0) dp[i][j] = max(dp[i][j], dp[i-1][j-a[i].c]+a[i].s);
+	}
+	ll ans = 0;
+	rep(j, 5001) ans = max(ans, dp[n-1][j]);
+	cout<<ans<<endl;
 	return 0;
 }

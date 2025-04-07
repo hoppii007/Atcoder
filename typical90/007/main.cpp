@@ -98,13 +98,11 @@ int main(void){
 			continue;
 		}
 		if(it == a.end()){
-			ans = b-*it;
+			ans = b-*(it-1);
 			cout<<ans<<endl;
 			continue;
 		}
-		auto pre = it;
-		pre--;
-		ans = min(*it-b, b-(*pre));
+		ans = min((*it)-b, b-*(it-1));
 		cout<<ans<<endl;
 	}
 	return 0;

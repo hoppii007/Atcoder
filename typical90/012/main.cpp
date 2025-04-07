@@ -83,7 +83,80 @@ void input_index(T&... a){
     ((a--), ...);
 }
 
+//縦0以上h未満、横0以上w未満の(i,j)の4近傍をとる
+vpll kinbo4(ll h,ll w, ll i,ll j){
+	vpll ret;
+	if(i-1 >= 0) ret.push_back({i-1,j});
+	if(j-1 >= 0) ret.push_back({i,j-1});
+	if(i+1 < h) ret.push_back({i+1,j});
+	if(j+1 < w) ret.push_back({i,j+1});
+	return ret;
+}
+
+struct UnionFind {
+public:
+	vll par; // par[i]:iの親の番号　(例) par[3] = 2 : 3の親が2
+	vll kosu;
+	ll Count; //全体として何個の集合があるか
+	
+	UnionFind(ll n) : par(n),kosu(n),Count(n) { //最初は全てが根であるとして初期化
+		rep(i,n){
+			par[i] = i;
+			kosu[i] = 1;
+		}
+	}
+
+	ll root(ll x) { // データxが属する木の根を再帰で得る：root(x) = {xの木の根}
+		if (par[x] == x) return x;
+		return par[x] = root(par[x]);
+	}
+
+	void unite(ll x, ll y) { // xとyの木を併合
+		ll rx = root(x); //xの根をrx
+		ll ry = root(y); //yの根をry
+		if (rx == ry) return; //xとyの根が同じ(=同じ木にある)時はそのまま
+		par[rx] = ry; //xとyの根
+		kosu[ry] += kosu[rx];
+		Count--;
+	}
+
+	bool same(ll x, ll y) { // 2つのデータx, yが属する木が同じならtrueを返す
+		ll rx = root(x);
+		ll ry = root(y);
+		return rx == ry;
+	}
+	
+	ll size(ll x){
+		return kosu[root(x)];
+	}
+	ll size(){
+		return Count;
+	}
+};
+
 int main(void){
-    
+    cinll(h,w);
+	vvb red(h, vb(w, false));
+	UnionFind uf(h*w);
+	cinll(q);
+	while(q--){
+		cinll(k);
+		if(k == 1){
+			cinll(r,c);
+			r--; c--;
+			red[r][c] = true;
+			vpll ks = kinbo4(h,w,r,c);
+			for(pll p: ks) if(red[p.first][p.second]){
+				uf.unite(p.first*w+p.second, r*w+c);
+			}
+		}
+		else{
+			cinll(ra,ca, rb,cb);
+			ra--; ca--; rb--; cb--;
+			if(red[ra][ca] && red[rb][cb] && uf.same(ra*w+ca, rb*w+cb)) cout<<"Yes"<<endl;
+			else cout<<"No"<<endl;
+		}
+	}
+
 	return 0;
 }

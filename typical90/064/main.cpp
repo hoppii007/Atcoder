@@ -84,6 +84,28 @@ void input_index(T&... a){
 }
 
 int main(void){
-    
+    cinll(n,q);
+	cinvll(a,n);
+	vll sa(n,0);
+	ll sum = 0;
+	rep(i,n-1){
+		sa[i] = a[i+1] - a[i];
+		sum += abs(sa[i]);
+	}
+	while(q--){
+		cinll(l,r,v);
+		l--; r--;
+		if(0 < l){
+			sum -= abs(sa[l-1]);
+			sa[l-1] += v;
+			sum += abs(sa[l-1]);
+		}
+		if(r < n-1){
+			sum -= abs(sa[r]);
+			sa[r] -= v;
+			sum += abs(sa[r]);
+		}
+		cout<<sum<<endl;
+	}
 	return 0;
 }

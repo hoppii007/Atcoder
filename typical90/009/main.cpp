@@ -40,32 +40,32 @@ using vpll = vector<pair<long long,long long>>;
 
 const ll mod = 998244353LL;
 const ll inf = 100100100100100100LL;
-
+const double PI=3.1415926535897932384626433832795028841971;
 //便利系
 //vectorをjoinするやつ
 template<typename T>
 string join(const vector<T> &a,string c){
-	string ret = "";
-	if(a.size()==0) return ret;
-	
+    string ret = "";
+    if(a.size()==0) return ret;
+    
     //もともとstringなら
-	if constexpr (std::is_same_v<T, std::string> || std::is_same_v<T, char>) {
-	    rep(i,a.size()-1) ret += a[i]+c;
-	    return ret + a[a.size()-1];
+    if constexpr (std::is_same_v<T, std::string> || std::is_same_v<T, char>) {
+        rep(i,a.size()-1) ret += a[i]+c;
+        return ret + a[a.size()-1];
     }
     //もともとstringじゃなければto_stringして結合
-	else{
-	    rep(i,a.size()-1) ret += to_string(a[i]) + c;
-	    return ret + to_string(a[a.size()-1]);
-	}
-	
+    else{
+        rep(i,a.size()-1) ret += to_string(a[i]) + c;
+        return ret + to_string(a[a.size()-1]);
+    }
+    
 }
 //空白区切り表示
 template<class T, class... Ts>
 void out(const T& a,const Ts&... b){
-	cout<<a;
-	(cout<< ... << (cout << ' ',b));
-	cout<<endl;
+    cout<<a;
+    (cout<< ... << (cout << ' ',b));
+    cout<<endl;
 }
 template<class T>
 void out(const vector<T> &a){
@@ -74,7 +74,7 @@ void out(const vector<T> &a){
 //入力
 template<class... T>
 void input(T&... a){
-	(cin >> ... >> a);
+    (cin >> ... >> a);
 }
 
 template<class... T>
@@ -83,7 +83,60 @@ void input_index(T&... a){
     ((a--), ...);
 }
 
+//s番目を原点としたpointsに変換する（原点は除く）
+vector<pair<double,double>> gentenSlide(vector<pair<double,double>> &ps, ll s){
+    vector<pair<double,double>> ret;
+    for(pll p: ps){
+        ll nx = p.first - ps[s].first;
+        ll ny = p.second - ps[s].second;
+        if(nx == 0 && ny == 0) continue;
+        ret.push_back({nx, ny});
+    }
+    return ret;
+}
+
+//原点からの偏角を計算
+//度数法で返す
+double henkaku(pair<double,double> p){
+    double ret = atan2(p.second, p.first)/(2*PI) * 360;
+    if(ret < 0) ret += 360;
+    return ret;
+}
+
+double nasukaku(double a, double b){
+    double ret = abs(a-b);
+    if(180 < ret) return 360 - ret;
+    return ret;
+}
+
 int main(void){
-    
-	return 0;
+    cinll(n);
+    vector<pair<double,double>> ps(n);
+    rep(i,n) cin>>ps[i].first>>ps[i].second;
+    double ans = 0;
+    rep(i,n){
+        //cout<<"基準点:"<<i<<"番目"<<endl;
+        vector<pair<double,double>> sps = gentenSlide(ps, i);
+        vector<double> henks;
+        rep(j,n-1){
+            henks.push_back(henkaku(sps[j]));
+        }
+        // cout<<"偏角ｓ"<<endl;
+        // rep(j,n-1) cout<< henks[j]<<" ";
+        // cout<<endl;
+        sort(all(henks));
+        rep(j, n-1){
+            double targetAngle = henks[j] + 180;
+            while(targetAngle >= 360) targetAngle -= 360;
+            auto it = lower_bound(all(henks), targetAngle);
+            ll ind = it-henks.begin();
+            ans = max(ans, nasukaku(henks[j], henks[ind%(n-1)]));
+            ans = max(ans, nasukaku(henks[j], henks[(ind+1)%(n-1)]));
+            ans = max(ans, nasukaku(henks[j], henks[(ind+2)%(n-1)]));
+            ans = max(ans, nasukaku(henks[j], henks[(ind-1+n-1)%(n-1)]));
+            ans = max(ans, nasukaku(henks[j], henks[(ind-2+n-1)%(n-1)]));
+        }
+    }
+    cout<<fixed<<setprecision(15)<<ans<<endl;
+    return 0;
 }
