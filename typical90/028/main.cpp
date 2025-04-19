@@ -84,6 +84,20 @@ void input_index(T&... a){
 }
 
 int main(void){
-    
+    cinll(n);
+	ll h = 1010;
+	vvll imos(h+1, vll(h+1, 0));
+	rep(i,n){
+		cinll(lx, ly, rx, ry);
+		imos[lx][ly]++;
+		imos[lx][ry]--;
+		imos[rx][ly]--;
+		imos[rx][ry]++;
+	}
+	vll ans(n+1, 0);
+	rep(i,h) rep(j,h) imos[i][j+1] += imos[i][j];
+	rep(i,h) rep(j,h) imos[i+1][j] += imos[i][j];
+	rep(i,h) rep(j,h) ans[imos[i][j]]++;
+	rep(i,n) cout<<ans[i+1]<<endl;
 	return 0;
 }

@@ -83,7 +83,31 @@ void input_index(T&... a){
     ((a--), ...);
 }
 
+ll ketawa(ll n){
+	string s = to_string(n);
+	reverse(all(s));
+	ll ret = 0;
+	rep(i,s.size()){
+		ret += s[i]-'0';
+	}
+	return ret;
+}
+
 int main(void){
-    
+    cinll(n,k);
+
+	//dp[i][j] := jを2^i回勧めた先
+	vvll dp(61, vll(100000));
+	rep(i, 100000) dp[0][i] = (ketawa(i)+i)%100000;
+
+	rep(i,1,61){
+		rep(j,100000) dp[i][j] = dp[i-1][dp[i-1][j]];
+	}
+
+	rep(i,61){
+		if(k&(1LL << i)) n = dp[i][n];
+	}
+	
+	cout<<n<<endl;
 	return 0;
 }

@@ -83,7 +83,41 @@ void input_index(T&... a){
     ((a--), ...);
 }
 
+//visitは全てfalseで作っとく
+//visit[root]はtrueにしとく
+void dfs(vvll &nexts, vb &visit, ll now, ll prev = -1){
+	for(ll next: nexts[now]) {
+		if(next == prev) continue;
+		visit[next] = !visit[now];
+		dfs(nexts, visit, next, now);
+	}
+}
+
+void show(vb &ox, bool showState){
+	ll count = 0;
+	rep(i,ox.size()) if(ox[i] == showState){
+		cout<<i+1<<" ";
+		if(++count == ox.size()/2) return;
+	}
+}
+
 int main(void){
-    
+    cinll(n);
+	vvll nexts(n);
+	rep(i,n-1){
+		cinll(a,b);
+		a--; b--;
+		nexts[a].push_back(b);
+		nexts[b].push_back(a);
+	}
+	vb ox(n,false);
+	dfs(nexts, ox, 0);
+	ll sumo = 0;
+	ll sumx = 0;
+	rep(i,n) if(ox[i]) sumo++;
+	rep(i,n) if(!ox[i]) sumx++;
+	ll c = 0;
+	if(sumo < sumx) show(ox, false);
+	else show(ox, true);
 	return 0;
 }

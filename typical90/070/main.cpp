@@ -83,7 +83,78 @@ void input_index(T&... a){
     ((a--), ...);
 }
 
+ll solve(vpll &xys, pll p){
+	ll ret = 0;
+	rep(i,xys.size()){
+		ret += abs(xys[i].first-p.first) + abs(xys[i].second-p.second);
+	}
+	return ret;
+}
+
+pll ave(vpll &xys){
+	pll ret = {0,0};
+	ll maxx=-inf, maxy=-inf, minx=inf, miny = inf;
+	rep(i,xys.size()){
+		maxx = max(maxx, xys[i].first);
+		minx = min(minx, xys[i].first);
+		maxy = max(maxy, xys[i].second);
+		miny = min(miny, xys[i].second);
+	}
+	return {(maxx-minx)/2, (maxy-miny)/2};
+}
+
+//考察
+//xよりx+1のスコアの方が小さくなるような最大のxが分かれば、x+1のスコアが最大
+//そのためには、点をxに置いた時のスコアを高速に計算できればいい。
+
+ll score(vll &xs, ll x, vll &xsr){
+	ll ret = 0;
+	//x以下の奴らに対して、x-xs[i]の合計を取る
+	auto it = upper_bound(all(xs), x);
+	ll idx = it-xs.begin();
+	ret += x*idx - xsr[idx];
+	//xより大きい奴らに対して、xs[j]-xの合計を取る
+	//最後から、idx版目を含むところまでの合計が欲しい
+	ret += xsr[xs.size()]-xsr[idx] - x*((ll)xs.size()-idx);
+	return ret;
+}
+
 int main(void){
-    
+    cinll(n);
+	vll xs(n), ys(n);
+	rep(i,n) cin>>xs[i]>>ys[i];
+	sort(all(xs));
+	sort(all(ys));
+	vll xsr(n+1,0), ysr(n+1,0);
+	rep(i,n) xsr[i+1] = xs[i]+xsr[i];
+	rep(i,n) ysr[i+1] = ys[i]+ysr[i];
+
+	//score(x) > score(x+1)となるところの最大を探す
+	//二分探索のジャッジ用のやつ
+	auto nibutan_judge = [&](ll mid){
+		return score(xs, mid, xsr) > score(xs, mid+1, xsr);
+	};
+	auto nibutan_judge2 = [&](ll mid){
+		return score(ys, mid, ysr) > score(ys, mid+1, ysr);
+	};
+	ll ok = -inf;
+	ll ng = inf;
+	while(abs(ok-ng) > 1){
+		ll mid = (ok+ng)/2;
+		if(nibutan_judge(mid)) ok = mid;
+		else ng = mid;
+	}
+	ll xok = ok+1;
+
+	ok = -inf;
+	ng = inf;
+	while(abs(ok-ng) > 1){
+		ll mid = (ok+ng)/2;
+		if(nibutan_judge2(mid)) ok = mid;
+		else ng = mid;
+	}
+	ll yok = ok+1;
+	cout<<score(xs, xok, xsr) + score(ys, yok, ysr)<<endl;
+
 	return 0;
 }

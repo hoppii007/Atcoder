@@ -45,27 +45,27 @@ const ll inf = 100100100100100100LL;
 //vectorをjoinするやつ
 template<typename T>
 string join(const vector<T> &a,string c){
-	string ret = "";
-	if(a.size()==0) return ret;
-	
+    string ret = "";
+    if(a.size()==0) return ret;
+    
     //もともとstringなら
-	if constexpr (std::is_same_v<T, std::string> || std::is_same_v<T, char>) {
-	    rep(i,a.size()-1) ret += a[i]+c;
-	    return ret + a[a.size()-1];
+    if constexpr (std::is_same_v<T, std::string> || std::is_same_v<T, char>) {
+        rep(i,a.size()-1) ret += a[i]+c;
+        return ret + a[a.size()-1];
     }
     //もともとstringじゃなければto_stringして結合
-	else{
-	    rep(i,a.size()-1) ret += to_string(a[i]) + c;
-	    return ret + to_string(a[a.size()-1]);
-	}
-	
+    else{
+        rep(i,a.size()-1) ret += to_string(a[i]) + c;
+        return ret + to_string(a[a.size()-1]);
+    }
+    
 }
 //空白区切り表示
 template<class T, class... Ts>
 void out(const T& a,const Ts&... b){
-	cout<<a;
-	(cout<< ... << (cout << ' ',b));
-	cout<<endl;
+    cout<<a;
+    (cout<< ... << (cout << ' ',b));
+    cout<<endl;
 }
 template<class T>
 void out(const vector<T> &a){
@@ -74,7 +74,7 @@ void out(const vector<T> &a){
 //入力
 template<class... T>
 void input(T&... a){
-	(cin >> ... >> a);
+    (cin >> ... >> a);
 }
 
 template<class... T>
@@ -84,6 +84,71 @@ void input_index(T&... a){
 }
 
 int main(void){
+    cinll(n,k);
+    cinvll(a,n);
+    map<ll,ll> count;
+    ll kind = 0;
+    ll ans = 0;
+
+    //尺取り法
+    //区間の長さn(配列の要素数)
+    //区間の伸び縮みによって状態が変化する時に使える
+    //O(N)で条件を満たす全区間[0,n)を走査
+    //[l,r)でもdiscoveryが呼ばれることに注意（でも[n,n)では呼ばれない）
+    //区間[l,r)
+    ll l = 0;
+    ll r = 0;
+    //現状の区間[l,r)が条件を満たすか？
+    std::function<bool()> syaku_check = [&](){
+        //区間がない時の処理
+        if(l == r) return true;
+        return kind <= k;
+    };
+    //rを追加する処理
+    std::function<void()> add_r = [&](){
+        if(count.count(a[r]) == 0) count[a[r]] = 0;
+        if(count[a[r]] == 0) kind++;
+        count[a[r]]++;
+    };
+    //lを削除する処理
+    std::function<void()> remove_l = [&](){
+        count[a[l]]--;
+        if(count[a[l]] == 0) kind--;
+    };
+    //OKな区間を見つけた時に（その状態の時に）やる処理
+    std::function<void()> discovery = [&]{
+        ans = max(ans, r-l);
+    };
+    while(l < n){                                                                                                                                                                           
+        //rをなるたけ進める
+        while(r < n && syaku_check()){
+            //まずOKな列を一つ発見
+            discovery();
+
+            //rを区間に入れる処理
+            add_r();
+
+            //実際に区間を広げる
+            r++;
+        }
+
+        //rを伸ばさなくてもOK or rを伸ばし切ってまだOKの時にここに来る
+        if(syaku_check()) discovery();
+
+        //一旦縮める
+        remove_l();
+        l++;
+        while(r < l) r++;
+
+        //lをokになるまで縮める(空の時はOK)
+        while(!syaku_check()){
+            remove_l();
+            l++;
+        }
+        //これはなくて良いと思うけど一応
+        while(r < l) r++;
+    }
+    cout<<ans<<endl;
     
-	return 0;
+    return 0;
 }

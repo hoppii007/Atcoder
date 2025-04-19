@@ -83,7 +83,49 @@ void input_index(T&... a){
     ((a--), ...);
 }
 
+//縦0以上h未満、横0以上w未満の(i,j)の4近傍をとる
+vpll kinbo4(ll h,ll w, ll i,ll j){
+	vpll ret;
+	if(i-1 >= 0) ret.push_back({i-1,j});
+	if(j-1 >= 0) ret.push_back({i,j-1});
+	if(i+1 < h) ret.push_back({i+1,j});
+	if(j+1 < w) ret.push_back({i,j+1});
+	return ret;
+}
+
+
+
+
 int main(void){
-    
+    cinll(h,w);
+	cinvs(c,h);
+	
+	vvb visit(h, vb(w,false));
+	ll si, sj;
+	ll ans = -2;
+	std::function<void(ll,ll,ll)> dfs = [&](ll i, ll j, ll d){
+		vpll kinbos = kinbo4(h,w,i,j);
+		for(pll p: kinbos){
+			if(p.first == si && p.second == sj && d >= 2){
+				ans = max(ans, d);
+				continue;
+			}
+			if(visit[p.first][p.second] == true) continue;
+			if(c[p.first][p.second] == '#') continue;
+			visit[p.first][p.second] = true;
+			dfs(p.first, p.second, d+1);
+		}
+	};
+
+	rep(i,h) rep(j,w) if(c[i][j] == '.'){
+		rep(ii,h) rep(jj,w) visit[ii][jj] = false;
+		si = i;
+		sj = j;
+		visit[si][sj] = true;
+		dfs(i,j,0);
+	}
+
+	cout<<ans+1<<endl;
+
 	return 0;
 }

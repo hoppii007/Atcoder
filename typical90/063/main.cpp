@@ -84,6 +84,33 @@ void input_index(T&... a){
 }
 
 int main(void){
-    
+    cinll(h,w);
+	vvll p(h, vll(w));
+	rep(i,h) rep(j,w) cin>>p[i][j];
+	ll ans = 0;
+	rep(i,1,1LL<<h){
+		map<ll,ll> count;
+		ll bitcount = 0;
+		rep(j,h) if((1LL<<j) & i) bitcount++;
+		rep(j, w){
+			ll tmp = -1;
+			bool isOK = true;
+			rep(k, h) if((1LL<<k) & i){
+				if(tmp == -1){
+					tmp = p[k][j];
+					continue;
+				}
+				if(tmp != p[k][j]) isOK = false;
+			}
+			if(isOK){
+				if(count.count(tmp) == 0) count[tmp] = 0;
+				count[tmp]++;
+			}
+		}
+		ll ma = 0;
+		for(pll p: count) ma = max(ma, p.second);
+		ans = max(ans, ma*bitcount);
+	}
+	cout<<ans<<endl;
 	return 0;
 }

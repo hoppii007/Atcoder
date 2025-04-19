@@ -83,7 +83,48 @@ void input_index(T&... a){
     ((a--), ...);
 }
 
+//素因数分解
+//O(√n)
+map<ll,ll> primefact(ll n){
+	ll a = 2;
+	map<ll,ll> ret;
+	if(n == 1) return ret;
+	while(a*a <= n){
+		if(n%a == 0){
+			n /= a;
+			ret[a]++;
+		}
+		else{
+			a++;
+		}
+	}
+	ret[n]++;
+	return ret;
+}
+
+//約数の個数はだいたいO(N^1/3)らしい
+//計算自体はO(N^1/2)
+vll calcYakusus(ll n){
+	vll ret;
+	for(ll i=1;i*i<=n;i++) if(n%i == 0){
+		ret.push_back(i);
+		if(i*i != n) ret.push_back(n/i);
+	}
+	sort(all(ret));
+	return ret;
+}
+
 int main(void){
-    
+    cinll(n);
+
+	vll ys = calcYakusus(n);
+	ll ans = 0;
+	rep(i,ys.size()) rep(j,i,ys.size()){
+		if(ys[j] > n/ys[i]) continue;
+		if(n%(ys[j]*ys[i]) != 0) continue;
+		ll c = n/(ys[i]*ys[j]);
+		if(ys[j] <= c) ans++;
+	}
+	cout<<ans<<endl;
 	return 0;
 }

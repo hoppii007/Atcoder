@@ -38,7 +38,7 @@ using vs = vector<string>;
 using pll = pair<long long,long long>;
 using vpll = vector<pair<long long,long long>>;
 
-const ll mod = 998244353LL;
+const ll mod = 1000000007LL;
 const ll inf = 100100100100100100LL;
 
 //便利系
@@ -133,16 +133,34 @@ public:
 	friend void operator /=(ll &a, const Modll &b){ a = (a/b).value; }
 };
 
-//0からa含むところまでのそうわ
+//[0,a)のそうわ
 Modll sum(Modll a){
-	return a*(a+1)/2;
+	return a*(a-1)/2;
+}
+
+//[a,b)の合計
+Modll sumRange(Modll a, Modll b){
+	return sum(b)-sum(a);
+}
+
+//[0,a)のsumchar
+Modll sumChar(ll a){
+	ll tenv = 1;
+	ll ten = 1;
+	Modll ret = 0;
+	while(tenv <= a/10){
+		ret += sumRange(tenv, tenv*10) * ten;
+		tenv *= 10;
+		ten += 1;
+	}
+	ret += sumRange(tenv, a) * ten;
+	return ret;
+
 }
 
 int main(void){
     cinll(a,b);
-	Modll ma = a;
-	Modll mb = b;
-	cout<<sum(mb)-sum(ma-1)<<endl;
+	cout<<sumChar(b+1)-sumChar(a)<<endl;
 
 	return 0;
 }

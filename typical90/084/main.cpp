@@ -84,6 +84,22 @@ void input_index(T&... a){
 }
 
 int main(void){
-    
+    cinll(n);
+	cinstr(s);
+	//i番目より後に最初に現れるoxの場所
+	vll nx(n, n);
+	vll no(n, n);
+	mrep(i,n-1, 1){
+		nx[i-1] = nx[i];
+		no[i-1] = no[i];
+		if(s[i] == 'x') nx[i-1] = i;
+		if(s[i] == 'o') no[i-1] = i;
+	}
+	ll ans = 0;
+	rep(i,n){
+		if(s[i] == 'x') ans += n-no[i];
+		else ans += n-nx[i];
+	}
+	cout<<ans<<endl;
 	return 0;
 }
