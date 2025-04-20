@@ -83,7 +83,82 @@ void input_index(T&... a){
     ((a--), ...);
 }
 
+//強連結成分ごとにid（0から）を振った配列を返す
+//sからの連結成分については全て処理できる
+vll scc(vvll &nexts){
+	//最終的にsccIDを格納するやつ
+	vll sccIds(nexts.size(),-1);
+
+	//逆辺のグラフを作成
+	vvll invNexts(nexts.size());
+	rep(i,nexts.size()){
+		for(ll next: nexts[i]){
+			invNexts[next].push_back(i);
+		}
+	}
+
+	//帰りがけ順で記録していくやつ
+	ll order = 0;
+	ll sccId = 0;
+	
+	vll orders(nexts.size());
+	vb visitIki(nexts.size(), false);
+	std::function<void(ll)> scc1 = [&](ll now){
+		visitIki[now] = true;
+		for(ll next: nexts[now]){
+			if(visitIki[next]) continue;
+			scc1(next);
+		}
+		
+		orders[now] = order++;
+	};
+	std::function<void(ll)> scc2 = [&](ll now){
+		sccIds[now] = sccId;
+		for(ll next: invNexts[now]){
+			if(sccIds[next] != -1) continue;
+			scc2(next);
+		}
+	};
+	//全部の頂点について、そこから行けるところのorderを全部記録する
+	rep(i, nexts.size()) if(visitIki[i] == false) scc1(i);
+
+	//{帰りがけのOrder、index}のペアを降順にソート
+	vpll orderIds(nexts.size());
+	rep(i,nexts.size()) orderIds[i] = {orders[i], i};
+	sort(all(orderIds));
+	reverse(all(orderIds));
+
+	rep(i,nexts.size()) if(sccIds[orderIds[i].second] == -1){
+		scc2(orderIds[i].second);
+		sccId++;
+	} 
+	return sccIds;
+}
+
 int main(void){
-    
+    cinll(n,m);
+	vector<set<ll>> nextSets(n);
+	rep(i,m){
+		cinll(a,b);
+		a--; b--;
+		nextSets[a].insert(b);
+	}
+	vvll nexts(n);
+	rep(i,n) for(ll next: nextSets[i]){
+		nexts[i].push_back(next);
+	}
+
+	vll sccIds = scc(nexts);
+	map<ll,ll> counts;
+	rep(i,n) {
+		if(counts.count(sccIds[i]) == 0) counts[sccIds[i]] = 0;
+		counts[sccIds[i]]++;
+	}
+	ll ans = 0;
+	for(pll p: counts){
+		ans += (p.second-1)*p.second/2;
+	}
+	cout<<ans<<endl;
+
 	return 0;
 }
