@@ -84,7 +84,35 @@ void input_index(T&... a){
     ((a--), ...);
 }
 
+ll tobi(string s){
+	ll ret = 0;
+	ll t = 1;
+	rep(i,s.size()){
+		if(s[i] == 'Y'){
+			ret += t;
+		}
+		t <<= 1LL;
+	}
+	return ret;
+}
+
 int main(void){
-    
+    cinll(n,m);
+	vs s(m);
+	vll c(m);
+	rep(i,m){
+		cin>>s[i]>>c[i];
+	}
+
+	ll ans = inf;
+	
+	//dp[i][j] := iまで使って、状態jにする最小コスト
+	vvll dp(m+1, vll(1LL<<n, inf));
+	rep(i,m+1) dp[i][0] = 0;
+	rep(i,m) rep(j, 1LL << n){
+		dp[i+1][j] = min(dp[i][j], dp[i+1][j]);
+		dp[i+1][j|tobi(s[i])] = min(dp[i+1][j|tobi(s[i])], dp[i][j]+c[i]);
+	}
+	cout<<(dp[m][(1LL<<n)-1]==inf?-1:dp[m][(1LL<<n)-1])<<endl;
 	return 0;
 }

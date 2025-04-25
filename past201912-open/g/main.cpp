@@ -84,7 +84,34 @@ void input_index(T&... a){
     ((a--), ...);
 }
 
+ll dfs(vll &g, vvll &a, ll now){
+	if(now == g.size()){
+		vll z,o,t;
+		rep(i,g.size()){
+			if(g[i] == 0) z.push_back(i);
+			else if(g[i] == 1) o.push_back(i);
+			else t.push_back(i);
+		}
+		ll ret = 0;
+		rep(i,z.size()) rep(j,i+1,z.size()) ret += a[z[i]][z[j]];
+		rep(i,o.size()) rep(j,i+1,o.size()) ret += a[o[i]][o[j]];
+		rep(i,t.size()) rep(j,i+1,t.size()) ret += a[t[i]][t[j]];
+		return ret;
+	}
+	g[now] = 0;
+	ll ret = dfs(g, a, now+1);
+	g[now] = 1;
+	ret = max(ret, dfs(g,a,now+1));
+	g[now] = 2;
+	ret = max(ret, dfs(g,a,now+1));
+	return ret;
+}
+
 int main(void){
-    
+	cinll(n);
+	vvll a(n, vll(n));
+	rep(i,n) rep(j,i+1,n) cin>>a[i][j];
+	vll g(n,0);
+    cout<<dfs(g,a,0)<<endl;
 	return 0;
 }

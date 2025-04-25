@@ -85,6 +85,46 @@ void input_index(T&... a){
 }
 
 int main(void){
-    
+    cinll(n,m);
+	vector<pair<double,double>> mons(n);
+	rep(i,n) cin>>mons[i].first>>mons[i].second;
+	vector<pair<double,double>> help(m);
+	rep(i,m) cin>>help[i].first>>help[i].second;
+
+	std::function<double(pair<double,double>, double)> score = [&](pair<double,double> p, double x){
+		return p.second - x*p.first;
+	};
+
+	//スコア>=xとできる最大のxを探す
+	//二分探索のジャッジ用のやつ
+	auto nibutan_judge = [&](double mid){
+		//trueだったら第1引数が手前に来る
+		//p1 < p2として作ると昇順になる
+		//p2 < p1として作ると降順になる
+		
+		//sort(all(v), compf);みたいに使ってね
+		std::function<bool(pair<double,double>, pair<double,double>)> compf = [&](const pair<double,double> &p1,const pair<double,double> &p2) {
+			return score(p1,mid) > score(p2,mid);
+		};
+		sort(all(mons), compf);
+		sort(all(help), compf);
+		
+		double d = 0;
+		rep(i,5) d += score(mons[i], mid);
+		if(d >= 0) return true;
+		d = 0;
+		rep(i,4) d += score(mons[i], mid);
+		d += score(help[0], mid);
+		if(d >= 0) return true;
+		return false;
+	};
+	double ok = 0;
+	double ng = 1000000000LL;
+	rep(i,100){
+		double mid = (ok+ng)/2;
+		if(nibutan_judge(mid)) ok = mid;
+		else ng = mid;
+	}
+	cout<<fixed<<setprecision(15)<<ok<<endl;
 	return 0;
 }

@@ -84,7 +84,48 @@ void input_index(T&... a){
     ((a--), ...);
 }
 
+ll getFirstOne(string s){
+	rep(i,s.size()) if(s[i] == '1') return i;
+	return -1;
+}
+
+ll sToLL(string s){
+	ll t = 1;
+	ll ret = 0;
+	rep(i,s.size()){
+		if(s[i] == '1') ret += t;
+		t <<= 1LL;
+	}
+	return ret;
+}
+
 int main(void){
-    
+	cinll(t);
+	while(t--){
+		cinll(n);
+		cinvll(a,n);
+		rep(i,n) a[i]--;
+		ll mi = inf;
+		ll c = 0;
+		bool midChance = false;
+		rep(i,n){
+			if(a[i] == i){
+				c++;
+				if(n%2==1 && i == n/2) midChance = true;
+			}
+			mi = min(mi,a[i]);
+		}
+		if(c%2 == 0){
+			cout<<c/2<<endl;
+			continue;
+		}
+		else{
+			//真ん中を省略できるチャンス！
+			//残りのp/2回の操作で大mid小にできればいい
+			if(midChance){
+
+			}
+		}
+	}
 	return 0;
 }

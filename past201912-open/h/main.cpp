@@ -85,6 +85,59 @@ void input_index(T&... a){
 }
 
 int main(void){
-    
+    cinll(n);
+	cinvll(c,n);
+	cinll(q);
+	ll sum = 0;
+	rep(i,n) sum += c[i];
+	ll oddMin = inf;
+	ll allMin = inf;
+	rep(i,n) if(i%2 == 0) oddMin = min(oddMin, c[i]);
+	rep(i,n) allMin = min(allMin, c[i]);
+	ll oddDec = 0;
+	ll allDec = 0;
+	while(q--){
+		cinll(k);
+		if(k == 1){
+			cinll(x,a);
+			x--;
+			if(x%2 == 0){
+				c[x] = c[x]-oddDec-allDec;
+				if(c[x]-a >= 0) c[x] -= a;
+				oddMin = min(oddMin, c[x]);
+				allMin = min(allMin, c[x]);
+				c[x] += oddDec+allDec;
+			}
+			else{
+				c[x] = c[x] - allDec;
+				if(c[x] - a >= 0) c[x] -= a;
+				allMin = min(allMin, c[x]);
+				c[x] += allDec;
+			}
+			
+		}
+		else if(k == 2){
+			cinll(a);
+			if(oddMin >= a){
+				oddMin -= a;
+				oddDec += a;
+				allMin = min(allMin, oddMin);
+			}
+		}
+		else {
+			cinll(a);
+			if(allMin >= a){
+				allMin -= a;
+				allDec += a;
+				oddMin -= a;
+			}
+		}
+	}
+	ll after = 0;
+	rep(i,n){
+		if(i%2 == 0) after += (c[i]-oddDec-allDec);
+		else after += (c[i]-allDec);
+	}
+	cout<<sum-after<<endl;
 	return 0;
 }

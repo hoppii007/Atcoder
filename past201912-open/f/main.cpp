@@ -84,7 +84,31 @@ void input_index(T&... a){
     ((a--), ...);
 }
 
+string toBig(string s){
+	string t = string(1,s[0]-'a'+'A');
+	rep(i,1,(ll)s.size()-1) t += string(1,s[i]);
+	t += string(1, s[s.size()-1]-'a'+'A');
+	return t;
+}
+
 int main(void){
-    
+    cinstr(s);
+	vs ts;
+	string t = "";
+	t += string(1, s[0]-'A'+'a');
+	rep(i,1,s.size()){
+		if('A' <= s[i] && s[i] <= 'Z'){
+			t += string(1, s[i]-'A'+'a');
+			ts.push_back(t);
+			i++;
+			if(i < s.size()) t = string(1, s[i]-'A'+'a');
+		}
+		else{
+			t += string(1, s[i]);
+		}
+	}
+	sort(all(ts));
+	rep(i,ts.size()) cout<<toBig(ts[i]);
+	cout<<endl;
 	return 0;
 }
