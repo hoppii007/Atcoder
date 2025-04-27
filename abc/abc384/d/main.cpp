@@ -85,6 +85,75 @@ void input_index(T&... a){
 }
 
 int main(void){
-    
+    cinll(n,s);
+	cinvll(a,n);
+	vll ra(n+1,0);
+	rep(i,n) ra[i+1] = ra[i]+a[i];
+	s %= ra[n];
+
+	vll a2(n*2);
+	rep(i,2*n) a2[i] = a[i%n];
+	vll ra2(n*2+1, 0);
+	rep(i,2*n) ra2[i+1] = ra2[i]+a2[i];
+
+
+	ll sum = 0;
+	bool isOK = false;
+	
+	//尺取り法
+	//伸びれば伸びるほどfalseになるようにする
+	//区間の長さn(配列の要素数)
+	//区間の伸び縮みによって状態が変化する時に使える
+	//O(N)で条件を満たす全区間[0,n)を走査
+	//[i,i)でもdiscoveryが呼ばれることに注意（でも[n,n)では呼ばれない）
+	//区間[l,r)
+	ll l = 0;
+	ll r = 0;
+	//現状の区間[l,r)が条件を満たすか？
+	std::function<bool()> syaku_check = [&](){
+		//区間がない時はtrueにする
+		return sum <= s;
+	};
+	//rを追加する処理（r++は別でやるから、状態変化のみ）
+	std::function<void()> add_r = [&](){
+		sum += a2[r];
+	};
+	//lを削除する処理（状態変化のみ）
+	std::function<void()> remove_l = [&](){
+		sum -= a2[l];
+	};
+	//OKな区間を見つけた時に（その状態の時に）やる処理
+	std::function<void()> discovery = [&](){
+		if(sum == s) isOK = true;
+	};
+	while(l < n*2){                                                                                                                                       
+		//rをなるたけ進める
+		while(r < n*2 && syaku_check()){
+			//まずOKな列を一つ発見
+			discovery();
+	
+			//rを区間に入れる処理
+			add_r();
+	
+			//実際に区間を広げる
+			r++;
+		}
+	
+		//rを伸ばさなくてもOK or rを伸ばし切ってまだOKの時にここに来る
+		if(syaku_check()) discovery();
+	
+		//一旦縮める
+		remove_l();
+		l++;
+		while(r < l) r++;
+	
+		//lをokになるまで縮める(空の時はOK)
+		while(!syaku_check()){
+			remove_l();
+			l++;
+		}
+	}
+	if(isOK) cout<<"Yes"<<endl;
+	else cout<<"No"<<endl;
 	return 0;
 }

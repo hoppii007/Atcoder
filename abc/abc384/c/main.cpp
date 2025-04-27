@@ -85,6 +85,39 @@ void input_index(T&... a){
 }
 
 int main(void){
-    
+    cinvll(a, 5);
+	vs s = {"A", "B", "C", "D", "E"};
+
+	vector<pair<ll,string>> scores;
+
+	//bit全探索
+	//要素数5）
+	rep(biti,1LL<<5){
+		string name = "";
+		ll score = 0;
+		rep(bitj,5){
+			//1のところ
+			if(biti&(1LL<<bitj)){
+				name += s[bitj];
+				score += a[bitj];
+			}
+		}
+		if(score == 0) continue;
+		scores.push_back({score,name});
+	}
+
+	//trueだったら第1引数が手前に来る
+	//p1 < p2として作ると昇順になる
+	//p2 < p1として作ると降順になる
+	
+	//sort(all(v), compf);みたいに使ってね
+	std::function<bool(pair<ll,string>&, pair<ll,string>&)> compf = [&](const pair<ll,string> &p1,const pair<ll,string> &p2) {
+		if(p1.first == p2.first) return p1.second < p2.second;
+		return p1.first > p2.first;
+	};
+
+	sort(all(scores),compf);
+
+	rep(i,31) cout<<scores[i].second<<endl;
 	return 0;
 }

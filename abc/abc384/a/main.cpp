@@ -85,6 +85,13 @@ void input_index(T&... a){
 }
 
 int main(void){
-    
+    cinll(n);
+	cinchar(c1,c2);
+	cinstr(s);
+	rep(i,n){
+		if(s[i] != c1) cout<<c2;
+		else cout<<s[i];
+	}
+	cout<<endl;
 	return 0;
 }

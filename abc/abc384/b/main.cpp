@@ -85,6 +85,14 @@ void input_index(T&... a){
 }
 
 int main(void){
-    
+    cinll(n,r);
+	while(n--){
+		cinll(d,a);
+		if(d == 1 && 1600 <= r && r <= 2799){
+			r += a;
+		}
+		else if(d == 2 && 1200 <= r && r <= 2399) r += a;
+	}
+	cout<<r<<endl;
 	return 0;
 }

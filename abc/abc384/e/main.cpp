@@ -84,7 +84,78 @@ void input_index(T&... a){
     ((a--), ...);
 }
 
+//縦0以上h未満、横0以上w未満の(i,j)の4近傍をとる
+vpll kinbo4(ll h,ll w, ll i,ll j){
+	vpll ret;
+	if(i-1 >= 0) ret.push_back({i-1,j});
+	if(j-1 >= 0) ret.push_back({i,j-1});
+	if(i+1 < h) ret.push_back({i+1,j});
+	if(j+1 < w) ret.push_back({i,j+1});
+	return ret;
+}
+
+struct S {
+	ll i,j,p;
+};
+
+//a/x <= bかどうかを返す
+bool miman(ll a,ll x, ll b){
+	if(a%x == 0) return a/x <= b;
+	return a/x < b;
+}
+
+
 int main(void){
-    
+    cinll(h,w,x);
+	cinll(si, sj);
+	si--; sj--;
+	cinvvll(s,h,w);
+
+	//trueだったら第1引数が手前に来る
+	//p2 < p1として作ると降順になる
+	//p1 < p2として作ると昇順になる
+	
+	//mainにコピーしてね（型入力）
+	
+	
+	struct comp{
+		bool operator()(const S &p1,const S &p2) const{
+			if(p1.p == p2.p){
+				if(p1.i == p2.i) return p1.j < p2.j;
+				return p1.i < p2.i;
+			}
+		  	return p1.p < p2.p;
+		}
+	};
+
+	set<S,comp> se;
+
+	ll power = s[si][sj];
+
+	vvb used(h, vb(w,false));
+	used[si][sj] = true;
+
+	vpll ks = kinbo4(h,w, si,sj);
+	for(pll p: ks){
+		if(used[p.first][p.second]) continue;
+		se.insert(S({p.first, p.second, s[p.first][p.second]}));
+	}
+
+	while(!se.empty()){
+		S now = *se.begin();
+		se.erase(se.begin());
+		if(miman(power, x, now.p)) break;
+		if(used[now.i][now.j]) continue;
+		power += now.p;
+		used[now.i][now.j] = true;
+
+		ks = kinbo4(h,w, now.i, now.j);
+		for(pll p: ks){
+			if(used[p.first][p.second]) continue;
+			se.insert(S({p.first, p.second, s[p.first][p.second]}));
+		}
+	}
+	cout<<power<<endl;
+
 	return 0;
 }

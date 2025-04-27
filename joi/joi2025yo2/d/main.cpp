@@ -84,7 +84,89 @@ void input_index(T&... a){
     ((a--), ...);
 }
 
+struct S {
+	ll a,b,i;
+};
+
+struct SS {
+	ll i,br,s;
+};
+
 int main(void){
-    
+    cinll(n,m,q);
+	cinvll(a,n);
+	cinvll(b,n);
+	vector<set<ll>> kirai(n);
+	rep(i,m){
+		cinll(u,v);
+		u--; v--;
+		kirai[u].insert(v);
+		kirai[v].insert(u);
+	}
+	rep(i,n) kirai[i].insert(i);
+
+	vector<S> as(n);
+	rep(i,n) as[i] = {a[i], b[i], i};
+	std::function<bool(S&, S&)> compfa = [&](const S &p1,const S &p2) {
+		return p1.a > p2.a;
+	};
+	sort(all(as), compfa);
+
+	vector<S> bs(n);
+	rep(i,n) bs[i] = {a[i], b[i], i};
+	std::function<bool(S&, S&)> compfb = [&](const S &p1,const S &p2) {
+		return p1.b > p2.b;
+	};
+	sort(all(bs), compfb);
+	
+	struct comp{
+		bool operator()(const SS &p1,const SS &p2) const{
+			return p1.s < p2.s;
+		}
+	};
+
+	priority_queue<SS,vector<SS>,comp> que;
+	set<pll> used;
+
+	rep(i,n){
+		//i番目が最初に行けるやつを探す
+		ll br = -1;
+		rep(j,n) if(kirai[as[i].i].count(bs[j].i) == 0){
+			br = j;
+			break;
+		}
+		if(br == -1) continue;
+		pll p = {min(as[i].i, bs[br].i), max(as[i].i, bs[br].i)};
+		//cout<<"いったんね "<<as[i].i<<" "<<bs[br].i<<" "<<endl;
+		kirai[as[i].i].insert(bs[br].i);
+		kirai[bs[br].i].insert(as[i].i);
+		que.push({i,br,max(as[i].a, bs[br].a)+max(as[i].b,bs[br].b)});
+	}
+
+	vll xs;
+
+	while(!que.empty() && xs.size() <= 400010){
+		SS now = que.top();
+		//cout<<now.i<<" "<<bs[now.br].i<<" "<<now.s<<endl;
+		que.pop();
+		xs.push_back(now.s);
+		//brで次に入れれるやつがあれば入れる
+		ll br = now.br+1;
+		while(br < bs.size() && (kirai[as[now.i].i].count(bs[br].i)>0) ) br++;
+		if(br < bs.size()){
+			kirai[as[now.i].i].insert(bs[br].i);
+			kirai[bs[br].i].insert(as[now.i].i);
+			//cout<<now.i<<" "<<bs[br].i<<" 入れるべかな"<<endl;
+			que.push({now.i, br, max(as[now.i].a,bs[br].a)+max(as[now.i].b,bs[br].b)});
+		}
+	}
+
+	while(q--){
+		cinll(x);
+		x--;
+		cout<<xs[x]<<endl;
+	}
+
+
 	return 0;
 }
