@@ -110,7 +110,6 @@ int main(void){
 	std::function<bool(S&, S&)> compfa = [&](const S &p1,const S &p2) {
 		return p1.a > p2.a;
 	};
-	sort(all(as), compfa);
 
 	vector<S> bs(n);
 	rep(i,n) bs[i] = {a[i], b[i], i};
