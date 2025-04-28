@@ -102,22 +102,16 @@ public:
     //Trie木の各頂点
     class Node {
     public:
-        vll nextIdx;      //nextIdx[i] := idがiの文字に行くときのNodeのインデックス（存在しない場合は-1）
-        ll charId;           //今のnodeにある文字ID（'a'なら0みたいな）
-        ll wordCountFuture;   //この下にいくつ単語があるか(自分も含む)
-        ll wordCount;    //ここで止まる単語がいくつあるか
-        Node(ll c){
-            nextIdx = vll(char_set.size(),-1);
-            wordCountFuture = 0;
-            wordCount = 0;
-            charId = c;
-        }
-        Node(){
-            nextIdx = vll(char_set.size(),-1);
-            wordCount = 0;
-            wordCountFuture = 0;
-            charId = root;
-        }
+        vll nextIdx = vll(char_set.size(), -1);      //nextIdx[i] := idがiの文字に行くときのNodeのインデックス（存在しない場合は-1）
+        ll charId = -1;           //今のnodeにある文字ID（'a'なら0みたいな）
+        ll wordCountFuture = 0;   //この下にいくつ単語があるか(自分も含む)
+        ll wordCount = 0;    //ここで止まる単語がいくつあるか
+
+        ll del = 0;
+        bool isX = false;
+
+        Node(ll c){ charId = c; }
+        Node(){}
     };
     
     
@@ -131,7 +125,7 @@ public:
     }
     
     //単語の追加
-    void insert(const string &word){
+    void insert(const string &word, bool isX){
         //rootは必ず0番目になる
         ll index = 0;
 
@@ -152,8 +146,10 @@ public:
             }
             //ここを通ったということは、この先にあるということ
             nodes[index].wordCountFuture++;
+            if(isX == false) nodes[index].del++;
         }
         nodes[index].wordCount++;
+        nodes[index].isX = isX;
     }
     
     //wordがあるか？
@@ -184,27 +180,54 @@ public:
     }
 
     //これをprefixにもつ単語がいくつあるか？（自分含めて）
-    ll countWordHavePrefix(const string &word){
+    ll countWordFuture(const string &word, bool includeMe=true, bool filterY=false){
         ll index = 0;
         rep(i,word.size()){
             ll cid = charToId[word[i]];
             if(nodes[index].nextIdx[cid] == -1) return 0;
             index = nodes[index].nextIdx[cid];
         }
-        return nodes[index].wordCountFuture;
+        if(filterY){
+            if(includeMe) return nodes[index].del;
+            ll ret = 0;
+            for(ll next: nodes[index].nextIdx) if(next != -1){
+                ret += nodes[next].del;
+            }
+            return ret;
+        }
+
+        if(includeMe) return nodes[index].wordCountFuture;
+        else return nodes[index].wordCountFuture - nodes[index].wordCount;
     }
-    
+
+    ll countWordHavePrefixX(const string &word){
+        ll index = 0;
+        rep(i,word.size()){
+            ll cid = charToId[word[i]];
+            if(nodes[index].nextIdx[cid] == -1) return 0;
+            index = nodes[index].nextIdx[cid];
+        }
+        return nodes[index].wordCountFuture - nodes[index].del;
+    }
+
     //この文字列の接頭辞がいくつあるか？（自分含め）
     //atcoderに対してatやatcなどがいくつあるか？（デフォルトは重複も数える）
-    ll countPrefix(const string &word, bool isCountDuplication=true) {
+    ll countPrefix(const string &word, bool filterX, bool isCountDuplication=true) {
         ll index = 0;
         ll ret = 0;
         rep(i,word.size()){
             ll cid = charToId[word[i]];
             if(nodes[index].nextIdx[cid] == -1) return ret;
             index = nodes[index].nextIdx[cid];
-            if(isCountDuplication) ret += nodes[index].wordCount;
-            else ret += (nodes[index].wordCount>0?1:0);
+            if(filterX){
+                if(isCountDuplication) ret += (nodes[index].isX?nodes[index].wordCount:0);
+                else ret += (nodes[index].isX?(nodes[index].wordCount>0?1:0):0);
+            }
+            else{
+                if(isCountDuplication) ret += nodes[index].wordCount;
+                else ret += (nodes[index].wordCount>0?1:0);
+            }
+            
         }
         return ret;
     }
@@ -221,24 +244,34 @@ int main(void){
         cinll(t);
         if(t == 1){
             cinstr(s);
-            //これのprefixがいた時はそいつが消してるはずだから何もしない
-            if(x.countPrefix(s)) continue;
+            if(s == "j") cout<<"ngo"<<endl;
+            //Xにこれのprefixがいた時はそいつが消してるはずだから何もしない
+            if(x.countPrefix(s,true) > 0){
+                cout<<yc-del<<endl;
+                continue;
+            }
             //sが誰かのprefixだったときは、消せてないやつを消さないと
-            else if(x.countWordHavePrefix(s) > 0){
-                del += y.countWordHavePrefix(s) - x.countChildYPrefix(s);
+            else if(x.countWordHavePrefixX(s) > 0){
+                cout<<"kore "<<x.countWordFuture(s,false,true)<<endl;
+                //必要なもの
+                //sをprefixに持つyの個数
+                //sをprefixに持つxの要素全てに対して、そいつらが消してる個数の合計
+
+                del += x.countWordFuture(s,true,true) - x.countWordFuture(s,false,true);
             }
             else{
-                del += x.countYPrefix(s);
+                del += x.countWordFuture(s,true,true);
             }
-            x.insert(s,true,false);
+            x.insert(s,true);
         }
         else{
             cinstr(s);
             yc++;
-            if(x.findXPrefix2(s)){
+            //もしxの要素であるようなsのprefixが存在したら
+            if(x.countPrefix(s,true) > 0){
                 del++;
             }
-            x.insert(s,false,true);
+            x.insert(s,false);
         }
         cout<<yc-del<<endl;
 

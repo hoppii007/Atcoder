@@ -28,3 +28,7 @@
 - 普通に右上のデバッグ実行
 ## 提出方法
 - Ctrl + Shift + S
+
+## ランダムテストの方法
+- Ctrl + Shift + D
+- main.cppと同じ階層にsolver.cppとcrate_test.py（ランダムな1つぶんのテストケースを標準出力する）を作成してから行う
