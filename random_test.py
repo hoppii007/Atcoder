@@ -65,9 +65,11 @@ with open(os.path.join(dir_name, 'random_test_result.txt'), mode='w') as result:
         main_out = subprocess.run([os.path.join(dir_name, 'main.out')], input=inp, capture_output=True, text=True).stdout
         if outp == main_out:
             print(f'case{i}: success!',file=result)
+            print(f'case{i}: '+'\033[32m'+'success!'+'\033[0m')
             suc += 1
         else:
             print(f'case{i}: failed...',file=result)
+            print(f'case{i}: '+'\033[31m'+'failed...'+'\033[0m')
             print('output:', file=result)
             print(main_out, file=result)
             print('', file=result)

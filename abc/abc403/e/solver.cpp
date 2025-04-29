@@ -104,9 +104,10 @@ int main(void){
         cinstr(s);
         if(t == 1){
             x.push_back(s);
+            //yの生きてるやつで、sをprefixに持つようなやつの中で、ngになるやつが現れたらdelを増やす
             rep(i,y.size()) if(yng[i] == false){
                 if(isPrefix(s, y[i])){
-                    yng[i] = false;
+                    yng[i] = true;
                     del++;
                 }
             }

@@ -107,7 +107,8 @@ public:
         ll wordCountFuture = 0;   //この下にいくつ単語があるか(自分も含む)
         ll wordCount = 0;    //ここで止まる単語がいくつあるか
 
-        ll del = 0;
+        //自分含め、この下に生きているyがいくつあるか？
+        ll aliveY = 0;
         bool isX = false;
 
         Node(ll c){ charId = c; }
@@ -125,7 +126,7 @@ public:
     }
     
     //単語の追加
-    void insert(const string &word, bool isX){
+    void insert(const string &word){
         //rootは必ず0番目になる
         ll index = 0;
 
@@ -146,10 +147,58 @@ public:
             }
             //ここを通ったということは、この先にあるということ
             nodes[index].wordCountFuture++;
-            if(isX == false) nodes[index].del++;
         }
         nodes[index].wordCount++;
-        nodes[index].isX = isX;
+    }
+
+    //xにprefixがいれば無視
+    ll insertX(const string &word){
+        bool havePrefix = this->havePrefixX(word);
+        ll index = 0;
+        nodes[index].wordCountFuture++;
+        vll hist;
+        rep(i,word.size()){
+            ll cid = charToId[word[i]];
+            if(nodes[index].nextIdx[cid] == -1){
+                nodes[index].nextIdx[cid] = nodes.size();
+                index = nodes.size();
+                nodes.push_back(Node(cid));
+            }
+            else{
+                index = nodes[index].nextIdx[cid];
+            }
+            nodes[index].wordCountFuture++;
+            hist.push_back(index);
+        }
+        nodes[index].wordCount++;
+        nodes[index].isX = true;
+        if(havePrefix) return 0;
+        ll ret = nodes[index].aliveY;
+        mrep(i, (ll)hist.size()-1) nodes[hist[i]].aliveY -= ret;
+        return ret;
+    }
+
+    //yを追加するときは、xにprefixがあるかどうか？
+    //prefixがあるなら、そのprefixの一番上のやつが消してる個数を一つ増やす
+    void insertY(const string &word){
+        bool havePrefix = this->havePrefixX(word);
+        ll index = 0;
+        nodes[index].wordCountFuture++;
+        if(havePrefix == false) nodes[index].aliveY++;
+        for(char c: word){
+            ll cid = charToId[c];
+            if(nodes[index].nextIdx[cid] == -1){
+                nodes[index].nextIdx[cid] = nodes.size();
+                index = nodes.size();
+                nodes.push_back(Node(cid));
+            }
+            else{
+                index = nodes[index].nextIdx[cid];
+            }
+            nodes[index].wordCountFuture++;
+            if(havePrefix == false) nodes[index].aliveY++;
+        }
+        nodes[index].wordCount++;
     }
     
     //wordがあるか？
@@ -180,56 +229,42 @@ public:
     }
 
     //これをprefixにもつ単語がいくつあるか？（自分含めて）
-    ll countWordFuture(const string &word, bool includeMe=true, bool filterY=false){
+    ll countWordFuture(const string &word, bool includeMe=true){
         ll index = 0;
         rep(i,word.size()){
             ll cid = charToId[word[i]];
             if(nodes[index].nextIdx[cid] == -1) return 0;
             index = nodes[index].nextIdx[cid];
         }
-        if(filterY){
-            if(includeMe) return nodes[index].del;
-            ll ret = 0;
-            for(ll next: nodes[index].nextIdx) if(next != -1){
-                ret += nodes[next].del;
-            }
-            return ret;
-        }
-
         if(includeMe) return nodes[index].wordCountFuture;
         else return nodes[index].wordCountFuture - nodes[index].wordCount;
     }
 
-    ll countWordHavePrefixX(const string &word){
-        ll index = 0;
-        rep(i,word.size()){
-            ll cid = charToId[word[i]];
-            if(nodes[index].nextIdx[cid] == -1) return 0;
-            index = nodes[index].nextIdx[cid];
-        }
-        return nodes[index].wordCountFuture - nodes[index].del;
-    }
-
     //この文字列の接頭辞がいくつあるか？（自分含め）
     //atcoderに対してatやatcなどがいくつあるか？（デフォルトは重複も数える）
-    ll countPrefix(const string &word, bool filterX, bool isCountDuplication=true) {
+    ll countPrefix(const string &word, bool isCountDuplication=true) {
         ll index = 0;
         ll ret = 0;
         rep(i,word.size()){
             ll cid = charToId[word[i]];
             if(nodes[index].nextIdx[cid] == -1) return ret;
             index = nodes[index].nextIdx[cid];
-            if(filterX){
-                if(isCountDuplication) ret += (nodes[index].isX?nodes[index].wordCount:0);
-                else ret += (nodes[index].isX?(nodes[index].wordCount>0?1:0):0);
-            }
-            else{
-                if(isCountDuplication) ret += nodes[index].wordCount;
-                else ret += (nodes[index].wordCount>0?1:0);
-            }
-            
+            if(isCountDuplication) ret += nodes[index].wordCount;
+            else ret += (nodes[index].wordCount>0?1:0);
         }
         return ret;
+    }
+
+    // xの要素をprefixに持つかだけ
+    bool havePrefixX(const string &word){
+        ll index = 0;
+        rep(i,word.size()){
+            ll cid = charToId[word[i]];
+            if(nodes[index].nextIdx[cid] == -1) return false;
+            index = nodes[index].nextIdx[cid];
+            if(nodes[index].isX) return true;
+        }
+        return false;
     }
 
 };
@@ -244,34 +279,18 @@ int main(void){
         cinll(t);
         if(t == 1){
             cinstr(s);
-            if(s == "j") cout<<"ngo"<<endl;
+            //if(s == "j") cout<<"ngo"<<endl;
             //Xにこれのprefixがいた時はそいつが消してるはずだから何もしない
-            if(x.countPrefix(s,true) > 0){
-                cout<<yc-del<<endl;
-                continue;
-            }
-            //sが誰かのprefixだったときは、消せてないやつを消さないと
-            else if(x.countWordHavePrefixX(s) > 0){
-                cout<<"kore "<<x.countWordFuture(s,false,true)<<endl;
-                //必要なもの
-                //sをprefixに持つyの個数
-                //sをprefixに持つxの要素全てに対して、そいつらが消してる個数の合計
-
-                del += x.countWordFuture(s,true,true) - x.countWordFuture(s,false,true);
-            }
-            else{
-                del += x.countWordFuture(s,true,true);
-            }
-            x.insert(s,true);
+            del += x.insertX(s);
         }
         else{
             cinstr(s);
             yc++;
             //もしxの要素であるようなsのprefixが存在したら
-            if(x.countPrefix(s,true) > 0){
+            if(x.havePrefixX(s) > 0){
                 del++;
             }
-            x.insert(s,false);
+            x.insertY(s);
         }
         cout<<yc-del<<endl;
 
