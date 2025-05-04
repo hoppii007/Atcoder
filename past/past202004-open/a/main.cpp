@@ -85,6 +85,12 @@ void input_index(T&... a){
 }
 
 int main(void){
-    
+    vs floors;
+	mrep(i,9,1) floors.push_back("B"+to_string(i));
+	rep(i,1,10) floors.push_back(to_string(i)+"F");
+	map<string,ll> idx;
+	rep(i,floors.size()) idx[floors[i]] = i;
+	cinstr(s,t);
+	cout<<abs(idx[s] - idx[t])<<endl;
 	return 0;
 }

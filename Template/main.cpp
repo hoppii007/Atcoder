@@ -46,27 +46,27 @@ const double PI=3.1415926535897932384626433832795028841971;
 //vectorをjoinするやつ
 template<typename T>
 string join(const vector<T> &a,string c){
-	string ret = "";
-	if(a.size()==0) return ret;
-	
+    string ret = "";
+    if(a.size()==0) return ret;
+    
     //もともとstringなら
-	if constexpr (std::is_same_v<T, std::string> || std::is_same_v<T, char>) {
-	    rep(i,a.size()-1) ret += a[i]+c;
-	    return ret + a[a.size()-1];
+    if constexpr (std::is_same_v<T, std::string> || std::is_same_v<T, char>) {
+        rep(i,a.size()-1) ret += a[i]+c;
+        return ret + a[a.size()-1];
     }
     //もともとstringじゃなければto_stringして結合
-	else{
-	    rep(i,a.size()-1) ret += to_string(a[i]) + c;
-	    return ret + to_string(a[a.size()-1]);
-	}
-	
+    else{
+        rep(i,a.size()-1) ret += to_string(a[i]) + c;
+        return ret + to_string(a[a.size()-1]);
+    }
+    
 }
 //空白区切り表示
 template<class T, class... Ts>
 void out(const T& a,const Ts&... b){
-	cout<<a;
-	(cout<< ... << (cout << ' ',b));
-	cout<<endl;
+    cout<<a;
+    (cout<< ... << (cout << ' ',b));
+    cout<<endl;
 }
 template<class T>
 void out(const vector<T> &a){
@@ -75,7 +75,7 @@ void out(const vector<T> &a){
 //入力
 template<class... T>
 void input(T&... a){
-	(cin >> ... >> a);
+    (cin >> ... >> a);
 }
 
 template<class... T>
@@ -86,5 +86,5 @@ void input_index(T&... a){
 
 int main(void){
     
-	return 0;
+    return 0;
 }

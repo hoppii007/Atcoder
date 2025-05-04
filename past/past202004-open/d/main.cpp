@@ -85,6 +85,32 @@ void input_index(T&... a){
 }
 
 int main(void){
-    
+	string abc = "abcdefghijklmnopqrstuvwxyz.";
+	cinstr(s);
+	ll ans = 0;
+
+	std::function<bool(string, string)> isMatch = [&](string ss, string tt){
+		rep(i,ss.size()){
+			bool isOK = true;
+			rep(j,tt.size()){
+				if(i+j >= ss.size()) isOK = false;
+				else if(tt[j] != '.' && ss[i+j] != tt[j]) isOK = false;
+			}
+			if(isOK) return true;
+		}
+		return false;
+	};
+
+	std::function<void(string, ll)> f = [&](string now, ll d){
+		for(char c: abc){
+			string str = now + string(1,c);
+			if(isMatch(s, str)) ans++;
+			if(d < 2) f(str, d+1);
+		}
+	};
+
+	f("",0);
+	cout<<ans<<endl;
+
 	return 0;
 }

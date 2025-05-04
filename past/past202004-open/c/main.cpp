@@ -85,6 +85,23 @@ void input_index(T&... a){
 }
 
 int main(void){
-    
+    cinll(n);
+	ll h = n;
+	ll w = n*2-1;
+	cinvs(s,h);
+	vvc cs(h, vc(w));
+	rep(j,w) cs[h-1][j] = s[h-1][j];
+	rep(i,h){
+		cs[i][0] = s[i][0];
+		cs[i][w-1] = s[i][w-1];
+	}
+	mrep(i,h-2) rep(j,1,w-1){
+		if(s[i][j] == '#' && (cs[i+1][j-1] == 'X' || cs[i+1][j] == 'X' || cs[i+1][j+1] == 'X')) cs[i][j] = 'X';
+		else cs[i][j] = s[i][j];
+	}
+	rep(i,h){
+		rep(j,w) cout<<cs[i][j];
+		cout<<endl;
+	}
 	return 0;
 }

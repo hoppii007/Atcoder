@@ -85,6 +85,28 @@ void input_index(T&... a){
 }
 
 int main(void){
-    
+    cinstr(s);
+	stack<string> st;
+	st.push("");
+	for(char c: s){
+		if(c == '('){
+			st.push("");
+		}
+		else if(c == ')'){
+			string t = st.top();
+			reverse(all(t));
+			st.top() += t;
+			t = st.top();
+			st.pop();
+			st.top() += t;
+		}
+		else{
+			st.top() += string(1,c);
+		}
+	}
+	while(!st.empty()){
+		cout<<st.top()<<endl;
+		st.pop();
+	}
 	return 0;
 }

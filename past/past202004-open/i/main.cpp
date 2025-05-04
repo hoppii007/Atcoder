@@ -85,6 +85,24 @@ void input_index(T&... a){
 }
 
 int main(void){
-    
+	cinll(n);
+	cinvll(a,1LL<<n);
+	vll ans(1LL<<n, -1);
+    vector<vpll> g(n, vpll(1LL<<n));
+	rep(i,1LL<<n) g[0][i] = {a[i],i};
+	rep(i,n){
+		rep(j,1LL<<(n-1-i)){
+			//g[n-1-i][2*j]とg[n-1-i][2*j+1]が勝負
+			if(g[i][2*j].first < g[i][2*j+1].first){
+				ans[g[i][2*j].second] = i+1;
+				if(i+1<n) g[i+1][j] = g[i][2*j+1];
+			}
+			else{
+				ans[g[i][2*j+1].second] = i+1;
+				if(i+1<n) g[i+1][j] = g[i][2*j];
+			}
+		}
+	}
+	rep(i,1LL<<n) cout<<(ans[i]==-1?n:ans[i])<<endl;
 	return 0;
 }

@@ -1,6 +1,9 @@
 
-//dp[i][i] = 0
-//重みkの辺があるa -> bについては dp[a][b] = k;
-rep(k,n) rep(i,n) rep(j,n){
-	dp[i][j] = min(dp[i][j],dp[i][k]+dp[k][j]);
+//nexts : {cost, id}
+//N * Nのdpを返す
+vvll warshallFloid(vector<vpll> &nexts){
+    vvll dp(nexts.size(), vll(nexts.size(),inf));
+    rep(i,nexts.size()) for(pll p: nexts[i]) dp[i][p.second] = p.first;
+    rep(k, nexts.size()) rep(i, nexts.size()) rep(j, nexts.size()) dp[i][j] = min(dp[i][j], dp[i][k] + dp[k][j]);
+    return dp;
 }

@@ -17,6 +17,22 @@
     // }
 
     //便利系
+    "abc":{
+        "prefix": "sni_abc",
+        "body": "string abc = \"abcdefghijklmnopqrstuvwxyz\";"
+    },
+    "ABC":{
+        "prefix": "sni_ABC",
+        "body": "string abc = \"ABCDEFGHIJKLMNOPQRSTUVWXYZ;\";"
+    },
+    "showvec":{
+        "prefix": "sni_showvec",
+        "body": [
+            "//（配列名）$1の表示",
+            "rep(showi, $1.size()) cout<<$1[showi]<<\" \";",
+            "cout<<endl;"
+        ]
+    },
     "comp_pri_que": {
         "prefix": "sni_comp_pri_que",
         "body": [
@@ -246,6 +262,33 @@
             "        else return {*it, it-a.begin()};",
             "    }",
             "    return {*it, it-a.begin()};",
+            "}",
+        ]
+    },
+    "tonsinsu":{
+        "prefix": "sni_toNsinsu",
+        "body": [
+            "//aをn進数表記する",
+            "//[0,1,1]が帰ってきたとき、0a^0 + 1a^1 + 1a^2",
+            "vll toNsinsu(ll a, ll n){",
+            "    vll ret;",
+            "    while(a > 0){",
+            "        ret.push_back(a%n);",
+            "        a /= n;",
+            "    }",
+            "    return ret;",
+            "}",
+        ]
+    },
+    "rotategrid":{
+        "prefix": "sni_rotateGrid",
+        "body": [
+            "//正方形のグリッドを右90度回転",
+            "template<typename T>",
+            "vector<T> rotateGrid(vector<T> &s){",
+            "    vector<T> ret(s.size());",
+            "    rep(j,s.size()) rep(i,s.size()) ret[j] += s[(ll)s.size()-1-i][j];",
+            "    return ret;",
             "}",
         ]
     },
@@ -1281,6 +1324,76 @@
             "}",
         ]
     },
+    "nijihotei":{
+        "prefix": "sni_nijihotei",
+        "body": [
+            "//ax^2+bx+c=0を満たす整数解を返す",
+            "//0 < |a| <= 1e9",
+            "//|b| <= 1e9",
+            "//|c| <= 1e18",
+            "//|解| <= 1e9",
+            "//O(log 1e9)",
+            "vll nijihotei(ll a, ll b, ll c){",
+            "    std::function<bool(ll)> isZero = [&](ll x){",
+            "        if((-b*x-c)%a != 0) return false;",
+            "        return x*x == (-b*x-c)/a;",
+            "    };",
+            "",
+            "    //一点0があるとき",
+            "    if(b%(2*a) == 0 && isZero(-b/(2*a))){",
+            "        return {-b/(2*a)};",
+            "    }",
+            "    ",
+            "    //↓以降は実数解が二つ or ない",
+            "",
+            "    //二分探索のジャッジ用のやつ",
+            "    // ax^2 + bx + c <= 0 ? ",
+            "    auto nibutan_judge = [&](ll mid){",
+            "        return mid*mid <= (-b*mid-c)/a;",
+            "    };",
+            "",
+            "    vll ret;",
+            "    //ax^2+bx+c <= 0の中で最大を出す",
+            "    //まずは極値点の左側",
+            "    ll ok,ng;",
+            "    if(a > 0){",
+            "        ok = (-b/(2*a));",
+            "        ng = -1000000000LL;",
+            "    }",
+            "    else{",
+            "        ng = -1000000000LL;",
+            "        ok = (-b/(2*a));",
+            "    }",
+            "    while(abs(ok-ng) > 1){",
+            "        ll mid = (ok+ng)/2;",
+            "        if(nibutan_judge(mid)) ok = mid;",
+            "        else ng = mid;",
+            "    }",
+            "    //ピッタリ0ならOK",
+            "    if(isZero(ok)) ret.push_back(ok);",
+            "    ",
+            "    //極値点の右側",
+            "    if(a > 0){",
+            "        ok = (-b/(2*a));",
+            "        if(b%(2*a) != 0) ok++;",
+            "        ng = 1000000000LL;",
+            "    }",
+            "    else{",
+            "        ng = 1000000000LL;",
+            "        ok = (-b/(2*a));",
+            "        if(b%(2*a) != 0) ok++;",
+            "    }",
+            "    while(abs(ok-ng) > 1){",
+            "        ll mid = (ok+ng)/2;",
+            "        if(nibutan_judge(mid)) ok = mid;",
+            "        else ng = mid;",
+            "    }",
+            "    if(isZero(ok)) ret.push_back(ok);",
+            "",
+            "    return ret;",
+            "}",
+        ]
+    },
     //グラフ
     "dfs": {
         "prefix": "sni_dfs",
@@ -1410,6 +1523,19 @@
             "        }",
             "    }",
             "    return bfs01s;",
+            "}",
+        ]
+    },
+    "warshallfloid":{
+        "prefix": "sni_warshall_floid",
+        "body": [
+            "//nexts : {cost, id}",
+            "//N * Nのdpを返す",
+            "vvll warshallFloid(vector<vpll> &nexts){",
+            "    vvll dp(nexts.size(), vll(nexts.size(),inf));",
+            "    rep(i,nexts.size()) for(pll p: nexts[i]) dp[i][p.second] = p.first;",
+            "    rep(k, nexts.size()) rep(i, nexts.size()) rep(j, nexts.size()) dp[i][j] = min(dp[i][j], dp[i][k] + dp[k][j]);",
+            "    return dp;",
             "}",
         ]
     }

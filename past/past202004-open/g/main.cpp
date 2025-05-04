@@ -85,6 +85,40 @@ void input_index(T&... a){
 }
 
 int main(void){
-    
+    cinll(q);
+	vvll rc(26, vll(1000001,0));
+	vpll rle(1000001, {-1,0});
+	vll r(1000001,0);
+	vll del(1000001, 0);
+	//[left,right)
+	ll left = 0;
+	ll right = 0;
+	deque<pair<char,ll>> que;
+	while(q--){
+		cinll(t);
+		if(t == 1){
+			cinchar(c);
+			cinll(x);
+			if(que.size() > 0 && que.back().first == c) que.back().second += x;
+			else que.push_back({c,x});
+		}
+		else{
+			cinll(d);
+			vll cc(26,0);
+			//全部消せるなら消す
+			while(que.size() > 0 && que.front().second <= d){
+				d -= que.front().second;
+				cc[que.front().first - 'a'] += que.front().second;
+				que.pop_front();
+			}
+			if(que.size() > 0){
+				que.front().second -= d;
+				cc[que.front().first - 'a'] += d;
+			}
+			ll ans = 0;
+			rep(i,26) ans += cc[i]*cc[i];
+			cout<<ans<<endl;
+		}
+	}
 	return 0;
 }

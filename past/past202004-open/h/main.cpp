@@ -84,7 +84,7 @@ void input_index(T&... a){
     ((a--), ...);
 }
 
-struct S {
+struct S{
 	pll p;
 	ll state;
 };
@@ -95,22 +95,19 @@ struct S {
 
 
 struct comp{
-	bool operator()(const S& p1,const S& p2) const{
+	bool operator()(const S &p1,const S &p2) const{
 		if(p1.p == p2.p) return p1.state < p2.state;
-		return p1.p.first < p2;
+		return p1.p < p2.p;
 	}
 };
 
-
-//mainにコピーしてね（型入力）
-map<S,ll,comp> count;
 //O((E+V)logV)でsからの最短経路がもとまる
 //負の辺があるとダメ
 //nextsには{cost,index}にしといてね
 //始点が複数あって全部の中から最短が欲しい時は、ちょっと変更して最初から全部入れるようにしたほうがいい（dijkstraは何回も呼ばないほうがいい）
 //辺のコストが1しかないならbfsでOK
 //辺のコストが0か1しかないならbfs01でOK
-vector<map<S,ll>> dijkstra(vector<vpll> &nexts, vll starts){
+vll dijkstra(vector<vpll> &nexts, vll starts){
 	struct dijk_comp{
 		bool operator()(const pll &p1,const pll &p2) const{
 			return p1.first > p2.first;
@@ -138,7 +135,53 @@ vector<map<S,ll>> dijkstra(vector<vpll> &nexts, vll starts){
 	return dijk;
 }
 
+map<S, ll, comp> toIdx;
+
+//縦0以上h未満、横0以上w未満の(i,j)の4近傍をとる
+vpll kinbo4(ll h,ll w, ll i,ll j){
+	vpll ret;
+	if(i-1 >= 0) ret.push_back({i-1,j});
+	if(j-1 >= 0) ret.push_back({i,j-1});
+	if(i+1 < h) ret.push_back({i+1,j});
+	if(j+1 < w) ret.push_back({i,j+1});
+	return ret;
+}
+
 int main(void){
-    
+    cinll(n,m);
+	rep(i,n) rep(j,m) rep(s,1LL<<9) toIdx[S{{i,j},s}] = toIdx.size();
+	
+	vector<vpll> nexts(toIdx.size());
+	cinvs(a,n);
+	ll si,sj,gi,gj;
+	rep(i,n) rep(j,m) if(a[i][j] == 'S'){
+		si = i;
+		sj = j;
+	}
+	rep(i,n) rep(j,m) if(a[i][j] == 'G'){
+		gi = i;
+		gj = j;
+	}
+	rep(i,n) rep(j,m) rep(s,1LL<<9){
+		ll now = toIdx[S{{i,j},s}];
+		vpll ks = kinbo4(n,m,i,j);
+		for(pll k: ks){
+			//行き先がS,Gのところはコスト1の辺
+			if(a[k.first][k.second] == 'S' || a[k.first][k.second] == 'G'){
+				nexts[now].push_back({1,toIdx[S{k,s}]});
+				continue;
+			}
+			//同じ状態のままコスト1で移動できる
+			nexts[now].push_back({1, toIdx[S{k,s}]});
+
+			//状態変化できるときはする
+			ll bit = 1LL << (a[k.first][k.second]-'1');
+			if(s == bit-1) nexts[now].push_back({1, toIdx[S{k,s+bit}]});
+		}
+	}
+
+	vll dijk = dijkstra(nexts, {toIdx[S{{si,sj},0}]});
+	ll ans = dijk[toIdx[S{{gi,gj},(1LL<<9)-1}]];
+	cout<<(ans==inf?-1:ans)<<endl;
 	return 0;
 }

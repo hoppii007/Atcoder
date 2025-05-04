@@ -85,6 +85,18 @@ void input_index(T&... a){
 }
 
 int main(void){
-    
+    cinll(n);
+	cinvll(a,n);
+	rep(i,n) a[i]--;
+	rep(i,n){
+		ll cnt = 0;
+		ll now = a[i];
+		while(now != i){
+			now = a[now];
+			cnt++;
+		}
+		cout<<cnt+1<<" ";
+	}
+	cout<<endl;
 	return 0;
 }

@@ -85,6 +85,20 @@ void input_index(T&... a){
 }
 
 int main(void){
-    
+    cinll(n);
+	vvll tasks(n);
+	rep(i,n){
+		cinll(a,b);
+		a--;
+		tasks[a].push_back(b);
+	}
+	priority_queue<ll> q;
+	ll sum = 0;
+	rep(i,n){
+		for(ll t: tasks[i]) q.push(t);
+		sum += q.top();
+		q.pop();
+		cout<<sum<<endl;
+	}
 	return 0;
 }

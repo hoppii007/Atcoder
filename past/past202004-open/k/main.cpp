@@ -85,6 +85,23 @@ void input_index(T&... a){
 }
 
 int main(void){
-    
+    cinll(n);
+	cinstr(s);
+	cinvll(c,n);
+	cinvll(d,n);
+	//各i番目を消すか、反転か、何もしないか
+	std::function<ll(ll,char)> cost = [&](ll i, char ct){
+		if(s[i] == ct) return 0LL;
+		else return c[i];
+	};
+	vvll dp(n, vll(n+1,inf));
+	dp[0][0] = d[0];
+	dp[0][1] = cost(0, '(');
+	rep(i,1,n) rep(j,i+2){
+		if(j-1 >= 0) dp[i][j] = min(dp[i][j], dp[i-1][j-1]+cost(i,'('));
+		dp[i][j] = min(dp[i][j], dp[i-1][j]+d[i]);
+		if(j+1 <= n) dp[i][j] = min(dp[i][j], dp[i-1][j+1]+cost(i,')'));
+	}
+	cout<<dp[n-1][0]<<endl;
 	return 0;
 }

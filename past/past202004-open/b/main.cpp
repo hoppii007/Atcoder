@@ -85,6 +85,16 @@ void input_index(T&... a){
 }
 
 int main(void){
-    
+    map<char,ll> count;
+	for(char c: "abc") count[c] = 0;
+	cinstr(s);
+	for(char c: s) count[c]++;
+	char ans;
+	ll maxi = 0;
+	for(char c: "abc") if(count[c] >= maxi){
+		maxi = count[c];
+		ans = c;
+	}
+	cout<<ans<<endl;
 	return 0;
 }

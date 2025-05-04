@@ -84,7 +84,76 @@ void input_index(T&... a){
     ((a--), ...);
 }
 
+//{v,i}の順で入れる
+template<typename T>
+pair<T,ll> minv(vector<T> &a){
+	pair<T,ll> ret = {a[0],0};
+	rep(i,a.size()) if(ret.first > a[i]){
+		ret = {a[i],i};
+	}
+	return ret;
+}
+
 int main(void){
-    
+    cinll(n,k,d);
+	cinvll(a,n);
+	//それぞれのi番目に対して、そこから始めたとして最大幾つ作れるか？を記録しておく
+	vll cm(n,0);
+	rep(i,n){
+		//残りの個数 
+		ll remain = n-i;
+		cm[i] = (remain-1)/d+1;
+	}
+	//k個以上選べる範囲を出す[left,right)で
+	ll left = 0;
+	ll right = 0;
+	ll mini = inf;
+	ll miniIdx = -1;
+	set<pll> se;
+	while(right < n && cm[right] >= k){
+		se.insert({a[right], right});
+		right++;
+	}
+	//どこから始めてもk個作れる。これはk=1のみ
+	if(right == n){
+		cout<<(*se.begin()).first<<endl;
+		return 0;
+	}
+	//もしこの区間が存在しなければアウト
+	if(right == 0){
+		cout<<-1<<endl;
+		return 0;
+	}
+	vll ans;
+	ans.push_back((*se.begin()).first);
+	miniIdx = (*se.begin()).second;
+	while(left < miniIdx+d){
+		if(se.count({a[left], left}) > 0) se.erase(se.lower_bound({a[left], left}));
+		left++;
+	}
+	right = max(left,right);
+
+	ll minus = 1;
+	while(ans.size() < k){
+		while(right < n && cm[right] >= k-minus){
+			se.insert({a[right], right});
+			right++;
+		}
+		ans.push_back((*se.begin()).first);
+		miniIdx = (*se.begin()).second;
+		while(left < miniIdx+d){
+			if(se.count({a[left], left}) > 0) se.erase(se.lower_bound({a[left], left}));
+			left++;
+		}
+		right = max(left,right);
+		minus++;
+	}
+	rep(i,ans.size()) cout<<ans[i]<<" ";
+	cout<<endl;
+
+	
+	// cout<<"cm:";
+	// rep(i,n) cout<<cm[i]<<" ";
+	// cout<<endl;
 	return 0;
 }
