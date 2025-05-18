@@ -4,6 +4,6 @@
 //p2 < p1として作ると降順になる
 
 //sort(all(v), compf);みたいに使ってね
-bool compf(const $1 &p1,const $1 &p2) {
+std::function<bool($1&,$1&)> compf = [&](const $1 &p1,const $1 &p2) {
     return p1 < p2;
-}
+};

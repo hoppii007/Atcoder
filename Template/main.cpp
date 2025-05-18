@@ -1,9 +1,7 @@
 #include<bits/stdc++.h>
 //入力系
 #define cinll(...) ll __VA_ARGS__; input(__VA_ARGS__);
-#define cinill(...) ll __VA_ARGS__; input_index(__VA_ARGS__);
 #define cinint(...) int __VA_ARGS__; input(__VA_ARGS__);
-#define ciniint(...) int __VA_ARGS__; input_index(__VA_ARGS__);
 #define cinstr(...) string __VA_ARGS__; input(__VA_ARGS__);
 #define cinchar(...) char __VA_ARGS__; input(__VA_ARGS__);
 #define cinvll(a,n) vll a(n); rep(i,n) cin>>a[i];
@@ -23,6 +21,10 @@
 #define mrep(...) overload4(__VA_ARGS__,mrep4,mrep3,mrep2,mrep1)(__VA_ARGS__)
 //iterator系
 #define all(a) a.begin(),a.end()
+#define rall(a) a.rbegin(),a.rend()
+//書くのが長いやつ
+#define fst first
+#define snd second
 using namespace std;
 //型系
 using ll = long long;
@@ -36,55 +38,51 @@ using vc = vector<char>;
 using vvc = vector<vector<char>>;
 using vs = vector<string>;
 using pll = pair<long long,long long>;
+using sll = set<long long>;
+using vsll = vector<set<long long>>;
 using vpll = vector<pair<long long,long long>>;
+using vvpll  = vector<vector<pair<long long, long long>>>;
+#define vmll vector<modll>
+#define vvmll vector<vector<modll>>
 
 const ll mod = 998244353LL;
-const ll inf = 100100100100100100LL;
+//const ll mod = 1000000007LL;
+const ll inf = 1301001001001001000LL;
 const double PI=3.1415926535897932384626433832795028841971;
 
-//便利系
-//vectorをjoinするやつ
-template<typename T>
-string join(const vector<T> &a,string c){
-    string ret = "";
-    if(a.size()==0) return ret;
-    
-    //もともとstringなら
-    if constexpr (std::is_same_v<T, std::string> || std::is_same_v<T, char>) {
-        rep(i,a.size()-1) ret += a[i]+c;
-        return ret + a[a.size()-1];
-    }
-    //もともとstringじゃなければto_stringして結合
-    else{
-        rep(i,a.size()-1) ret += to_string(a[i]) + c;
-        return ret + to_string(a[a.size()-1]);
-    }
-    
-}
-//空白区切り表示
-template<class T, class... Ts>
-void out(const T& a,const Ts&... b){
-    cout<<a;
-    (cout<< ... << (cout << ' ',b));
-    cout<<endl;
-}
-template<class T>
-void out(const vector<T> &a){
-    out(join(a," "));
-}
+//表示
+#define overload1(a,b,NAME,...) NAME
+#define coutYesReturn() do {coutYes(); return 0; } while(0)
+#define coutYesReturnIf(a) do { if(a){ coutYesReturn(); }} while(0)
+#define coutNoReturn() do {coutNo(); return 0;} while(0)
+#define coutNoReturnIf(a) do {if(a){ coutNoReturn(); }} while(0)
+#define coutReturnIf(a,s) do{if(a){cout<<s<<endl; return 0;}}while(0)
+template<typename... T>
+void coutll(T... a){ ((cout << a <<" "),...) << endl; }
+void coutvll(vll &a){ rep(i,a.size()) cout<<a[i]<<" "; }
+void coutvll(string name, vll &a){ cout<<name<<":"; coutvll(a); cout<<endl; }
+void coutvlln(vll &a){ rep(i,a.size()) cout<<a[i]<<endl; }
+void coutYes(){ cout<<"Yes"<<endl; }
+void coutNo(){ cout<<"No"<<endl; }
+void coutYesNo(bool a){ cout<<(a?"Yes":"No")<<endl; }
+void coutIf(bool a, string s, string t){ cout<<(a?s:t)<<endl; }
 //入力
 template<class... T>
 void input(T&... a){
     (cin >> ... >> a);
 }
-
+//複数ソート
 template<class... T>
-void input_index(T&... a){
-    (cin >> ... >> a);
-    ((a--), ...);
+void sorts(vector<T>&... a){
+    (sort(all(a)),...);
 }
+template<typename T>
+T chmax(T &a, T b){ if(a < b) a = b; return a; }
+template<typename T>
+T chmin(T &a, T b){ if(a > b) a = b; return a; }
 
-int main(void){
+
+int main(){
     
     return 0;
 }

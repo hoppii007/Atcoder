@@ -1,9 +1,7 @@
 #include<bits/stdc++.h>
 //入力系
 #define cinll(...) ll __VA_ARGS__; input(__VA_ARGS__);
-#define cinill(...) ll __VA_ARGS__; input_index(__VA_ARGS__);
 #define cinint(...) int __VA_ARGS__; input(__VA_ARGS__);
-#define ciniint(...) int __VA_ARGS__; input_index(__VA_ARGS__);
 #define cinstr(...) string __VA_ARGS__; input(__VA_ARGS__);
 #define cinchar(...) char __VA_ARGS__; input(__VA_ARGS__);
 #define cinvll(a,n) vll a(n); rep(i,n) cin>>a[i];
@@ -23,6 +21,7 @@
 #define mrep(...) overload4(__VA_ARGS__,mrep4,mrep3,mrep2,mrep1)(__VA_ARGS__)
 //iterator系
 #define all(a) a.begin(),a.end()
+#define rall(a) a.rbegin(),a.rend()
 using namespace std;
 //型系
 using ll = long long;
@@ -39,93 +38,139 @@ using pll = pair<long long,long long>;
 using vpll = vector<pair<long long,long long>>;
 
 const ll mod = 998244353LL;
-const ll inf = 100100100100100100LL;
+const ll inf = 1301001001001001000LL;
 const double PI=3.1415926535897932384626433832795028841971;
 
-//便利系
-//vectorをjoinするやつ
-template<typename T>
-string join(const vector<T> &a,string c){
-	string ret = "";
-	if(a.size()==0) return ret;
-	
-    //もともとstringなら
-	if constexpr (std::is_same_v<T, std::string> || std::is_same_v<T, char>) {
-	    rep(i,a.size()-1) ret += a[i]+c;
-	    return ret + a[a.size()-1];
-    }
-    //もともとstringじゃなければto_stringして結合
-	else{
-	    rep(i,a.size()-1) ret += to_string(a[i]) + c;
-	    return ret + to_string(a[a.size()-1]);
-	}
-	
-}
-//空白区切り表示
-template<class T, class... Ts>
-void out(const T& a,const Ts&... b){
-	cout<<a;
-	(cout<< ... << (cout << ' ',b));
-	cout<<endl;
-}
-template<class T>
-void out(const vector<T> &a){
-    out(join(a," "));
-}
+//表示
+#define overload1(a,b,NAME,...) NAME
+#define coutYesReturn() do {coutYes(); return 0; } while(0)
+#define coutYesReturnIf(a) do { if(a){ coutYesReturn(); }} while(0)
+#define coutNoReturn() do {coutNo(); return 0;}
+#define coutNoReturnIf(a) do {if(a){ coutNoReturn(); }} while(0)
+#define coutIfReturn(a,s) do{if(a){cout<<s<<endl; return 0;}}while(0)
+template<typename... T>
+void coutll(T... a){ ((cout << a <<" "),...) << endl; }
+void coutvll(vll a){ rep(i,a.size()) cout<<a[i]<<" "; }
+void coutvlln(vll a){ rep(i,a.size()) cout<<a[i]<<endl; }
+void coutYes(){ cout<<"Yes"<<endl; }
+void coutNo(){ cout<<"No"<<endl; }
+void coutYesNo(bool a){ cout<<(a?"Yes":"No")<<endl; }
+void coutIf(bool a, string s, string t){ cout<<(a?s:t)<<endl; }
 //入力
 template<class... T>
 void input(T&... a){
-	(cin >> ... >> a);
-}
-
-template<class... T>
-void input_index(T&... a){
     (cin >> ... >> a);
-    ((a--), ...);
+}
+//複数ソート
+template<class... T>
+void sorts(vector<T>&... a){
+    (sort(all(a)),...);
 }
 
-ll getFirstOne(string s){
-	rep(i,s.size()) if(s[i] == '1') return i;
-	return -1;
+struct S {
+    ll l,r,p;
+};
+
+//座標圧縮した後の座標が返ってくる
+//元の数字 -> 圧縮後の座標が取れるmap
+map<ll,ll> zaatu(vll &a){
+    set<ll> s;
+    rep(i,a.size()) s.insert(a[i]);
+    map<ll,ll> ret;
+    ll i = 0;
+    for(ll t: s) ret[t] = i++;
+    return ret;
 }
 
-ll sToLL(string s){
-	ll t = 1;
-	ll ret = 0;
-	rep(i,s.size()){
-		if(s[i] == '1') ret += t;
-		t <<= 1LL;
-	}
-	return ret;
+//{v,i}の順で入れる
+template<typename T>
+pair<T,ll> maxvi(vector<T> &a){
+    pair<T,ll> ret = {a[0],0};
+    rep(i,a.size()) if(ret.first < a[i]){
+        ret = {a[i],i};
+    }
+    return ret;
+}
+
+template<typename T>
+T maxv(vector<T> &a){
+    T ret = a[0];
+    rep(i,a.size()) if(ret < a[i]){
+        ret = a[i];
+    }
+    return ret;
+}
+
+//{v,i}の順で入れる
+template<typename T>
+pair<T,ll> minvi(vector<T> &a){
+    pair<T,ll> ret = {a[0],0};
+    rep(i,a.size()) if(ret.first > a[i]){
+        ret = {a[i],i};
+    }
+    return ret;
+}
+
+template<typename T>
+T minv(vector<T> &a){
+    T ret = a[0];
+    rep(i,a.size()) if(ret > a[i]){
+        ret = a[i];
+    }
+    return ret;
 }
 
 int main(void){
-	cinll(t);
-	while(t--){
-		cinll(n);
-		cinvll(a,n);
-		rep(i,n) a[i]--;
-		ll mi = inf;
-		ll c = 0;
-		bool midChance = false;
-		rep(i,n){
-			if(a[i] == i){
-				c++;
-				if(n%2==1 && i == n/2) midChance = true;
-			}
-			mi = min(mi,a[i]);
-		}
-		if(c%2 == 0){
-			cout<<c/2<<endl;
-			continue;
-		}
-		else{
-			//真ん中を省略できるチャンス！
-			//残りのp/2回の操作で大mid小にできればいい
-			if(midChance){
+    cinll(n,w,c);
+    vector<S> stones;
+    vll ps;
+    ll total = 0;
+    rep(i,n){
+        cinll(l,r,p);
+        total += p;
+        stones.push_back(S{l,r,p});
+        ps.push_back(stones[i].l);
+        ps.push_back(stones[i].r);
+    }
+    ps.push_back(0);
+    ps.push_back(w+1);
 
-			}
-		}
-	}
-	return 0;
+    //座標圧縮
+    sort(all(ps));
+    ps.erase(unique(all(ps)), ps.end());
+    map<ll,ll> ips;
+    rep(i,ps.size()) ips[ps[i]] = i;
+    
+    rep(i,n){
+        stones[i].l = ips[stones[i].l];
+        stones[i].r = ips[stones[i].r];
+    }
+    
+    vll ls(ps.size(),0);
+    rep(i,stones.size()) ls[stones[i].l] += stones[i].p;
+    mrep(i,ps.size()-2) ls[i] += ls[i+1];
+    vll rs(ps.size(),0);
+    rep(i,stones.size()) rs[stones[i].r] += stones[i].p;
+    rep(i,1,ps.size()) rs[i] += rs[i-1];
+    
+    cout<<"ps  :";
+    rep(i,ps.size()) cout<<ps[i]<<" ";
+    cout<<endl;
+    cout<<"ls  :";
+    coutvll(ls);
+    cout<<endl;
+    cout<<"rs  :";
+    coutvll(rs);
+    cout<<endl;
+
+    ll ans = inf;
+    rep(i,ps.size()){
+        ll idx = lower_bound(all(ps), ps[i]+c-1) - ps.begin();
+        if(idx == ps.size()) continue;
+        cout<<"l:"<<ps[i]<<" "<<"r:"<<ps[idx]<<endl;
+        ans = min(ans, total-ls[idx]-rs[i]);
+    }
+    cout<<ans<<endl;
+
+    return 0;
 }
