@@ -1,6 +1,10 @@
 import random
-n = random.randint(3,10)
-m = random.randint(1,10)
-a = [str(random.randint(1,10)) for i in range(n)]
-print(n,m)
-print(" ".join(a))
+n = random.randint(1,20)
+d = random.randint(1,n)
+r = random.randint(1,n)
+h = list(range(n))
+for i in range(n):
+    h[i] += 1
+random.shuffle(h)
+print(n,d,r)
+print(" ".join(map(str,h)))

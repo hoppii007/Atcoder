@@ -4,6 +4,7 @@
 #define cinint(...) int __VA_ARGS__; input(__VA_ARGS__);
 #define cinstr(...) string __VA_ARGS__; input(__VA_ARGS__);
 #define cinchar(...) char __VA_ARGS__; input(__VA_ARGS__);
+#define cindouble(...) double __VA_ARGS__; input(__VA_ARGS__);
 #define cinvll(a,n) vll a(n); rep(i,n) cin>>a[i];
 #define cinvvll(a,n,m) vvll a(n,vll(m)); rep(i,n) rep(j,m) cin>>a[i][j];
 #define cinvs(a,n) vs a(n); rep(i,n) cin>>a[i];
@@ -42,11 +43,11 @@ using sll = set<long long>;
 using vsll = vector<set<long long>>;
 using vpll = vector<pair<long long,long long>>;
 using vvpll  = vector<vector<pair<long long, long long>>>;
-#define vmll vector<modll>
-#define vvmll vector<vector<modll>>
+#define vmll vector<mll>
+#define vvmll vector<vector<mll>>
 
-const ll mod = 998244353LL;
-//const ll mod = 1000000007LL;
+//const ll mod = 998244353LL;
+const ll mod = 1000000007LL;
 const ll inf = 1301001001001001000LL;
 const double PI=3.1415926535897932384626433832795028841971;
 
@@ -59,8 +60,8 @@ const double PI=3.1415926535897932384626433832795028841971;
 #define coutReturnIf(a,s) do{if(a){cout<<s<<endl; return 0;}}while(0)
 template<typename... T>
 void coutll(T... a){ ((cout << a <<" "),...) << endl; }
-void coutvll(vll &a){ rep(i,a.size()) cout<<a[i]<<" "; }
-void coutvll(string name, vll &a){ cout<<name<<":"; coutvll(a); cout<<endl; }
+void coutvll(vll &a){ rep(i,a.size()) cout<<a[i]<<" "; cout<<endl; }
+void coutvll(string name, vll &a){ cout<<name<<":"; coutvll(a); }
 void coutvlln(vll &a){ rep(i,a.size()) cout<<a[i]<<endl; }
 void coutYes(){ cout<<"Yes"<<endl; }
 void coutNo(){ cout<<"No"<<endl; }
@@ -82,17 +83,31 @@ template<typename T>
 T chmin(T &a, T b){ if(a > b) a = b; return a; }
 
 int main(){
-    cinll(n,m);
-    cinvll(a,n);
-
-    std::function<ll(ll,ll)> mi = [&](ll s, ll t){
+    cinll(n,d,r);
+    cinvll(h,n);
+    rep(i,n) h[i]--;
+    //coutvll("h",h);
+    vll idx(n);
+    rep(i,n) idx[h[i]] = i;
+    
+    std::function<ll(ll)> dfs = [&](ll now){
         ll ret = 0;
-        for(ll i = s; i!= t;i=(i+1)%n) ret += a[i];
+        if(now == 0){
+            //cout<<max(0LL, idx[now]-r)<<"から"<<min(idx[now]+r+1,n)<<"の一歩手前"<<endl;
+        }
+        rep(i,max(0LL, idx[now]-r),min(idx[now]+r+1,n)){
+            if(h[i] <= now-d){
+                //if(now == 0) cout<<"ここいけるで"<<i<<" "<<h[i]<<" "<<h[now]<<endl;
+                chmax(ret, dfs(h[i])+1);
+            }
+        }
         return ret;
     };
-    ll ans = 0;
-    rep(i,n) rep(j,n) if(i != j){
-        if(mi(i,j)%m == 0) ans++;
+
+    ll ans = -inf;
+    rep(i,n){
+        chmax(ans, dfs(i));
+        //if(dfs(i) == 1) cout<<i<<endl;
     }
     cout<<ans<<endl;
     return 0;

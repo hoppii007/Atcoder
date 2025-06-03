@@ -84,7 +84,15 @@ case82: success!
 case83: success!
 case84: success!
 case85: success!
-case86: success!
+case86: failed...
+output:
+2
+
+
+answer:
+3
+
+
 case87: success!
 case88: success!
 case89: success!

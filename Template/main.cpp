@@ -4,6 +4,7 @@
 #define cinint(...) int __VA_ARGS__; input(__VA_ARGS__);
 #define cinstr(...) string __VA_ARGS__; input(__VA_ARGS__);
 #define cinchar(...) char __VA_ARGS__; input(__VA_ARGS__);
+#define cindouble(...) double __VA_ARGS__; input(__VA_ARGS__);
 #define cinvll(a,n) vll a(n); rep(i,n) cin>>a[i];
 #define cinvvll(a,n,m) vvll a(n,vll(m)); rep(i,n) rep(j,m) cin>>a[i][j];
 #define cinvs(a,n) vs a(n); rep(i,n) cin>>a[i];
@@ -42,8 +43,8 @@ using sll = set<long long>;
 using vsll = vector<set<long long>>;
 using vpll = vector<pair<long long,long long>>;
 using vvpll  = vector<vector<pair<long long, long long>>>;
-#define vmll vector<modll>
-#define vvmll vector<vector<modll>>
+#define vmll vector<mll>
+#define vvmll vector<vector<mll>>
 
 const ll mod = 998244353LL;
 //const ll mod = 1000000007LL;
@@ -59,8 +60,8 @@ const double PI=3.1415926535897932384626433832795028841971;
 #define coutReturnIf(a,s) do{if(a){cout<<s<<endl; return 0;}}while(0)
 template<typename... T>
 void coutll(T... a){ ((cout << a <<" "),...) << endl; }
-void coutvll(vll &a){ rep(i,a.size()) cout<<a[i]<<" "; }
-void coutvll(string name, vll &a){ cout<<name<<":"; coutvll(a); cout<<endl; }
+void coutvll(vll &a){ rep(i,a.size()) cout<<a[i]<<" "; cout<<endl; }
+void coutvll(string name, vll &a){ cout<<name<<":"; coutvll(a); }
 void coutvlln(vll &a){ rep(i,a.size()) cout<<a[i]<<endl; }
 void coutYes(){ cout<<"Yes"<<endl; }
 void coutNo(){ cout<<"No"<<endl; }
@@ -80,7 +81,6 @@ template<typename T>
 T chmax(T &a, T b){ if(a < b) a = b; return a; }
 template<typename T>
 T chmin(T &a, T b){ if(a > b) a = b; return a; }
-
 
 int main(){
     

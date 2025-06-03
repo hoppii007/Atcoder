@@ -35,19 +35,23 @@ using vi = vector<int>;
 using vvi = vector<vector<int>>;
 using vb = vector<bool>;
 using vvb = vector<vector<bool>>;
+using vd = vector<double>;
+using vvd = vector<vector<double>>;
 using vc = vector<char>;
 using vvc = vector<vector<char>>;
 using vs = vector<string>;
 using pll = pair<long long,long long>;
+using pd = pair<double,double>;
 using sll = set<long long>;
 using vsll = vector<set<long long>>;
 using vpll = vector<pair<long long,long long>>;
+using vpd = vector<pair<double, double>>;
 using vvpll  = vector<vector<pair<long long, long long>>>;
 #define vmll vector<mll>
 #define vvmll vector<vector<mll>>
 
-const ll mod = 998244353LL;
-//const ll mod = 1000000007LL;
+//const ll mod = 998244353LL;
+const ll mod = 1000000007LL;
 const ll inf = 1301001001001001000LL;
 const double PI=3.1415926535897932384626433832795028841971;
 
@@ -82,108 +86,129 @@ T chmax(T &a, T b){ if(a < b) a = b; return a; }
 template<typename T>
 T chmin(T &a, T b){ if(a > b) a = b; return a; }
 
-//O(logB)でa^b % modが計算できる
-ll mpow(ll a,ll b){
-    if(b == 0) return 1;
-    if(b == 1) return a%mod;
-    if(b%2 == 0) return mpow((a*a)%mod,b/2)%mod;
-    else return (a%mod)*mpow((a*a)%mod,(b-1)/2)%mod;
-}
-
-//aをn進数表記する
-//[0,1,1]が帰ってきたとき、0a^0 + 1a^1 + 1a^2
-vll toNsinsu(ll a, ll n){
-    vll ret;
-    while(a > 0){
-        ret.push_back(a%n);
-        a /= n;
-    }
-    return ret;
-}
-
-//割り算とかするならmodは素数前提
-//modを変えたい時はmll::mod = 10みたいな感じ
-struct mll{
+struct UnionFind {
 public:
-    static ll mod;
-    ll value;
-    mll(){
-        this->value = 0;
+    vll par; // par[i]:iの親の番号　(例) par[3] = 2 : 3の親が2
+    vll kosu;
+    ll Count; //全体として何個の集合があるか
+    
+    UnionFind(ll n) : par(n),kosu(n),Count(n) { //最初は全てが根であるとして初期化
+        rep(i,n){
+            par[i] = i;
+            kosu[i] = 1;
+        }
     }
-    mll(ll v){
-        this->value = v%mll::mod;
-        while(this->value < 0) this->value += mll::mod;
+
+    ll root(ll x) { // データxが属する木の根を再帰で得る：root(x) = {xの木の根}
+        if (par[x] == x) return x;
+        return par[x] = root(par[x]);
     }
-    friend ostream& operator << (ostream& os, const mll& p){
-        os << p.value;
-        return os;
+
+    void unite(ll x, ll y) { // xとyの木を併合
+        ll rx = root(x); //xの根をrx
+        ll ry = root(y); //yの根をry
+        if (rx == ry) return; //xとyの根が同じ(=同じ木にある)時はそのまま
+        par[rx] = ry; //xとyの根
+        kosu[ry] += kosu[rx];
+        Count--;
     }
-    mll operator =(const ll &a){
-        value = a;
-        return *this;
+
+    bool same(ll x, ll y) { // 2つのデータx, yが属する木が同じならtrueを返す
+        ll rx = root(x);
+        ll ry = root(y);
+        return rx == ry;
     }
-    friend mll operator -(const mll &a, const mll &b){ return mll(a.value-b.value); }
-    friend mll operator -(const mll &a, const ll &b){ return mll(a.value-(b%mll::mod)); }
-    friend mll operator -(const ll &a, const mll &b){ return mll((a%mll::mod)-b.value); }
-    friend mll operator +(const mll &a, const mll &b){ return mll(a.value+b.value); }
-    friend mll operator +(const mll &a, const ll &b){ return mll(a.value+(b%mll::mod)); }
-    friend mll operator +(const ll &a, const mll &b){ return mll((a%mll::mod)+b.value); }
-    friend mll operator *(const mll &a, const mll &b){ return mll(a.value*b.value); }
-    friend mll operator *(const mll &a, const ll &b){ return mll(a.value*(b%mll::mod)); }
-    friend mll operator *(const ll &a, const mll &b){ return mll((a%mll::mod)*b.value); }
-    friend mll operator ^(const mll &a, const ll &b){
-        if(b == 0) return mll(1);
-        if(b%2 == 0) return (a*a)^(b/2);
-        else return a*(a^(b-1));
+    
+    ll size(ll x){
+        return kosu[root(x)];
     }
-    friend mll operator /(const mll &a, const mll &b){ return a*(b^(mll::mod-2)); }
-    friend mll operator /(const mll &a, const ll &b){ return a*(mll(b)^(mll::mod-2)); }
-    friend mll operator /(const ll &a, const mll &b){ return a*(b^(mll::mod-2)); }
-    friend bool operator <(const mll &a, const mll &b){ return a.value < b.value; }
-    friend bool operator <(const mll &a, const ll &b){ return a.value < b; }
-    friend bool operator <(const ll &a, const mll &b){ return a < b.value; }
-    friend bool operator <=(const mll &a, const mll &b){ return a.value <= b.value; }
-    friend bool operator <=(const mll &a, const ll &b){ return a.value <= b; }
-    friend bool operator <=(const ll &a, const mll &b){ return a <= b.value; }
-    friend bool operator >(const mll &a, const mll &b){ return a.value > b.value; }
-    friend bool operator >(const mll &a, const ll &b){ return a.value > b; }
-    friend bool operator >(const ll &a, const mll &b){ return a > b.value; }
-    friend bool operator >=(const mll &a, const mll &b){ return a.value >= b.value; }
-    friend bool operator >=(const mll &a, const ll &b){ return a.value >= b; }
-    friend bool operator >=(const ll &a, const mll &b){ return a >= b.value; }
-    friend bool operator ==(const mll &a, const mll &b){ return a.value == b.value; }
-    friend bool operator ==(const mll &a, const ll &b){ return a.value == b; }
-    friend bool operator ==(const ll &a, const mll &b){ return a == b.value; }
-    friend bool operator !=(const mll &a, const mll &b){ return a.value != b.value; }
-    friend bool operator !=(const mll &a, const ll &b){ return a.value != b; }
-    friend bool operator !=(const ll &a, const mll &b){ return a != b.value; }
-    friend void operator +=(mll &a, const mll &b){ a = a+b; }
-    friend void operator +=(mll &a, const ll &b){ a = a+b; }
-    friend void operator +=(ll &a, const mll &b){ a = (a+b).value; }
-    friend void operator -=(mll &a, const mll &b){ a = a-b; }
-    friend void operator -=(mll &a, const ll &b){ a = a-b; }
-    friend void operator -=(ll &a, const mll &b){ a = (a-b).value; }
-    friend void operator *=(mll &a, const mll &b){ a = a*b; }
-    friend void operator *=(mll &a, const ll &b){ a = a*b; }
-    friend void operator *=(ll &a, const mll &b){ a = (a*b).value; }
-    friend void operator /=(mll &a, const mll &b){ a = a/b; }
-    friend void operator /=(mll &a, const ll &b){ a = a/b; }
-    friend void operator /=(ll &a, const mll &b){ a = (a/b).value; }
-    friend void operator ++(mll &a, int){ a += 1; }
-    friend void operator ++(mll &a){ a += 1; }
-    friend void operator --(mll &a, int){ a -= 1; }
-    friend void operator --(mll &a){ a -= 1; }
+    ll size(){
+        return Count;
+    }
 };
-ll mll::mod = 998244353LL;
+
+//0 ~ N-1までのグラフ（連結）の中で、最小全域木を作る
+//costの型ll（基本的にはllかdouble）
+//nextsは{cost,index}
+//実際の最小コストだけが欲しいときは、戻り値の型をllにして、minCostを返せばいい
+ll kruskal(vector<vector<pair<ll,ll>>> &nexts){
+    UnionFind uf(nexts.size());
+    struct KruskalEdge{
+        ll u,v;
+        ll c;
+    };
+    vector<KruskalEdge> edges;
+    rep(i, nexts.size()) for(pair<ll,ll> e: nexts[i]){
+        edges.push_back({i, e.second, e.first});
+    }
+    //trueだったら第1引数が手前に来る
+    //p1 < p2として作ると昇順になる
+    //p2 < p1として作ると降順になる
+    
+    //sort(all(v), compf);みたいに使ってね
+    std::function<bool(KruskalEdge&, KruskalEdge&)> compf = [&](const KruskalEdge &p1,const KruskalEdge &p2) {
+        return p1.c < p2.c;
+    };
+    
+    sort(all(edges), compf);
+    ll minCost = 0;
+    vector<vector<pair<ll,ll>>> ret(nexts.size());
+    rep(i,edges.size()){
+        if(!uf.same(edges[i].u, edges[i].v)){
+            uf.unite(edges[i].u, edges[i].v);
+            minCost += edges[i].c;
+            ret[edges[i].u].push_back({edges[i].c, edges[i].v});
+        }
+    }
+    //最小コストだけがほしいならここでminCostを返す
+    return minCost;
+}
+
+struct S {
+    ll i, x, y;
+};
+
+ll dist(S a, S b){
+    return min(abs(a.x-b.x), abs(a.y-b.y));
+}
 
 int main(){
-    cinll(t);
-    while(t--){
-        //cout<<"t:"<<t<<endl;
-        cinll(n,k);
-
-
-        
+    cinll(n);
+    UnionFind uf(n);
+    vector<S> ps1(n);
+    rep(i,n){
+        cin>>ps1[i].x>>ps1[i].y;
+        ps1[i].i = i;
     }
+    vector<S> ps2 = ps1;
+    //trueだったら第1引数が手前に来る
+    //p1 < p2として作ると昇順になる
+    //p2 < p1として作ると降順になる
+    
+    //sort(all(v), compf);みたいに使ってね
+    std::function<bool(S&,S&)> compf = [&](const S &p1,const S &p2) {
+        return pll{p1.x,p1.y} < pll{p2.x,p2.y};
+    };
+    //sort(all(v), compf);みたいに使ってね
+    std::function<bool(S&,S&)> compf2 = [&](const S &p1,const S &p2) {
+        return pll{p1.y, p1.x} < pll{p2.y, p2.x};
+    };
+    sort(all(ps1), compf);
+    sort(all(ps2), compf2);
+
+    vvpll nexts(n);
+    rep(i,n-1){
+        nexts[ps1[i].i].push_back({dist(ps1[i], ps1[i+1]), ps1[i+1].i});
+        nexts[ps1[i+1].i].push_back({dist(ps1[i], ps1[i+1]), ps1[i].i});
+
+        nexts[ps2[i].i].push_back({dist(ps2[i], ps2[i+1]), ps2[i+1].i});
+        nexts[ps2[i+1].i].push_back({dist(ps2[i], ps2[i+1]), ps2[i].i});
+    }
+    
+    cout<<kruskal(nexts)<<endl;
+
+
+
+    
     return 0;
 }
