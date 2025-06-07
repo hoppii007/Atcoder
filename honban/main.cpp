@@ -50,8 +50,8 @@ using vvpll  = vector<vector<pair<long long, long long>>>;
 #define vmll vector<mll>
 #define vvmll vector<vector<mll>>
 
-//const ll mod = 998244353LL;
-const ll mod = 1000000007LL;
+const ll mod = 998244353LL;
+//const ll mod = 1000000007LL;
 const ll inf = 1301001001001001000LL;
 const double PI=3.1415926535897932384626433832795028841971;
 
@@ -86,129 +86,7 @@ T chmax(T &a, T b){ if(a < b) a = b; return a; }
 template<typename T>
 T chmin(T &a, T b){ if(a > b) a = b; return a; }
 
-struct UnionFind {
-public:
-    vll par; // par[i]:iの親の番号　(例) par[3] = 2 : 3の親が2
-    vll kosu;
-    ll Count; //全体として何個の集合があるか
-    
-    UnionFind(ll n) : par(n),kosu(n),Count(n) { //最初は全てが根であるとして初期化
-        rep(i,n){
-            par[i] = i;
-            kosu[i] = 1;
-        }
-    }
-
-    ll root(ll x) { // データxが属する木の根を再帰で得る：root(x) = {xの木の根}
-        if (par[x] == x) return x;
-        return par[x] = root(par[x]);
-    }
-
-    void unite(ll x, ll y) { // xとyの木を併合
-        ll rx = root(x); //xの根をrx
-        ll ry = root(y); //yの根をry
-        if (rx == ry) return; //xとyの根が同じ(=同じ木にある)時はそのまま
-        par[rx] = ry; //xとyの根
-        kosu[ry] += kosu[rx];
-        Count--;
-    }
-
-    bool same(ll x, ll y) { // 2つのデータx, yが属する木が同じならtrueを返す
-        ll rx = root(x);
-        ll ry = root(y);
-        return rx == ry;
-    }
-    
-    ll size(ll x){
-        return kosu[root(x)];
-    }
-    ll size(){
-        return Count;
-    }
-};
-
-//0 ~ N-1までのグラフ（連結）の中で、最小全域木を作る
-//costの型ll（基本的にはllかdouble）
-//nextsは{cost,index}
-//実際の最小コストだけが欲しいときは、戻り値の型をllにして、minCostを返せばいい
-ll kruskal(vector<vector<pair<ll,ll>>> &nexts){
-    UnionFind uf(nexts.size());
-    struct KruskalEdge{
-        ll u,v;
-        ll c;
-    };
-    vector<KruskalEdge> edges;
-    rep(i, nexts.size()) for(pair<ll,ll> e: nexts[i]){
-        edges.push_back({i, e.second, e.first});
-    }
-    //trueだったら第1引数が手前に来る
-    //p1 < p2として作ると昇順になる
-    //p2 < p1として作ると降順になる
-    
-    //sort(all(v), compf);みたいに使ってね
-    std::function<bool(KruskalEdge&, KruskalEdge&)> compf = [&](const KruskalEdge &p1,const KruskalEdge &p2) {
-        return p1.c < p2.c;
-    };
-    
-    sort(all(edges), compf);
-    ll minCost = 0;
-    vector<vector<pair<ll,ll>>> ret(nexts.size());
-    rep(i,edges.size()){
-        if(!uf.same(edges[i].u, edges[i].v)){
-            uf.unite(edges[i].u, edges[i].v);
-            minCost += edges[i].c;
-            ret[edges[i].u].push_back({edges[i].c, edges[i].v});
-        }
-    }
-    //最小コストだけがほしいならここでminCostを返す
-    return minCost;
-}
-
-struct S {
-    ll i, x, y;
-};
-
-ll dist(S a, S b){
-    return min(abs(a.x-b.x), abs(a.y-b.y));
-}
-
 int main(){
-    cinll(n);
-    UnionFind uf(n);
-    vector<S> ps1(n);
-    rep(i,n){
-        cin>>ps1[i].x>>ps1[i].y;
-        ps1[i].i = i;
-    }
-    vector<S> ps2 = ps1;
-    //trueだったら第1引数が手前に来る
-    //p1 < p2として作ると昇順になる
-    //p2 < p1として作ると降順になる
-    
-    //sort(all(v), compf);みたいに使ってね
-    std::function<bool(S&,S&)> compf = [&](const S &p1,const S &p2) {
-        return pll{p1.x,p1.y} < pll{p2.x,p2.y};
-    };
-    //sort(all(v), compf);みたいに使ってね
-    std::function<bool(S&,S&)> compf2 = [&](const S &p1,const S &p2) {
-        return pll{p1.y, p1.x} < pll{p2.y, p2.x};
-    };
-    sort(all(ps1), compf);
-    sort(all(ps2), compf2);
 
-    vvpll nexts(n);
-    rep(i,n-1){
-        nexts[ps1[i].i].push_back({dist(ps1[i], ps1[i+1]), ps1[i+1].i});
-        nexts[ps1[i+1].i].push_back({dist(ps1[i], ps1[i+1]), ps1[i].i});
-
-        nexts[ps2[i].i].push_back({dist(ps2[i], ps2[i+1]), ps2[i+1].i});
-        nexts[ps2[i+1].i].push_back({dist(ps2[i], ps2[i+1]), ps2[i].i});
-    }
-    
-    cout<<kruskal(nexts)<<endl;
-
-
-
-    
     return 0;
 }
