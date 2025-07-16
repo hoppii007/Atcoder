@@ -58,134 +58,24 @@ template<class... T>
 void input(T&... a){
 	(cin >> ... >> a);
 }
+template<typename T>
+T chmax(T &a, T b){ if(a < b) a = b; return a; }
+template<typename T>
+T chmin(T &a, T b){ if(a > b) a = b; return a; }
 
-ll frombin(string s){
-    //s = "1"+s+"1";
-    ll n = s.size();
-    ll ret = 0;
-    ll now = 1;
-    reverse(all(s));
-    rep(i,n){
-        if(s[i] == '1') ret+=now;
-        now*=2LL;
-    }
-    return ret;
-}
-
-string tobin(ll a){
-    string ret = "";
-    while(a>0){
-        if(a%2LL == 0) ret += "0";
-        else ret += "1";
-        a /= 2LL;
-    }
-    reverse(all(ret));
-    return ret;
-}
-
-int main(void){
-    cinll(a,b,c);
-    ll cc = c;
-    string ttc = tobin(c);
-    ll ccount = 0;
-    ll zcount = 0;
-    rep(i,ttc.size()){
-        if(ttc[i] == '1') ccount++;
-        else zcount++;
-    }
-    ll ta = 0;
-    ll tb = ccount;
-    bool isExist = false;
-    while(tb >= ta){
-        if(tb - ta == max(a,b)-min(a,b)){
-            isExist = true;
-            break;
+int main(){
+    cinll(T);
+    while(T--){
+        cinll(n);
+        cinvll(p,n);
+        cinvll(q,n);
+        rep(i,n){
+            ll ans = -1;
+            rep(j,i+1){
+                chmax(ans, (1LL<<p[j])+(1LL<<q[i-j]));
+            }
+            cout<<ans<<(i==n-1?"":" ");
         }
-        ta++;
-        tb--;
+        cout<<endl;
     }
-    if(isExist == false){
-        cout<<"-1"<<endl;
-        return 0;
-    }
-    ll dd = min(a,b)-min(ta,tb);
-    if(dd < 0){
-        cout<<"-1"<<endl;
-        return 0;
-    }
-    if(dd - zcount - (60-(ll)ttc.size()) > 0){
-        cout<<"-1"<<endl;
-        return 0;
-    }
-    
-    
-    string tta = "";
-    string ttb = "";
-    rep(i,dd-zcount){
-        tta += '1';
-        ttb += '1';
-    }
-    dd = min(dd,zcount);
-    
-    //多い方にtb個、少ない方にta個
-    if(a <= b){
-        rep(i,ttc.size()){
-            if(ttc[i] == '1'){
-                if(ta > 0){
-                    ta--;
-                    tta += '1';
-                    ttb += '0';
-                }
-                else{
-                    tta += '0';
-                    ttb += '1';
-                }
-            }
-            else{
-                if(dd > 0){
-                    tta += '1';
-                    ttb += '1';
-                    dd--;
-                }
-                else{
-                    tta += '0';
-                    ttb += '0';
-                }
-                
-            }
-        }
-    }
-    else{
-        rep(i,ttc.size()){
-            if(ttc[i] == '1'){
-                if(ta > 0){
-                    ta--;
-                    ttb += '1';
-                    tta += '0';
-                }
-                else{
-                    ttb += '0';
-                    tta += '1';
-                }
-            }
-            else{
-                if(dd > 0){
-                    tta += '1';
-                    ttb += '1';
-                    dd--;
-                }
-                else{
-                    tta += '0';
-                    ttb += '0';
-                }
-            }
-        }
-    }
-    cout<<frombin(tta)<<" "<<frombin(ttb)<<endl;
-    //(all(tta));
-    //reverse(all(ttb));
-    //reverse(all(ttc));
-    //cout<<tta<<endl<<ttb<<endl<<ttc<<endl;
-    
-	return 0;
 }

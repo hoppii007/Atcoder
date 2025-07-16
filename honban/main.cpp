@@ -8,6 +8,7 @@
 #define cinvll(a,n) vll a(n); rep(i,n) cin>>a[i];
 #define cinvvll(a,n,m) vvll a(n,vll(m)); rep(i,n) rep(j,m) cin>>a[i][j];
 #define cinvs(a,n) vs a(n); rep(i,n) cin>>a[i];
+#define cinvpll(a,n) vpll a(n); rep(i,n) cin>>a[i].fst>>a[i].snd;
 //繰り返し系
 #define rep1(n) for(ll i=0;i<n;i++)
 #define rep2(i,n) for(ll i=0;i<n;i++)
@@ -26,6 +27,10 @@
 //書くのが長いやつ
 #define fst first
 #define snd second
+#define cvvll1(name,a,b) vvll name(a, vll(b))
+#define cvvll2(name,a,b,c) vvll name(a, vll(b,c))
+#define cvvlloverload2(name,a,b,c,d,...) d
+#define make_vvll(...) cvvlloverload2(__VA_ARGS__,cvvll2,cvvll1)(__VA_ARGS__)
 using namespace std;
 //型系
 using ll = long long;
@@ -50,9 +55,9 @@ using vvpll  = vector<vector<pair<long long, long long>>>;
 #define vmll vector<mll>
 #define vvmll vector<vector<mll>>
 
-const ll mod = 998244353LL;
-//const ll mod = 1000000007LL;
-const ll inf = 1301001001001001000LL;
+//const ll mod = 998244353LL;
+const ll mod = 1000000007LL;
+const ll inf = 1300100100100100100LL;
 const double PI=3.1415926535897932384626433832795028841971;
 
 //表示
@@ -81,12 +86,19 @@ template<class... T>
 void sorts(vector<T>&... a){
     (sort(all(a)),...);
 }
-template<typename T>
-T chmax(T &a, T b){ if(a < b) a = b; return a; }
-template<typename T>
-T chmin(T &a, T b){ if(a > b) a = b; return a; }
+//便利関数
+template<typename T> bool chmax(T &a, T b){ if(a < b) {a = b; return true;} return false; }
+template<typename T> bool chmin(T &a, T b){ if(a > b) {a = b; return true;} return false; }
+
+//配列表示用
+template <typename T>
+std::ostream& operator<<(std::ostream& os, const std::vector<T>& vec) { 
+    rep(i,vec.size()) os << vec[i] << (i==(ll)vec.size()-1?"":" ");
+    return os;
+}
 
 int main(){
+    
 
     return 0;
 }

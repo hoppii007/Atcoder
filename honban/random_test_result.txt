@@ -7,216 +7,40 @@ case5: success!
 case6: success!
 case7: success!
 case8: success!
-case9: failed...
-output:
-6442450943 831980692370385452
-32 26
-18 12
-1
-
-
-answer:
-320940801499043283 1152921487426977792
-
-
+case9: success!
 case10: success!
-case11: failed...
-output:
-25769803775 327701408030761448
-34 24
-21 11
-1
-
-
-answer:
-248759335682727447 576460717943685120
-
-
-case12: failed...
-output:
-1136578363782850212 3871678136319
-33 25
-20 12
-1
-
-
-answer:
-1152917632828047360 16343140723333467
-
-
+case11: success!
+case12: success!
 case13: success!
-case14: failed...
-output:
-3241360278683647 734089063095566118
-46 28
-22 4
-1
-
-
-answer:
-418834765345423577 1149682468162306048
-
-
+case14: success!
 case15: success!
 case16: success!
 case17: success!
-case18: failed...
-output:
-4961660299 916501026889007106
-20 12
-19 11
-1
-
-
-answer:
-144115193037516169 1060616214964862976
-
-
+case18: success!
 case19: success!
 case20: success!
-case21: failed...
-output:
-1610612735 2707339450745891
-30 27
-16 13
-1
-
-
-answer:
-1796260548869084 4503598389002240
-
-
-case22: failed...
-output:
-58961311039487 1115133552722605031
-42 34
-19 11
-1
-
-
-answer:
-37788015623405080 1152862607034970624
-
-
+case21: success!
+case22: success!
 case23: success!
 case24: success!
 case25: success!
-case26: failed...
-output:
-285288432807182335 576460752085605692
-44 43
-16 15
-1
-
-
-answer:
-285288432807182335 576460752085605692
-
-
+case26: success!
 case27: success!
 case28: success!
 case29: success!
-case30: failed...
-output:
-287384332287 226036500926563196
-24 15
-17 8
-1
-
-
-answer:
-62135888493208707 288172102035439616
-
-
-case31: failed...
-output:
-486388759756099905 5788125373136895
-32 10
-26 4
-1
-
-
-answer:
-570620146536677376 90019512153714366
-
-
-case32: failed...
-output:
-123145302310911 717185896460459661
-46 33
-23 10
-1
-
-
-answer:
-435846409250406258 1152909160408555008
-
-
+case30: success!
+case31: success!
+case32: success!
 case33: success!
-case34: failed...
-output:
-97355813841919 28428972647776259
-29 6
-27 4
-1
-
-
-answer:
-6852755254897660 35184372088832000
-
-
+case34: success!
 case35: success!
 case36: success!
 case37: success!
 case38: success!
-case39: failed...
-output:
-722827536070059843 724303284797439
-43 33
-20 10
-1
-
-
-answer:
-1152921300483932160 430818067698669756
-
-
-case40: failed...
-output:
-1091462111611335186 720575940379279359
-58 26
-34 2
-1
-
-
-answer:
-1091462111611335186 720575940379279359
-
-
-case41: failed...
-output:
-481036337151 1107655700649244545
-38 37
-17 16
-1
-
-
-answer:
-45266275240241278 1152921494853148672
-
-
-case42: failed...
-output:
-936748723391703660 66972879966699519
-49 16
-36 3
-1
-
-
-answer:
-1085948625537728512 216172782112724371
-
-
+case39: success!
+case40: success!
+case41: success!
+case42: success!
 case43: success!
 case44: success!
 case45: success!
@@ -227,35 +51,13 @@ case49: success!
 case50: success!
 case51: success!
 case52: success!
-case53: failed...
-output:
-81088982548479 898608628382255328
-42 31
-22 11
-1
-
-
-answer:
-254393730440410911 1152921269840117760
-
-
+case53: success!
 case54: success!
 case55: success!
 case56: success!
 case57: success!
 case58: success!
-case59: failed...
-output:
-3819438079 192815972569479667
-26 25
-13 12
-1
-
-
-answer:
-95414385926833676 288230354676875264
-
-
+case59: success!
 case60: success!
 case61: success!
 case62: success!
@@ -264,117 +66,29 @@ case64: success!
 case65: success!
 case66: success!
 case67: success!
-case68: failed...
-output:
-648518255713062409 36937818257227775
-46 34
-23 11
-1
-
-
-answer:
-1152921413978557440 541340976522722806
-
-
+case68: success!
 case69: success!
-case70: failed...
-output:
-1008806335803264983 91553653185314815
-44 26
-21 3
-1
-
-
-answer:
-1061367870693572608 144115188075622440
-
-
-case71: failed...
-output:
-536870911 353554238712988002
-29 27
-17 15
-1
-
-
-answer:
-222906466345795229 576460704521912320
-
-
+case70: success!
+case71: success!
 case72: success!
 case73: success!
-case74: failed...
-output:
-1582709202337791 657525545596098210
-37 9
-31 3
-1
-
-
-answer:
-494726868399401309 1150669704793161728
-
-
+case74: success!
 case75: success!
-case76: failed...
-output:
-723531427674189617 134638634795007
-42 20
-27 5
-1
-
-
-answer:
-1152786866009800704 429390076970406094
-
-
+case76: success!
 case77: success!
 case78: success!
 case79: success!
-case80: failed...
-output:
-1112544028557083641 2251799813685247
-51 28
-30 7
-1
-
-
-answer:
-1150824625389732848 40532396646334454
-
-
+case80: success!
 case81: success!
 case82: success!
-case83: failed...
-output:
-841504763903 449637583597603965
-29 21
-21 13
-1
-
-
-answer:
-126823116857385858 576459858950225920
-
-
+case83: success!
 case84: success!
 case85: success!
 case86: success!
 case87: success!
 case88: success!
 case89: success!
-case90: failed...
-output:
-883268464288566246 521821346594815
-43 36
-16 9
-1
-
-
-answer:
-1152921491977371648 270174849035400217
-
-
+case90: success!
 case91: success!
 case92: success!
 case93: success!

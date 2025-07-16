@@ -1,5 +1,5 @@
 
-//O(√n)でn以下の素数リストを返す（昇順）
+//O(nloglogn)でn以下の素数リストを返す（昇順）
 vll eratos(ll n){
     vb isPrime(n+1,true);
     isPrime[0] = false;
