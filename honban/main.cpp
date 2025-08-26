@@ -46,10 +46,12 @@ using vc = vector<char>;
 using vvc = vector<vector<char>>;
 using vs = vector<string>;
 using pll = pair<long long,long long>;
+using pi = pair<int,int>;
 using pd = pair<double,double>;
 using sll = set<long long>;
 using vsll = vector<set<long long>>;
 using vpll = vector<pair<long long,long long>>;
+using vpi = vector<pi>;
 using vpd = vector<pair<double, double>>;
 using vvpll  = vector<vector<pair<long long, long long>>>;
 #define vmll vector<mll>
@@ -97,8 +99,203 @@ std::ostream& operator<<(std::ostream& os, const std::vector<T>& vec) {
     return os;
 }
 
-int main(){
-    
+// 座標型
+struct Point {
+    ll x, y;
+};
 
+// ベルトコンベアの線分
+struct Conveyor {
+    Point from, to;
+};
+
+
+ll N,M,K;
+//各分別装置設置場所の情報
+struct Sorting_machine {
+    ll i; //i番目の分別機を置く
+    ll u,v;
+    Point pos;
+};
+vector<Sorting_machine> sorting_machines;
+//i番目の分別装置で、j種類目のゴミを出口1から吐き出す確率
+vvd sorting_machine_probs;
+
+//各処理装置設置場所の情報
+struct Trashbox {
+    ll i;       //何番目の処理装置を置くか？
+    Point pos;
+};
+vector<Trashbox> trash_boxes;
+
+
+//nexts : i番目の設置場所から行ける設置場所（N以上ならN-i番目の分別装置）
+//交差はない前提
+//行ける設置場所には全て何かしらが設置してある
+double get_score(vector<Sorting_machine> &sms, ll s){
+    vvd dp(M, vd(N,-1));
+
+    //場所nowに、i番目のゴミが来た時に、正しく分別される確率
+    function<double(ll,ll)> dfs = [&](ll now,ll i){
+        //処理場から先の場合は、0 or 1
+        if(now < N) return (now==i)?(double)1:(double)0;
+        if(dp[now-N][i] != -1) return dp[now-N][i];
+        //↓ここから先は分別機に来た時
+        ll exit1 = sms[now-N].u;
+        ll exit2 = sms[now-N].v;
+        double ret = 0;
+        if(exit1 != -1) ret += dfs(exit1,i) * sorting_machine_probs[now-N][i];
+        if(exit2 != -1) ret += dfs(exit2,i) * (1-sorting_machine_probs[now-N][i]);
+        return ret;
+    };
+
+    double ret = 0;
+    //ゴミiがちゃんとは運び込まれる確率
+    rep(i,N){
+        ret += (1-dfs(s, i));
+    }
+
+    return 1000000000 * ret / N;
+}
+
+
+bool check_no_intersection(const vector<Conveyor>& conveyors, const Conveyor& new_conv) {
+    auto ccw = [](Point a, Point b, Point c) {
+        ll area = (b.x - a.x)*(c.y - a.y) - (b.y - a.y)*(c.x - a.x);
+        return area;
+    };
+
+    for (auto& c : conveyors) {
+        auto A = c.from, B = c.to, C = new_conv.from, D = new_conv.to;
+
+        if (A.x == C.x && A.y == C.y) continue;
+        if (A.x == D.x && A.y == D.y) continue;
+        if (B.x == C.x && B.y == C.y) continue;
+        if (B.x == D.x && B.y == D.y) continue;
+
+        if ((ccw(A, B, C) * ccw(A, B, D) <= 0) &&
+            (ccw(C, D, A) * ccw(C, D, B) <= 0)) {
+            return false;
+        }
+    }
+    return true;
+}
+
+void build_random_connections(vector<Sorting_machine>& sms, vector<Trashbox>& tbs, ll s) {
+    random_device rd;
+    mt19937 rng(rd());
+
+    vector<Conveyor> conveyors;
+    set<ll> used;  // DFSで使ったノード
+    set<ll> finished; // DFS完了ノード
+
+    auto is_valid_conveyor = [&](const Conveyor& c) {
+        return check_no_intersection(conveyors, c);
+    };
+
+    // 処理場の使用済みチェック
+    set<ll> used_trashbox;
+
+    // DFS 関数
+    function<void(ll)> dfs = [&](ll u) {
+        used.insert(u);
+        Sorting_machine& cur = sms[u];
+
+        vector<ll> candidates;
+        rep(i, sms.size()) if (!used.count(i) && i != u) candidates.push_back(i);
+        shuffle(all(candidates), rng);
+
+        int connected = 0;
+
+        for (ll v : candidates) {
+            Point from = cur.pos;
+            Point to = sms[v].pos;
+            Conveyor c = {from, to};
+
+            if (!is_valid_conveyor(c)) continue;
+
+            // 接続
+            if (connected == 0) cur.u = v;
+            else cur.v = v;
+            conveyors.push_back(c);
+
+            dfs(v);
+            connected++;
+            if (connected == 2) break;
+        }
+
+        // 足りない出口は処理場に接続
+        while (connected < 2) {
+            vector<ll> tb_candidates;
+            rep(i, tbs.size()) if (!used_trashbox.count(i)) tb_candidates.push_back(i);
+            shuffle(all(tb_candidates), rng);
+
+            bool connected_tb = false;
+            for (ll tid : tb_candidates) {
+                Point to = tbs[tid].pos;
+                Conveyor c = {cur.pos, to};
+                if (!is_valid_conveyor(c)) continue;
+
+                if (connected == 0) cur.u = ~tid;
+                else cur.v = ~tid;
+                conveyors.push_back(c);
+                used_trashbox.insert(tid);
+                connected_tb = true;
+                break;
+            }
+            if (!connected_tb) break;
+            connected++;
+        }
+
+        finished.insert(u);
+    };
+
+    dfs(s); // first_node から開始
+}
+
+
+int main(){
+    cin>>N>>M>>K;
+    trash_boxes = vector<Trashbox>(N);
+    sorting_machines = vector<Sorting_machine>(M);
+    sorting_machine_probs = vvd(K, vd(N));
+    rep(i,N) cin>>trash_boxes[i].pos.x>>trash_boxes[i].pos.y;
+    rep(i,M) cin>>sorting_machines[i].pos.x>>sorting_machines[i].pos.y;
+    rep(i,K) rep(j,N) cin>>sorting_machine_probs[i][j];
+
+    //i番目の場所に何番目の装置を置くか？
+    rep(i,N) trash_boxes[i].i = i;
+    rep(i,M) sorting_machines[i].i = i%K;
+
+    //最初の分別機 or 処理場を選択（今回は最初の分別機とする）
+    ll first_position = N;
+
+    //分別機の出口1と出口2の設定
+    rep(i,M){
+        sorting_machines[i].u = sorting_machines[i].v = -1;
+    }
+    build_random_connections(sorting_machines, trash_boxes, first_position);
+
+    cout << get_score(sorting_machines, first_position) << endl;
+
+    rep(i,N) cout<<trash_boxes[i].i<<" ";
+    cout<<endl;
+    cout<<first_position<<endl;
+    rep(i,M){
+        if(sorting_machines[i].i == -1) cout<<-1<<endl;
+        else cout<<sorting_machines[i].i<<" "<<sorting_machines[i].u<<" "<<sorting_machines[i].v<<endl;
+    }
+
+
+    //とりあえず、スコアを計算できるようにしたい
+    //dpみたいに、ゴールから逆算すればO(M)でスコアの計算はできそう。
+
+    //うまく組み合わせて分別できないかを考える(勝ちパターンが作れないか？)
+
+    //「常に確率小さい方に行く確率」は、5個くらい重ねれば3%程度
+
+    // いったん何も考えずに山登りするか？
+
+    
     return 0;
 }
