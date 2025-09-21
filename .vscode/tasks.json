@@ -88,7 +88,7 @@
 		{
 			"label": "mac_input",
 			"type": "shell",
-			"command": "${relativeFileDirname}/main.out < ${relativeFileDirname}/in >> out"
+			"command": "${relativeFileDirname}/main.out < ${relativeFileDirname}/in"
 		},
 		{
 			"label": "mac_build_input",
