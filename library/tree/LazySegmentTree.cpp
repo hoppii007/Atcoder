@@ -1,3 +1,4 @@
+
 //区間更新、区間クエリはこいつにおまかせ！
 ///////注意/////////
 //・T,opT,idTがモノイドになっている
@@ -12,6 +13,8 @@
 //関数
 //change(int,int,O) : 閉区間を作用素oで更新
 //get(int,int)閉区間
+// 注意事項
+// ・opT(o1, o2)はo2が先に追加されて、左に積まれていく
 template<typename T,typename O>
 class LazySegmentTree{
 public:
@@ -138,7 +141,35 @@ public:
         this->arrayT[k] = opT(arrayT[lc],arrayT[rc]);
         return opT(vl,vr);
     }
-    
+    // [l,r] 区間で、最も左にある condition = trueの部分を返す
+    // conditionは（集計結果に）単調性があること（false,false,...,false,true,true,...,true）
+    // 例えば、minを記録しておいてマイナスがあるかどうかのチェックみたいな
+    // 見つからなければ -1 を返す。
+    template<class Cond>
+    int find_first_condition(int l,int r,Cond condition_f, int k=0,int nowL=-1,int nowR=-1){
+        if(k == 0){
+            nowL = 0;
+            nowR = (int)this->arrayT.size()/2;
+        }
+        if(r < nowL || nowR < l) return -1; // 範囲外
+        if(condition_f(this->arrayT[k]) == false) return -1; // このノード内にtrueがない
+        if(nowL == nowR){
+            // 葉で、かつ m < 0 ならここ
+            return nowL;
+        }
+        int lc = l_child(k);
+        int rc = r_child(k);
+        // 子に遅延伝播してから探索（必要）
+        if(lc < (int)this->arrayT.size()){
+            o_update(lc,this->arrayO[k]);
+            o_update(rc,this->arrayO[k]);
+            this->arrayO[k] = idO;
+        }
+        int mid = (nowL+nowR)/2;
+        int res = find_first_condition(l,r,condition_f,lc,nowL,mid);
+        if(res != -1) return res;
+        return find_first_condition(l,r,condition_f,rc,mid+1,nowR);
+    }
     void showTree(){
         int n = 1;
         int j=0;
@@ -153,3 +184,40 @@ public:
         }
     }
 };
+
+// 区間加算、区間和取得
+// ・TとOの積が*で定義されてないとダメ
+// ・vector<T>のvを用意しておく
+using T = ll;
+using O = ll;
+const T id_t = 0;
+const O id_o = 0;
+vector<pair<T,ll>> before(v.size());
+rep(i, v.size()) before[i] = {v[i], 1};
+LazySegmentTree<pair<T,ll>, O> lst(
+    before,
+    [](pair<T, ll> a, pair<T, ll> b){ return pair<T,ll>{a.fst+b.fst, a.snd+b.snd}; },
+    {id_t, 0},
+    [](O o_new, O o_old){ return o_new + o_old; },
+    id_o,
+    [](O o, pair<T,ll> t){ return pair<T,ll>{t.fst+o*t.snd, t.snd}; }
+);
+
+
+// 区間変更、区間和取得
+// ・TとOの積が*で定義されてないとダメ
+// ・vector<T>のvを用意しておく
+using T = ll;
+using O = ll;
+const T id_t = 0;
+const O id_o = inf; // 現れないやつにしておく
+vector<pair<T,ll>> before(v.size());
+rep(i, v.size()) before[i] = {v[i], 1};
+LazySegmentTree<pair<T,ll>, O> lst(
+    before,
+    [](pair<T, ll> a, pair<T, ll> b){ return pair<T,ll>{a.fst+b.fst, a.snd+b.snd}; },
+    {id_t, 0},
+    [](O o_new, O o_old){ return (o_new==id_o)?o_old:o_new; },
+    id_o,
+    [](O o, pair<T,ll> t){ return (o==id_o)?t:pair<T,ll>{o*t.snd, t.snd}; }
+);

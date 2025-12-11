@@ -1,6 +1,6 @@
 //{いくつあったか、何が}
 template <typename T>
-vector<pair<T,ll>> runLength(vector<T> &a){
+vector<pair<T,ll>> run_length(vector<T> &a){
     vector<pair<T,ll>> ret;
     if(a.size() == 0) return ret;
 

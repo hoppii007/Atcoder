@@ -6,39 +6,49 @@
 //木DPを普通にやった後、頂点を「ずらす」操作がある程度高速（O(|childs|）程度）でできればOK
 //左右から半壊区間を伸ばして、それの結合とかでできれば嬉しいね
 
-
 //関数
-class RerootingTreeDP{
+template <typename T>
+struct RerootingTreeDP{
 public:
     //集計結果と自分の値から、自分が持つべき値を計算する
     //引数 : 自分の値、集計結果
+
+    ll n;
     
     //edgedp用マップ
-    map<pll,ll> dp;
+    vector<vector<T>> dp;
     
     //頂点DP用マップ
-    vector<ll> rootDP;
+    vector<T> rootDP;
 
     //edges
     vvll nexts;
+    vector<T> values;
+    // edge_idx[i][j] := iから、jに伸びている辺は、nexts[j]の何番目か
+    vector<unordered_map<ll,ll>> edge_idx;
 
-    RerootingTreeDP(ll n, vvll tnexts): nexts(tnexts), rootDP(n){
+    T (*marge_child)(T,T);
+    T (*aggrigate)(T,T);
+    T e;
 
+    RerootingTreeDP(const vvll& _nexts, const vector<T>& _values, T (*_aggrigate)(T,T), T(*_marge_child)(T,T), T _e): nexts(_nexts), values(_values), aggrigate(_aggrigate), marge_child(_marge_child), e(_e){
+        n = nexts.size();
+
+        edge_idx.resize(n);
+        rep(i, n) rep(j, nexts[i].size()) edge_idx[i][nexts[i][j]] = j;
+
+        rootDP.resize(n);
+
+        dp.resize(n);
         //最初にDP配列を初期化
-        rep(i,n){
-            for(ll next: nexts[i]){
-                dp[{i,next}] = 0;
-            }
-        }
+        rep(i,n) dp[i].resize(nexts[i].size(), e);
         
         //0番目を根として最初のdfsをやる
-        for(ll next: nexts[0]) setNodeDfs(0,next);
+        rep(i, nexts[0].size()) setNodeDfs(0, i);
         
         //今の根っこからBFSしながら逆辺のdpを求めていく
-        rerootingBfs(0);
-        
-        //各頂点がrootだった時の値を保存していく
-        rep(i,n) setRootDpDfs(i);
+        // rootDPの設定もやっちゃう
+        rerootingBfs();
     }
     RerootingTreeDP(){}
 
@@ -47,64 +57,56 @@ public:
     //普通に木DPすればOK
     //アドホックに作ってね
     //dp[parent][now]の初期化を忘れずに
-    void setNodeDfs(ll parent, ll now){
-        //ここから先は長さ足りてる
-        //上位3つを取る
-        vll childeScores;
-        for(ll next : nexts[now]){
-            if(next == parent) continue;
-            setNodeDfs(now, next);
-            childeScores.push_back(dp[{now,next}]);
+    void setNodeDfs(ll parent, ll i){
+        ll now = nexts[parent][i];
+        T childs_value = e;
+        rep(ni,  nexts[now].size()){
+            if(nexts[now][ni] == parent) continue;
+            setNodeDfs(now, ni);
+            childs_value = marge_child(childs_value, dp[now][ni]);
         }
-        sorts(childeScores);
-        reverse(all(childeScores));
-        dp[{parent,now}] = 0;
-        if(nexts[now].size() >= 4) rep(i,3) dp[{parent,now}] += childeScores[i];
-        dp[{parent,now}]++;
+        dp[parent][i] = aggrigate(values[now], childs_value);
         return;
     }
     
-    //根っこからBFSで逆辺のDPを求めていく
-    void rerootingBfs(ll now){
+    // 根っこからBFSで逆辺のDPを求めていく
+    // rootDPの設定もやっちゃう
+    void rerootingBfs(){
         
         queue<ll> q;
-        q.push(now);
+        q.push(0);
         
         vb visit(nexts.size());
-        visit[now] = true;
+        visit[0] = true;
         
         while(q.empty() == false){
             //dp[{now,*}]がすでに求まっている
             //その状態で、dp[{*,now}]を求めていく
-            //O(|nexts[now]|)とかO(|nexts[now]|log(|nexts[now|))とかでできればOK
-
-            //どっちも半開区間でやる
-            //margeL[i] := i番目の子供を含まない
-            vector<ll> margeL(nexts[now].size(),0);
-            //margeR[i] := i番目の子供を含まない
-            vector<ll> margeR(nexts[now].size(),0);
             
+            ll now = q.front();
+            q.pop();
+            
+            //margeR[i] := i番目より後の子供の値を連結した値
+            vector<T> margeR(nexts[now].size(), e);
+            mrep(i, (ll)nexts[now].size()-2) margeR[i] = marge_child(margeR[i+1], dp[now][i+1]);
+            
+            T left = e;
             
             //左右からの累積和を使ってi番目の子供への辺を逆転したdpを求める
-            rep(i,nexts[now].size()){
+            rep(i, nexts[now].size()){
                 ll next = nexts[now][i];
-                dp[{next,now}] = /* margeLとmargeRの結合 */
+                dp[next][edge_idx[next][now]] = aggrigate(values[now], marge_child(left, margeR[i]));
+                left = marge_child(left, dp[now][i]);
                 //行った先始点verをまだ計算してなければ計算する
                 if(visit[next] == false){
                     q.push(next);
                     visit[next] = true;
                 }
             }
+
+            rootDP[now] = aggrigate(values[now], left);
         }
         
-    }
-    
-    //各頂点がrootだった時の値を保存していくDFS
-    void setRootDpDfs(ll now){
-        //dp[{now,*}]を集計する
-        //O(|nexts[now|)でOK
-
-        rootDP[now] = /* dp[{now,next}]の結合 */
     }
 
 };

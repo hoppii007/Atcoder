@@ -1,4 +1,5 @@
 import random
+import os
 
 from collections import deque
 
@@ -49,19 +50,26 @@ def create_and_write_input(file):
             if i == 0 and j == N//2: continue
             ps.append([i,j])
     random.shuffle(ps)
-    TREE_MAP = [[False for j in range(N)] for i in range(i)]
+    TREE_MAP = [[False for j in range(N)] for i in range(N)]
 
     ps_idx = 0
     for _ in range(K):
         TREE_MAP[ps[ps_idx][0]][ps[ps_idx][1]] = True
-        while can_reach(TREE_MAP, [0, N//2]) == False:
+        while can_reach_all(TREE_MAP, [0, N//2]) == False:
             TREE_MAP[ps[ps_idx][0]][ps[ps_idx][1]] = False
             ps_idx += 1
             TREE_MAP[ps[ps_idx][0]][ps[ps_idx][1]] = True
+        ps_idx += 1
 
-    ps_idx += 1
-    Ti = ps[ps_idx][0]
-    Tj = ps[ps_idx][1]
+    ps = []
+    for i in range(N):
+        for j in range(N):
+            if TREE_MAP[i][j]: continue
+            if abs(i) + abs(j-N//2) < 5: continue
+            ps.append([i,j])
+    random.shuffle(ps)
+    Ti = ps[0][0]
+    Tj = ps[0][1]
 
     sts = []
     for i in range(N):
@@ -75,14 +83,13 @@ def create_and_write_input(file):
         s = ""
         for j in range(N):
             if TREE_MAP[i][j]: s += "T"
-            else:
-                s += "."
-                bank_idxs.append([i,j])
+            else: s += "."
         print(s, file=file)
     for i in range(len(sts)):
         print(f'{sts[i][0]} {sts[i][1]}', file=file)
 
+os.makedirs('inputs', exist_ok=True)
+
 for i in range(100):
     with open(f"inputs/{i}.txt", "w", encoding="utf-8") as f:
         create_and_write_input(f)
-        

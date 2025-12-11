@@ -1,10 +1,7 @@
 import random
 print(1)
-n = random.randint(1,10)
+n = random.randint(1,10000)
 p = list(range(n))
-q = list(range(n))
 random.shuffle(p)
-random.shuffle(q)
 print(n)
 print(" ".join(map(str,p)))
-print(" ".join(map(str,q)))

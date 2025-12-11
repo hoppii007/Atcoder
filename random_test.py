@@ -5,7 +5,7 @@ import os
 import subprocess
 import glob
 
-testcase_num = 100
+testcase_num = 500
 
 print('/////// start random test /////////////')
 
@@ -28,8 +28,8 @@ else:
     if os.path.exists(os.path.join(dir_name, "solver.cpp")) == False:
         print('error! solver.cpp is not exists')
         exit()
-    # solver.cppをコンパイル
-    subprocess.run(['/usr/local/bin/g++-12',os.path.join(dir_name,"solver.cpp"), '-o', os.path.join(dir_name,"solver.out")])
+    # # solver.cppをコンパイル
+    # subprocess.run(['/usr/local/bin/g++-12',os.path.join(dir_name,"solver.cpp"), '-o', os.path.join(dir_name,"solver.out")])
     
     os.mkdir(os.path.join(dir_name, "random_tests"))
     # testcase_num個のテストケースを生成
@@ -45,10 +45,10 @@ else:
             f.write(output_str)
     print('done!')
 
-print('compile main.cpp ...')
-# main.cppをコンパイル
-subprocess.run(['/usr/local/bin/g++-12',os.path.join(dir_name,"main.cpp"), '-o', os.path.join(dir_name,"main.out")])
-print('done!')
+# print('compile main.cpp ...')
+# # main.cppをコンパイル
+# subprocess.run(['/usr/local/bin/g++-12',os.path.join(dir_name,"main.cpp"), '-o', os.path.join(dir_name,"main.out")])
+# print('done!')
 
 inputs = glob.glob(os.path.join(dir_name, "random_tests", '*.in'))
 ng = 0
