@@ -101,67 +101,11 @@ std::ostream& operator<<(std::ostream& os, const std::vector<T>& vec) {
     return os;
 }
 
-//aをn進数表記する
-//[0,1,1]が帰ってきたとき、0a^0 + 1a^1 + 1a^2
-vll to_nsinsu(ll a, ll n){
-    vll ret;
-    while(a > 0){
-        ret.push_back(a%n);
-        a /= n;
-    }
-    return ret;
-}
-
-int solve(){
-    cinll(n, k);
-
-    //Nを適当な心数表記したやつ（最上位桁が一番左）
-    vll digits = to_nsinsu(n, 2);
-    reverse(all(digits));
-    //dp[i桁目まで考えて（0桁目は最上位の上）][状態がjで][smaller]なやつの値
-    ll stateNum = 61;
-    vector<vvll> dp(digits.size()+1, vvll(stateNum, vll(2, -1)));
-    vector<vvll> dpc(digits.size()+1, vvll(stateNum, vll(2, 0)));
-    
-    //初期値の設定
-    //だいたい最上位の上を0固定にして、Nと完全一致が一つある、としてスタートすればいい
-    dp[0][/*最上位の上に0が一つある状態のstate*/0][0] = 0;
-    dpc[0][0][0] = 1;
-    
-    //digits[0]から始めるけど、dp[1]から更新、みたいな感じ
-    rep(i,digits.size()) rep(state,stateNum) rep(smaller,2){
-        if(dp[i][state][smaller] == -1) continue;
-        //何進数かでここは変わる
-        ll lim = (smaller==1)?1:digits[i];
-        rep(nd, lim+1){
-            //nsmallerの設定はだいたいこれ
-            ll nsmaller = smaller || nd < digits[i];
-            //nstateの設定は問題ごとにadhoc
-            //stateでndを選んだ時の新しいstate
-            ll nstate = state + nd;
-            //stateが変になる時、つまり遷移できない・しても意味がない時はcontinueでoK
-            if(nstate >= stateNum) continue;
-    
-            //現状の一つのstateと、その遷移先が定まったから、あとは遷移
-            //dpをmllで作っとけばmodとらなくてOK
-            //遷移は桁和だったり、個数だったり総和だったりするから適切に足していく
-            //総和の場合は個数用DPと組み合わせたりする
-            //とにかく答えを出そうとして、そのために必要なSubDPを揃えていく感じ
-
-            if(dp[i+1][nstate][nsmaller] == -1) dp[i+1][nstate][nsmaller] = 0;
-            dp[i+1][nstate][nsmaller] = (dp[i+1][nstate][nsmaller]+dp[i][state][smaller])%mod;
-            dpc[i+1][nstate][nsmaller] += dpc[i][state][smaller];
-            if(nd == 1){
-                dp[i+1][nstate][nsmaller] = (dp[i+1][nstate][nsmaller] + (1LL << (digits.size()-i-1))%mod*dpc[i][state][smaller]%mod)%mod;
-            }
-        }
-    }
-    cout << (max(dp[digits.size()][k][0],0LL) + max(0LL, dp[digits.size()][k][1]))%mod << endl;
-
-    return 0;
-}
+// 1以上N以下で、a > bであって、a が b の倍数じゃない数の総和
+// sum[b = 1,N-1]{(N-b+1) + floor(N/b)}
+// sum[]
 
 int main(){
-    cinll(t);
-    while(t--) solve();
+    
+    return 0;
 }
