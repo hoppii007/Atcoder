@@ -36,31 +36,31 @@
 using namespace std;
 //型系
 using ll = long long;
-using vll = vector<long long>;
-using vvll = vector<vector<long long>>;
+using vll = vector<ll>;
+using vvll = vector<vll>;
 using vi = vector<int>;
-using vvi = vector<vector<int>>;
+using vvi = vector<vi>;
 using vb = vector<bool>;
-using vvb = vector<vector<bool>>;
+using vvb = vector<vb>;
 using vd = vector<double>;
-using vvd = vector<vector<double>>;
+using vvd = vector<vd>;
 using vc = vector<char>;
-using vvc = vector<vector<char>>;
+using vvc = vector<vc>;
 using vs = vector<string>;
 using pll = pair<long long,long long>;
 using pi = pair<int,int>;
 using pd = pair<double,double>;
 using sll = set<long long>;
-using vsll = vector<set<long long>>;
-using vpll = vector<pair<long long,long long>>;
+using vsll = vector<sll>;
+using vpll = vector<pll>;
 using vpi = vector<pi>;
-using vpd = vector<pair<double, double>>;
-using vvpll  = vector<vector<pair<long long, long long>>>;
+using vpd = vector<pd>;
+using vvpll  = vector<vpll>;
 #define vmll vector<mll>
 #define vvmll vector<vector<mll>>
 
-const ll mod = 998244353LL;
-//const ll mod = 1000000007LL;
+ const ll mod = 998244353LL;
+// const ll mod = 1000000007LL;
 const ll inf = 1300100100100100100LL;
 const double PI=3.1415926535897932384626433832795028841971;
 
@@ -101,11 +101,31 @@ std::ostream& operator<<(std::ostream& os, const std::vector<T>& vec) {
     return os;
 }
 
-// 1以上N以下で、a > bであって、a が b の倍数じゃない数の総和
-// sum[b = 1,N-1]{(N-b+1) + floor(N/b)}
-// sum[]
+/*
+
+100 190
+
+10 300
+
+210 200
+...
+*/
 
 int main(){
-    
-    return 0;
+    cinll(n, m, t);
+    vvll dp(n+1, vll(m+1, 0));
+    rep(i, n){
+        cinll(a, b, c);
+        rep(j, m+1){
+            chmax(dp[i+1][j], dp[i][j]);
+            if(b >= t){
+                dp[i+1][j] += a;
+            }
+            else if(j-c >= 0){
+                chmax(dp[i+1][j], dp[i][j-c]+a);
+            }
+        }
+    }
+    cout << dp[n][m] << endl;
+    return  0;
 }

@@ -6,6 +6,13 @@
 //木DPを普通にやった後、頂点を「ずらす」操作がある程度高速（O(|childs|）程度）でできればOK
 //左右から半壊区間を伸ばして、それの結合とかでできれば嬉しいね
 
+// コンストラクタ
+// ・_nexts : 木
+// ・_values : それぞれの頂点の持つ値
+// ・_aggrigate : (自分のvlalue, 子供達の結果の集計) -> 自分の結果
+// ・_marge_child : (前回までの結果, 今の結果) -> 今回までの結果
+// ・_e : aggrigate と marge_childの単位元
+
 //関数
 template <typename T>
 struct RerootingTreeDP{
