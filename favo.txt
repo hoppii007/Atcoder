@@ -1,3 +1,0 @@
-k個買う時に、k個目を別物としてカウントするやつ
-https://atcoder.jp/contests/adt_all_20250402_3/tasks/abc389_e
-https://atcoder.jp/contests/adt_all_20250402_3/tasks/abc373_f

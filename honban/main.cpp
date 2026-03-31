@@ -59,8 +59,9 @@ using vvpll  = vector<vpll>;
 #define vmll vector<mll>
 #define vvmll vector<vector<mll>>
 
- const ll mod = 998244353LL;
+// const ll mod = 998244353LL;
 // const ll mod = 1000000007LL;
+const ll mod = 10007;
 const ll inf = 1300100100100100100LL;
 const double PI=3.1415926535897932384626433832795028841971;
 
@@ -101,31 +102,50 @@ std::ostream& operator<<(std::ostream& os, const std::vector<T>& vec) {
     return os;
 }
 
-/*
+bool is_all_same(string &s){
+    rep(i, s.size()-1) if(s[i] != s[i+1]) return false;
+    return true;
+}
 
-100 190
+bool is_junkai(string &s){
+    rep(i, s.size()-1) if((s[i]+1)%10 != s[i+1]) return false;
+    return true;
+}
 
-10 300
-
-210 200
-...
-*/
+/**
+ * @brief 昇順ソート済み範囲から最も近い値のイテレータを返す
+ *
+ * @tparam It ランダムアクセスイテレータ
+ * @param be 範囲の先頭イテレータ
+ * @param en 範囲の末尾イテレータ（末尾の次）
+ * @param t  探索する値
+ * @return   t に最も近い要素を指すイテレータ
+ *
+ * @pre [be, en) は昇順ソート済みであること
+ * @note 同距離の場合は小さい方を返す
+ * @complexity O(log N)
+ *
+ * @example
+ * std::vector<int> v = {1, 3, 5, 7};
+ * auto it = near_value(v.begin(), v.end(), 4); // *it == 3
+ */
+template<typename It>
+It near_value(It be, It en, typename iterator_traits<It>::value_type t){
+    auto it = lower_bound(be, en, t);
+    // 以上のやつが一個もないとき（すべてtより小さいとき）
+    if(it == en) return prev(it);
+    // 一個前もあればそれと今の比較
+    if(it != be){
+        auto pit = prev(it);
+        //一個前の方がitよりtに近ければそれを返す
+        if(abs(*pit-t) <= abs(*it-t)) return pit;
+        else return it;
+    }
+    // 一個前がなければそこ
+    return it;
+}
 
 int main(){
-    cinll(n, m, t);
-    vvll dp(n+1, vll(m+1, 0));
-    rep(i, n){
-        cinll(a, b, c);
-        rep(j, m+1){
-            chmax(dp[i+1][j], dp[i][j]);
-            if(b >= t){
-                dp[i+1][j] += a;
-            }
-            else if(j-c >= 0){
-                chmax(dp[i+1][j], dp[i][j-c]+a);
-            }
-        }
-    }
-    cout << dp[n][m] << endl;
-    return  0;
+    
+    return 0;
 }
