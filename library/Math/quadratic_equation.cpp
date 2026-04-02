@@ -7,7 +7,7 @@
 //|c| <= 1e18
 //|解| <= 1e9
 //O(log 1e9)
-vll nijihotei(ll a, ll b, ll c){
+vll quadratic_equation(ll a, ll b, ll c){
     std::function<bool(ll)> isZero = [&](ll x){
         if((-b*x-c)%a != 0) return false;
         return x*x == (-b*x-c)/a;
@@ -22,7 +22,7 @@ vll nijihotei(ll a, ll b, ll c){
 
     //二分探索のジャッジ用のやつ
     // ax^2 + bx + c <= 0 ? 
-    auto nibutan_judge = [&](ll mid){
+    auto binary_search_judge = [&](ll mid){
         return mid*mid <= (-b*mid-c)/a;
     };
 
@@ -40,7 +40,7 @@ vll nijihotei(ll a, ll b, ll c){
     }
     while(abs(ok-ng) > 1){
         ll mid = (ok+ng)/2;
-        if(nibutan_judge(mid)) ok = mid;
+        if(binary_search_judge(mid)) ok = mid;
         else ng = mid;
     }
     //ピッタリ0ならOK
@@ -59,7 +59,7 @@ vll nijihotei(ll a, ll b, ll c){
     }
     while(abs(ok-ng) > 1){
         ll mid = (ok+ng)/2;
-        if(nibutan_judge(mid)) ok = mid;
+        if(binary_search_judge(mid)) ok = mid;
         else ng = mid;
     }
     if(isZero(ok)) ret.push_back(ok);

@@ -5,7 +5,7 @@
 // dub[i][j] := iから2^j回遷移した先
 //一回の行き先をnextsに入れとく
 //行き先がないやつは-1
-vvll dubling(vll &nexts){
+vvll doubling(vll &nexts){
     vvll dub(nexts.size(), vll(61));
     rep(i,nexts.size()) dub[i][0] = nexts[i];
     rep(j,1,61) rep(i,nexts.size()){

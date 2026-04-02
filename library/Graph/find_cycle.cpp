@@ -3,7 +3,7 @@
 // rootから先でサイクルがあるかを見るので、連結じゃないとか、rootより前でループしてたら判定できない
 // あくまで一つを返すだけ
 // 帰ってきた配列cycle[0] -> cycle[1] -> cycle[2] ... -> cycle[cycle.size()-1] -> cycle[0]のようにループしてる
-vll findCycle(vvll &nexts, ll root){
+vll find_cycle(vvll &nexts, ll root){
     vpll ret(nexts.size(), {-1,-1});
     ll order = 0;
     vll cycle;

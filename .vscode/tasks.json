@@ -89,6 +89,14 @@
       "type": "shell",
       "dependsOn": ["mac_build", "mac_input"],
       "dependsOrder": "sequence"
+    },
+
+    // スニペット同期
+    {
+      "label": "sync_snippets",
+      "type": "shell",
+      "command": "python3 ${workspaceFolder}/scripts/sync_snippets.py",
+      "problemMatcher": []
     }
   ],
   "version": "2.0.0"

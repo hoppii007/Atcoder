@@ -115,4 +115,15 @@
 		"variant": "cpp",
 		"__hash_table": "cpp"
 	},
+
+	// Run on Save 拡張用設定 (emeraldwalk.runonsave)
+	// library/ 内のファイル保存時にスニペットを自動同期
+	"emeraldwalk.runonsave": {
+		"commands": [
+			{
+				"match": "library/.*\\.cpp$",
+				"cmd": "python3 ${workspaceFolder}/scripts/sync_snippets.py"
+			}
+		]
+	}
 }

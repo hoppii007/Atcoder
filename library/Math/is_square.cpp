@@ -1,7 +1,7 @@
 
 //四つの頂点の情報をもらい、正方形かどうかを判別する
 //overlapIsOutがtrueなら、ぴったりなってる時ダメにする
-bool isSquare(pll a,pll b,pll c,pll d, bool overlapIsOut = true){
+bool is_square(pll a,pll b,pll c,pll d, bool overlapIsOut = true){
     vpll ps = {a,b,c,d};
     sort(all(ps));
     swap(ps[2], ps[3]);

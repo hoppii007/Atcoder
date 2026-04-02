@@ -7,7 +7,7 @@
 struct Pos {
     ll x,y,z;
 };
-ll intersectionV(vector<pair<Pos,Pos>> vs){
+ll intersection_v(vector<pair<Pos,Pos>> vs){
     //でかい方の最小を取る
     Pos mins = vs[0].snd;
     rep(i,1,vs.size()){

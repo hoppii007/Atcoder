@@ -1,46 +1,50 @@
+/**
+ * @brief Union-Find（素集合データ構造）
+ * @note 各操作 ほぼ O(1)（経路圧縮あり）
+ *
+ * メソッド:
+ *   root(x)       - xが属すグループの根を返す
+ *   unite(x, y)   - xとyのグループを合併
+ *   is_same(x, y) - x, yが同じグループか判定
+ *   size(x)       - xが属すグループの要素数
+ *   size()        - グループの種類数
+ */
 struct UnionFind {
 public:
-    vector<int> par;        // par[i] : iの親の番号　(例) par[3] = 2 : 3の親が2
-    vector<int> count_size; //count_size[i] := iを根とした部分技のサイズ
-    int count_group;        //全体として何個の集合があるか
+    vector<int> par;
+    vector<int> count_size;
+    int count_group;
 
-    //最初は全てが根として初期化
-    UnionFind(int n) : par(n),count_size(n),count_group(n) { 
-        for(int i=0;i<n;i++){
+    UnionFind(int n) : par(n), count_size(n), count_group(n) {
+        for (int i = 0; i < n; i++) {
             par[i] = i;
             count_size[i] = 1;
         }
     }
 
-    // xが属すグループの根を返す関数
-    int root(int x) { 
+    int root(int x) {
         if (par[x] == x) return x;
         return par[x] = root(par[x]);
     }
-    // xが属すグループと、yが属すグループを合併する関数
+
     void unite(int x, int y) {
-        //x、yの根が同じ（既に同じグループ）ときは何もしない
         int rx = root(x);
         int ry = root(y);
         if (rx == ry) return;
-
-        //yが属すグループを主として、xが属すグループをくっつける
         par[rx] = ry;
         count_size[ry] += count_size[rx];
         count_group--;
     }
-    // x, yが同じグループに属すか？を返す関数
-    bool is_same(int x, int y) { 
-        int rx = root(x);
-        int ry = root(y);
-        return rx == ry;
+
+    bool is_same(int x, int y) {
+        return root(x) == root(y);
     }
-    // xが属すグループの要素数を返す関数
-    int size(int x){
+
+    int size(int x) {
         return count_size[root(x)];
     }
-    // グループの種類数を返す関数
-    int size(){
+
+    int size() {
         return count_group;
     }
 };

@@ -1,9 +1,16 @@
-//コンストラクタ　関数ポインタの部分は普通に関数名書くだけでOK
-//SegmentTree<T>(vector<T>&,T (*f)(T,T),T ide)
-//SegmentTree<T>(int n,T (*f)(T,T),T ide)
-//関数
-//Change(int,T)
-//get(int,int)閉区間
+/**
+ * @brief セグメント木（点更新・区間取得）
+ * @tparam T 要素の型
+ * @note 構築 O(N), 更新 O(log N), 取得 O(log N)
+ *
+ * コンストラクタ:
+ *   SegmentTree<T>(vector<T>&, T (*f)(T,T), T ide)
+ *   SegmentTree<T>(int n, T (*f)(T,T), T ide)
+ *
+ * メソッド:
+ *   change(int i, T v) - i番目の要素をvに更新
+ *   get(int l, int r)  - [l, r]の区間取得（閉区間）
+ */
 template<typename T>
 class SegmentTree{
     int n;

@@ -1,7 +1,7 @@
 
 //素因数分解
 //O(√n)
-map<ll,ll> primefact(ll n){
+map<ll,ll> prime_factorize(ll n){
     ll a = 2;
     map<ll,ll> ret;
     if(n == 1) return ret;

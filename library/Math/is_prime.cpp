@@ -1,6 +1,6 @@
 
 // O(log a)
-bool isPrime(ll a){
+bool is_prime(ll a){
     if(a <= 1) return false;
     if(a == 2) return true;
 

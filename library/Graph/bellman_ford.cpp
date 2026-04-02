@@ -4,7 +4,7 @@
 //O(|V|*|E|)
 //負の閉路があるか？の判定も可能
 //まだ試してないから怖いっす...
-vll bellmanFord(vvpll &nexts, vll starts){
+vll bellman_ford(vvpll &nexts, vll starts){
     vll ret(nexts.size(), inf);
     for(ll s: starts) ret[s] = 0;
     ll cnt = 0;

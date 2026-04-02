@@ -1,7 +1,7 @@
 
 //DAG（るーぷをふくんじゃだめ）に対してトポロジカルソートし、根っこが一番左にくるようにする
 //ループとかあったらバグるからマジやめてね
-vll topologicalSort(vvll &nexts){
+vll topological_sort(vvll &nexts){
     vvb canUse(nexts.size());
     rep(i,nexts.size()){
         rep(j,nexts[i].size()) canUse[i].push_back(true);
