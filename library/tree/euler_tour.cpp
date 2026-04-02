@@ -1,17 +1,23 @@
+// ツアーの順番に頂点番号を記録（入ったところは v 、出たところは ~v）
+// in と out を見れば逆引きも可能
+struct EulerTour {
+	vll tour;
+	vll in, out;
 
-//頂点番号 -> {行きがけ距離,帰りがけ+1}を記録する
-//自分を含む部分木集合が[fst,snd)になる
-//木であることは必要
-vpll euler_tour(vvll &nexts, ll root){
-    vpll ret(nexts.size(), {-1,-1});
-    ll order = 0;
-    std::function<void(ll)> dfs = [&](ll now){
-        ret[now].fst = order++;
-        for(ll next: nexts[now]) if(ret[next].fst == -1){
-            dfs(next);
-        }
-        ret[now].snd = order;
-    };
-    dfs(root);
-    return ret;
-}
+	EulerTour(vvll &nexts, ll root){
+		in.resize(nexts.size());
+		out.resize(nexts.size());
+
+		dfs(root, nexts);
+	}
+
+	void dfs(ll now, vvll& nexts, ll parent=-1){
+		in[now] = tour.size();
+		tour.pb(now);
+		for(ll nxt: nexts[now]) if(nxt != parent) {
+			dfs(nxt, nexts, now);
+		}
+		out[now] = tour.size();
+		tour.pb(~now);
+	}
+};

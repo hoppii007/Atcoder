@@ -102,29 +102,53 @@ std::ostream& operator<<(std::ostream& os, const std::vector<T>& vec) {
     return os;
 }
 
+// pair 表示用
+template <typename T, typename S>
+std::ostream& operator<<(std::ostream& os, const std::pair<T,S>& p) { 
+    os << p.fst << " " << p.snd;
+    return os;
+}
+
+// ツアーの順番に頂点番号を記録（入ったところは v 、出たところは ~v）
+// in と out を見れば逆引きも可能
+struct EulerTour {
+	vll tour;
+	vll in, out;
+
+	EulerTour(vvll &nexts, ll root){
+		in.resize(nexts.size());
+		out.resize(nexts.size());
+
+		dfs(root, nexts);
+	}
+
+	void dfs(ll now, vvll& nexts, ll parent=-1){
+		in[now] = tour.size();
+		tour.pb(now);
+		cout << now+1 << " ";
+		for(ll nxt: nexts[now]) if(nxt != parent) {
+			dfs(nxt, nexts, now);
+			cout << now+1 << " ";
+		}
+		out[now] = tour.size();
+		tour.pb(~now);
+	}
+};
 
 
 int main(){
+	cinll(n);
+	vvll nexts(n);
+	rep(i, n-1){
+		cinll(a, b);
+		a--; b--;
 
-    ll base = 0;
-    cinll(q);
-    multiset<ll> m;
+		nexts[a].pb(b);
+		nexts[b].pb(a);
+	}
+	rep(i,n) sorts(nexts[i]);
 
-    while(q--){
-        cinll(t);
-        if(t == 1){
-            cinll(x);
-            m.insert(x+base);
-        }
-        else if(t == 2){
-            cinll(x);
-            base -= x;
-        }
-        else{
-            cout << *m.begin() - base << endl;
-            m.erase(m.begin());
-        }
-    }
+	EulerTour et(nexts, 0);
     
     return 0;
 }
