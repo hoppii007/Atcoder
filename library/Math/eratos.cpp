@@ -1,5 +1,10 @@
 
-//O(nloglogn)でn以下の素数リストを返す（昇順）
+/**
+ * @brief エラトステネスの篩
+ * @param n 上限値（n 以下の素数を列挙する）
+ * @return n 以下の素数を昇順に格納した vector
+ * @note 計算量: O(n log log n)
+ */
 vll eratos(ll n){
     vb isPrime(n+1,true);
     isPrime[0] = false;

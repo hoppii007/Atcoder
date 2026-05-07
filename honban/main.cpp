@@ -59,9 +59,9 @@ using vvpll  = vector<vpll>;
 #define vmll vector<mll>
 #define vvmll vector<vector<mll>>
 
-// const ll mod = 998244353LL;
+const ll mod = 998244353LL;
 // const ll mod = 1000000007LL;
-const ll mod = 10007;
+// const ll mod = 10007;
 const ll inf = 1300100100100100100LL;
 const double PI=3.1415926535897932384626433832795028841971;
 
@@ -101,7 +101,6 @@ std::ostream& operator<<(std::ostream& os, const std::vector<T>& vec) {
     rep(i,vec.size()) os << vec[i] << (i==(ll)vec.size()-1?"":" ");
     return os;
 }
-
 // pair 表示用
 template <typename T, typename S>
 std::ostream& operator<<(std::ostream& os, const std::pair<T,S>& p) { 
@@ -109,46 +108,10 @@ std::ostream& operator<<(std::ostream& os, const std::pair<T,S>& p) {
     return os;
 }
 
-// ツアーの順番に頂点番号を記録（入ったところは v 、出たところは ~v）
-// in と out を見れば逆引きも可能
-struct EulerTour {
-	vll tour;
-	vll in, out;
 
-	EulerTour(vvll &nexts, ll root){
-		in.resize(nexts.size());
-		out.resize(nexts.size());
-
-		dfs(root, nexts);
-	}
-
-	void dfs(ll now, vvll& nexts, ll parent=-1){
-		in[now] = tour.size();
-		tour.pb(now);
-		cout << now+1 << " ";
-		for(ll nxt: nexts[now]) if(nxt != parent) {
-			dfs(nxt, nexts, now);
-			cout << now+1 << " ";
-		}
-		out[now] = tour.size();
-		tour.pb(~now);
-	}
-};
-
+// --------------------- ここまでテンプレ ------------------------
 
 int main(){
-	cinll(n);
-	vvll nexts(n);
-	rep(i, n-1){
-		cinll(a, b);
-		a--; b--;
-
-		nexts[a].pb(b);
-		nexts[b].pb(a);
-	}
-	rep(i,n) sorts(nexts[i]);
-
-	EulerTour et(nexts, 0);
     
     return 0;
 }
