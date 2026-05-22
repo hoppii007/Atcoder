@@ -15,6 +15,26 @@ vvll doubling(vll &nexts){
     return dub;
 }
 
+// 行き先の遷移と、その時のコスト（辺の重さ）を渡す
+// op で集計関数も渡す
+template<typename M>
+vector<vector<pair<M,ll>>> doubling_with_val(vector<pair<M,ll>> &nexts){
+    vector<vector<pair<M,ll>>> ret(nexts.size(), vector<pair<M,ll>>(61));
+    rep(i,nexts.size()){
+        ret[i][0] = nexts[i];
+    }
+    rep(j,1,61) rep(i,nexts.size()){
+        if(ret[i][j-1].snd == -1){
+            ret[i][j] = ret[i][j-1];
+        }
+        else{
+            ret[i][j].fst = ret[i][j-1].fst * ret[ret[i][j-1].snd][j-1].fst;
+            ret[i][j].snd = ret[ret[i][j-1].snd][j-1].snd;
+        }
+    }
+    return ret;
+}
+
 //木の中で、rootからの距離を入れる
 //O(N)
 vll treeDepth(ll root, vvll &nexts){

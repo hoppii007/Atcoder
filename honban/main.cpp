@@ -56,8 +56,6 @@ using vpll = vector<pll>;
 using vpi = vector<pi>;
 using vpd = vector<pd>;
 using vvpll  = vector<vpll>;
-#define vmll vector<mll>
-#define vvmll vector<vector<mll>>
 
 const ll mod = 998244353LL;
 // const ll mod = 1000000007LL;
@@ -111,7 +109,3 @@ std::ostream& operator<<(std::ostream& os, const std::pair<T,S>& p) {
 
 // --------------------- ここまでテンプレ ------------------------
 
-int main(){
-    
-    return 0;
-}

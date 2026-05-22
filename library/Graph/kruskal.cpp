@@ -73,6 +73,7 @@ vector<vector<pair<$1,ll>>> kruskal(vector<vector<pair<$1,ll>>> &nexts){
             uf.unite(edges[i].u, edges[i].v);
             minCost += edges[i].c;
             ret[edges[i].u].push_back({edges[i].c, edges[i].v});
+            ret[edges[i].v].push_back({edges[i].c, edges[i].u});
         }
     }
     //最小コストだけがほしいならここでminCostを返す

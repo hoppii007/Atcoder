@@ -1,4 +1,3 @@
-
 /**
  * @brief 有向グラフの閉路判定
  * @param nexts 隣接リスト（nexts[i] は頂点 i から伸びる辺の行き先一覧）
@@ -10,11 +9,17 @@ bool have_cycle(vvll &nexts){
     vb visit(nexts.size(), false);
     vb finished(nexts.size(), false);
 
-    function<bool(ll)> dfs = [&](ll now){
+    function<bool(ll,ll)> dfs = [&](ll now, ll prev){
         visit[now] = true;
-        for(ll nxt: nexts[now]){
+        for(ll nxt: nexts[now]) {
+            
+            /////////////////////////////////////////
+            // 無向グラフの場合、戻らないためにこれを追加 //
+            ////////////////////////////////////////
+            //if(nxt == prev) continue;
+
             if(visit[nxt] == false) {
-                if(dfs(nxt)) return true;
+                if(dfs(nxt, now)) return true;
             }
             else if(finished[nxt] == false) return true;
         }
@@ -22,6 +27,6 @@ bool have_cycle(vvll &nexts){
         return false;
     };
 
-    rep(i, nexts.size()) if(visit[i] == false) if(dfs(i)) return true;
+    rep(i, nexts.size()) if(visit[i] == false) if(dfs(i,-1)) return true;
     return false;
 }

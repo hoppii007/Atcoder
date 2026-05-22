@@ -1,38 +1,36 @@
 /**
  * @brief セグメント木（点更新・区間取得）
- * @tparam T 要素の型
+ *
+ * @tparam M モノイド型（library/Math/monoid.cpp の Monoid を想定）
  * @note 構築 O(N), 更新 O(log N), 取得 O(log N)
  *
- * コンストラクタ:
- *   SegmentTree<T>(vector<T>&, T (*f)(T,T), T ide)
- *   SegmentTree<T>(int n, T (*f)(T,T), T ide)
+ * @code
+ * ll op_sum(ll a, ll b){ return a + b; }
+ * using Sum = Monoid<ll, op_sum, 0>;
  *
- * メソッド:
- *   change(int i, T v) - i番目の要素をvに更新
- *   get(int l, int r)  - [l, r]の区間取得（閉区間）
+ * vll a = {1, 2, 3, 4, 5};
+ * SegmentTree<Sum> seg(a);
+ * seg.change(2, 10);          // a[2] を 10 に
+ * ll s = seg.get(1, 3);       // a[1] + a[2] + a[3] = 16
+ * @endcode
  */
-template<typename T>
+template<typename M>
 class SegmentTree{
+    using T = typename M::value_type;
     int n;
-    T ident;
     vector<T> array;
-    T (*op)(T,T);
 public:
-    SegmentTree(vector<T> &v,T (*f)(T,T),T ide){
+    SegmentTree(vector<T> &v){
         int sz = v.size();
         this->n = 1;
         while(n < sz) n *= 2;
-        this->array = vector<T>(2*this->n-1,ide);
-        this->ident = ide;
-        this->op = f;
+        this->array = vector<T>(2*this->n-1, M::e);
         for(int i=0;i<sz;i++) change(i,v[i]);
     }
-    SegmentTree(int a,T (*f)(T,T),T ide){
+    SegmentTree(int a){
         this->n = 1;
         while(n < a) n*= 2;
-        this->array = vector<T>(2*this->n-1,ide);
-        this->ident = ide;
-        this->op = f;
+        this->array = vector<T>(2*this->n-1, M::e);
     }
     SegmentTree(){}
     int l_child(int i){ return i*2+1; }
@@ -43,7 +41,7 @@ public:
         this->array[ind] = v;
         int parent = get_parent(ind);
         while(parent != -1){
-            this->array[parent] = op(this->array[l_child(parent)],this->array[r_child(parent)]);
+            this->array[parent] = M::merge(this->array[l_child(parent)],this->array[r_child(parent)]);
             parent = get_parent(parent); 
         }
     }
@@ -52,11 +50,11 @@ public:
             nowL = 0;
             nowR = this->array.size()/2;
         }
-        if(r < nowL || nowR < l) return this->ident;
+        if(r < nowL || nowR < l) return M::e;
         if(l <= nowL && nowR <= r) return this->array[k];
         T vl = get(l,r,l_child(k),nowL,(nowL+nowR)/2);
         T vr = get(l,r,r_child(k),(nowL+nowR)/2+1,nowR);
-        return op(vl,vr);
+        return M::merge(vl,vr);
     }
 };
 

@@ -10,6 +10,10 @@ struct Doubling{
     /** @brief dub[i][j] := 状態 i から 2^j 回遷移した先（遷移先がなければ -1） */
     vvll dub;
 
+    ll LOG = 60;
+
+    Doubling(){}
+
     /**
      * @brief ダブリングテーブルを構築する
      * @param nexts 各状態からの1回の遷移先。遷移先がない場合は -1。
@@ -17,11 +21,11 @@ struct Doubling{
      */
     Doubling(vll &nexts){
         ll n = nexts.size();
-        dub.resize(n, vll(61));
+        dub.resize(n, vll(LOG+1));
         // 2^0 = 1回の遷移先をそのまま格納
         rep(i,n) dub[i][0] = nexts[i];
         // 2^j 回の遷移 = 2^(j-1) 回の遷移を2回適用
-        rep(j,1,61) rep(i,n){
+        rep(j,1,LOG+1) rep(i,n){
             if(dub[i][j-1] == -1) dub[i][j] = -1;
             else dub[i][j] = dub[dub[i][j-1]][j-1];
         }
