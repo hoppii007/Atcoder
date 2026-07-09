@@ -29,10 +29,6 @@
 //書くのが長いやつ
 #define fst first
 #define snd second
-#define cvvll1(name,a,b) vvll name(a, vll(b))
-#define cvvll2(name,a,b,c) vvll name(a, vll(b,c))
-#define cvvlloverload2(name,a,b,c,d,...) d
-#define make_vvll(...) cvvlloverload2(__VA_ARGS__,cvvll2,cvvll1)(__VA_ARGS__)
 using namespace std;
 //型系
 using ll = long long;
@@ -60,25 +56,10 @@ using vvpll  = vector<vpll>;
 const ll mod = 998244353LL;
 // const ll mod = 1000000007LL;
 // const ll mod = 10007;
-const ll inf = 1300100100100100100LL;
+//const ll inf = 1300100100100100100LL;
+const ll inf = 1001001001LL;
 const double PI=3.1415926535897932384626433832795028841971;
 
-//表示
-#define overload1(a,b,NAME,...) NAME
-#define coutYesReturn() do {coutYes(); return 0; } while(0)
-#define coutYesReturnIf(a) do { if(a){ coutYesReturn(); }} while(0)
-#define coutNoReturn() do {coutNo(); return 0;} while(0)
-#define coutNoReturnIf(a) do {if(a){ coutNoReturn(); }} while(0)
-#define coutReturnIf(a,s) do{if(a){cout<<s<<endl; return 0;}}while(0)
-template<typename... T>
-void coutll(T... a){ ((cout << a <<" "),...) << endl; }
-void coutvll(vll &a){ rep(i,a.size()) cout<<a[i]<<" "; cout<<endl; }
-void coutvll(string name, vll &a){ cout<<name<<":"; coutvll(a); }
-void coutvlln(vll &a){ rep(i,a.size()) cout<<a[i]<<endl; }
-void coutYes(){ cout<<"Yes"<<endl; }
-void coutNo(){ cout<<"No"<<endl; }
-void coutYesNo(bool a){ cout<<(a?"Yes":"No")<<endl; }
-void coutIf(bool a, string s, string t){ cout<<(a?s:t)<<endl; }
 //入力
 template<class... T>
 void input(T&... a){
@@ -106,8 +87,86 @@ std::ostream& operator<<(std::ostream& os, const std::pair<T,S>& p) {
     return os;
 }
 
+/*
+
+/*
+**どの問題?**
+
+**difficulty**
+
+**solved**
+(自力AC / 解説AC / 未AC)
+
+**felt**
+（簡単 / 中 / 難しい）
+
+**考察ノート**
+
+**難所**
+
+## 問題全体のメモ
+
+
+int main(){
+
+    return 0;
+}
+
+*/
+
 
 // --------------------- ここまでテンプレ ------------------------
+
+/*
+**どの問題?**
+ABC212F
+
+**difficulty**
+2332
+
+**solved**
+(自力AC / 解説AC / 未AC)
+
+**felt**
+難しい
+
+**考察ノート**
+Zの制約が小さければ、クエリを小さい順に並び替えた後にその時刻にどこにいるかをシミュレートしていけば良さそうですが、Zがデカいですね...
+いや、でもやっぱりクエリを時刻小さい順に並べておけば、自分の状態としてあり得るのは「どこかの都市にいるか、どこかのバスにいるか」なので、
+N+M個しか状態がないはずです。で、状態の切り替わりのタイミングだけ記録しつつ進んでいけばいい...と思ったけど、これはスタート地点が固定されている場合ですね
+クエリをスタート地点ごとに分割してやるてもありますが、スタート地点の候補がN個、その後進んでいく状態の個数がN+M個なので、O(N*(N+M))とかになってダメそうです...
+うーん困った
+グラフの拡張みたいな感じでなんとかできないでしょうか。
+頂点aを時刻pに出発するバス、みたいなのを一つの頂点として、行き先は例えばa -> a'という辺で、出発時刻をs、到着時刻をtとすると、
+(a,p) -> (a',t以降で最初にa'からバスが出る時間)としておくと、すべての状態から行き先が一意にきまります。
+そうするとダブリングが使えて、すべての場所、時刻からN回進んだ場所、みたいなのが記録でき、それを使って二分探索で初めてZを超える場所を探す、みたいなことをすればいい気がします
+ただすべての場所、時刻に対してやろうとすると計算量は大丈夫でしょうか？
+考慮すべきすべての頂点は、バスの本数しかないはずです（各バスの場所と開始時刻を頂点とするため）
+とすると2*m敷かないはずなので、なんかいけそうな気がしてきました
+整理してみましょう。
+まず、頂点集合Sを、S = {(s_i, t_i) | s_i=i番目のバスの出発都市、t_i=i番目のバスの出発時刻}
+として、各頂点から辺を(s_i, t_i) -> (s'_i, t'_i)（s'_iはバスiの到着都市、t'_iはバスiの到着時刻以降、最初に出発するバスの時刻（ない場合はinf））とします
+すると、|S| = M、|E={辺の集合}| = Mです。（各辺に対して行き先が一意に定まるので）
+この上でダブリングを行う計算量は、|S| * log(パスの最大長)なので、|S| * log |E|=MlogM
+ダブリングの構築は間に合いそうです。
+あとは各クエリに対して、そのクエリ設定で最初に出発する都市aと時刻pを求め、(a,p)から進んだ頂点(a', p')であって初めてp'がzを超える場所を二分探索で探し、その前の頂点から(a', p')に来る道中で、時刻Zのタイミングでバスに乗っているのかa'で待機しているのかを判断すれば良さそうです
+これ、実装が大変だな...
+丁寧に実装します。
+
+**難所**
+考察も難しいけど、グラフの拡張系のひらめき考察は得意なので、思ったより早めに方針はたった。が、そこからの実装がかなり重かった。
+
+## 問題全体のメモ
+*/
+
+struct Bus{
+    ll a, b, s, t;
+    ll i;
+    bool operator<(const Bus& bus) const {
+        if(a != bus.a) return a < bus.a;
+        return s < bus.s;
+    }
+};
 
 /**
  * @brief ダブリング（Doubling）
@@ -121,7 +180,7 @@ struct Doubling{
     /** @brief dub[i][j] := 状態 i から 2^j 回遷移した先（遷移先がなければ -1） */
     vvll dub;
 
-    ll LOG = 60;
+    ll LOG = 30;
 
     Doubling(){}
 
@@ -182,36 +241,95 @@ struct Doubling{
 };
 
 int main(){
-    cinll(n, q, x);
-    cinvll(w, n);
-    ll total = accumulate(all(w), 0LL);
-    // 全ての場所 i から、リセットされて次入る最初の場所を記録
-    vll nexts(n);
-    vpll vnexts(n);
-    ll r = 0;
-    ll now = w[0];
-    ll now_cnt = 1;
+    cinll(n, m, q);
+
+    // 各都市から出発するバスの時刻集合
+    vector<vector<Bus>> stimes(n);
+    vector<Bus> buses;
+
+    rep(i, m){
+        cinll(a, b, s, t);
+        a--; b--;
+        stimes[a].pb(Bus{a, b, s, t});
+        buses.pb(Bus{a,b,s,t});
+    }
     rep(i, n){
-        if(x-now >= total){
-            now_cnt += (x-now)/total * n;
-            now += (x-now)/total * total;
+        stimes[i].pb(Bus{i,i,inf,inf});
+        buses.pb(Bus{i,i,inf,inf});
+    }
+    rep(i, n) sort(all(stimes[i]));
+    sort(all(buses));
+    map<Bus,ll> to_idx;
+    rep(i, buses.size()){
+        buses[i].i = i;
+        to_idx[buses[i]] = i;
+    }
+    rep(i, n) rep(j, stimes[i].size()) stimes[i][j].i = to_idx[stimes[i][j]];
+
+    vll nexts(buses.size());
+    rep(i, buses.size()){
+        Bus bus = buses[i];
+        if(bus.s == inf) {
+            nexts[i] = i;
+            continue;
         }
-        while(now < x){
-            now += w[(r+1)%n];
-            now_cnt++;
-            r++;
-        }
-        nexts[i] = (r+1)%n;
-        vnexts[i] = {now_cnt, (r+1)%n};
-        now_cnt--;
-        now -= w[i];
+        // 頂点 bus.b で、時刻 t 以降で最初に出るバスを探す
+        Bus nbus = *lower_bound(all(stimes[bus.b]), Bus{bus.b, bus.b, bus.t, bus.t});
+        nexts[i] = nbus.i;
     }
 
     Doubling doub(nexts);
+
+    // rep(i, buses.size()){
+    //     cout << buses[i].a << " " << buses[i].b << " " << buses[i].s << " " << buses[i].t << endl;
+    // }
+
+    vll prev(buses.size());
+    rep(i, buses.size()) prev[nexts[i]] = i;
+
     while(q--){
-        cinll(k);
-        cout << vnexts[doub.kth_next(0, k-1)].fst << endl;
+        cinll(x, y, z);
+        y--;
+        // 時刻x以降で最初に出るバスを求める
+        Bus bus = *lower_bound(all(stimes[y]), Bus{y, y, x, x});
+        //cout << bus.a<<"を" << bus.s << "に出発" << endl;
+        if(bus.s == inf){
+            cout << y+1 << endl;
+            continue;
+        }
+        // busから始めて、最初にzより大きくなる箇所を探す
+        //二分探索のジャッジ用のやつ
+        auto nibutan_judge = [&](ll mid){
+            return z <= buses[doub.kth_next(bus.i, mid)].s;
+        };
+        ll ok = inf;
+        ll ng = -1;
+        while(abs(ok-ng) > 1){
+            ll mid = (ok+ng)/2;
+            if(nibutan_judge(mid)) ok = mid;
+            else ng = mid;
+        }
+        //cout << "ok=" << ok << endl;
+        if(ok == 0){
+            //cout << "ngo" << endl;
+            // その場にとどまり続けてるか、バスに乗れるか？
+            if(z <= bus.s) cout << y+1 << endl;
+            else cout << bus.a+1 << " " << bus.b+1 << endl;
+            continue;
+        }
+        // ok-1回移動したバスの到着時刻と比べればいい
+        Bus bus2 = buses[doub.kth_next(bus.i, ok-1)];
+        if(z <= bus2.t) cout << bus2.a+1 << " " << bus2.b+1 << endl;
+        else cout << bus2.b+1 << endl;
     }
-    
+
+
+    // rep(i, n){
+    //     cout << "i:" << i << " ";
+    //     for(Bus b: stimes[i]) cout << "{" << b.b << " " << b.s << " " << b.t << "}, ";
+    //     cout << endl;
+    // }
+
+
     return 0;
 }

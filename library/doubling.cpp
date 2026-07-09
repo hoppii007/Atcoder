@@ -68,4 +68,36 @@ struct Doubling{
         }
         return cur;
     }
+
+    /**
+     * @brief 述語 pred が成り立ち続ける限り貪欲に遷移し、進めた最大回数と到達状態を返す
+     *
+     * 経路上で pred が単調（true…true → false…false と一度だけ切り替わる）であることを仮定し、
+     * 上位ビットから「そのブロックぶん進んでも pred が成り立つか」を1回ずつ判定して確定する。
+     * LCA の binary lifting と同じ要領で、二分探索×kth_next の O(log^2 K) を O(log K) に落とせる。
+     *
+     * @tparam F ll（状態）を受け取り bool を返す述語の型
+     * @param n    開始状態（pred(n) == true を仮定する）
+     * @param pred 状態を受け取り、その状態が条件を満たすかを返す関数
+     * @return {進めた回数 k, k 回遷移した先の状態}。1歩も進めないときは {0, n}。
+     * @note 遷移先が -1（遷移先なし）になった時点でそれ以上は進めないものとして打ち切る。
+     *
+     * @code
+     * // 時刻が Z を超えない最大回数だけ進み、その手前の状態を得る（ABC212-F 型）
+     * // time_at[s] := 状態 s の時刻（経路に沿って単調増加）
+     * auto [cnt, last] = d.max_step_while(start, [&](ll s){ return time_at[s] <= Z; });
+     * @endcode
+     */
+    template<typename F>
+    pair<ll,ll> max_step_while(ll n, F pred){
+        ll cnt = 0;
+        for(ll j=LOG;j>=0;j--){
+            ll nxt = dub[n][j];
+            if(nxt != -1 && pred(nxt)){
+                n = nxt;
+                cnt += (1LL << j);
+            }
+        }
+        return {cnt, n};
+    }
 };
