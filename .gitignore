@@ -1,0 +1,6 @@
+# .vscode は snippets.code-snippets のみ追跡する
+.vscode/*
+!.vscode/snippets.code-snippets
+
+# ビルド成果物
+*.exe
