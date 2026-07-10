@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8" />
+    <link rel="stylesheet" href="popup.css" />
+  </head>
+  <body>
+    <div id="stats" class="stats"></div>
+    <div class="controls">
+      <input id="search" type="search" placeholder="タグを検索…" />
+      <button id="clear" title="フィルタ解除">解除</button>
+    </div>
+    <label class="toggle">
+      <input id="showDetails" type="checkbox" />
+      <span>詳細を表示する（ホバーでタグ・つまずき）</span>
+    </label>
+    <div id="hint" class="hint">
+      タグをクリックすると Table 上で一致問題を強調します（複数選択可）。
+    </div>
+    <ul id="taglist" class="taglist"></ul>
+    <div class="footer">
+      <span id="gen"></span>
+    </div>
+    <script src="popup.js"></script>
+  </body>
+</html>

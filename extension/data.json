@@ -1,0 +1,439 @@
+{
+  "generatedAt": "2026-07-10T16:10:31.360Z",
+  "count": 14,
+  "problems": {
+    "abc212_c": {
+      "id": "abc212_c",
+      "title": "Min Difference",
+      "url": "https://atcoder.jp/contests/abc212/tasks/abc212_c",
+      "difficulty": 246,
+      "tags": [
+        "near_value",
+        "二分探索"
+      ],
+      "confidence": "確定",
+      "attempts": 1,
+      "latest": {
+        "round": 1,
+        "date": "2026-07-10",
+        "solved": "自力AC",
+        "felt": "簡単",
+        "timeSpent": null,
+        "stumble": [],
+        "consideration": "「一番近い値」が高速に求められればいいことにすぐ気づいて、二分探索でいけるしライブラリがあるのですぐにできた。"
+      },
+      "firstSolved": "自力AC",
+      "notePath": "problems/abc212/abc212_c.md"
+    },
+    "abc212_d": {
+      "id": "abc212_d",
+      "title": "Querying Multiset",
+      "url": "https://atcoder.jp/contests/abc212/tasks/abc212_d",
+      "difficulty": 775,
+      "tags": [
+        "multiset",
+        "区間sum",
+        "言い換え"
+      ],
+      "confidence": "確定",
+      "attempts": 1,
+      "latest": {
+        "round": 1,
+        "date": "2026-07-10",
+        "solved": "自力AC",
+        "felt": "簡単",
+        "timeSpent": null,
+        "stumble": [
+          "方針決定",
+          "数学"
+        ],
+        "consideration": "区間sumが難しそうと感じたが、「今までのものすべてに対しての処理」は基準点だけを変更させればよさそう。\nx-r を入れた後、出す時は x+r を出すので、入れてから出るまでに増えた分が加算されて出ることになる。\n大小関係については、全員実際の値が +r されただけになるので変わらない。"
+      },
+      "firstSolved": "自力AC",
+      "notePath": "problems/abc212/abc212_d.md"
+    },
+    "abc212_e": {
+      "id": "abc212_e",
+      "title": "Safety Journey",
+      "url": "https://atcoder.jp/contests/abc212/tasks/abc212_e",
+      "difficulty": 1410,
+      "tags": [
+        "グラフDP",
+        "DP",
+        "余事象"
+      ],
+      "confidence": "候補",
+      "attempts": 1,
+      "latest": {
+        "round": 1,
+        "date": "2026-07-10",
+        "solved": "自力AC",
+        "felt": "難しい",
+        "timeSpent": null,
+        "stumble": [],
+        "consideration": "「禁止辺」が指定されるので、使用可能辺は N*N-M でかなり多くなる。使用可能辺を見ていくのは筋が悪そう。\n全ルートを計算した後、「禁止辺」を使うルート数を引けばいい？ でも「禁止辺を1回でも通るルート」の\n数え上げが難しそう（道 A を通るタイミングがいろいろあるので）。単純な余事象では詰まった。\n制約から考える：N ≤ 5000、K ≤ 5000 なので dp[i][j] := 頂点 i にいて残り移動回数が j の時の場合の数、を発想。\ndp[i][j] = Σ dp[near][j+1]（near は i から移動可能な頂点）だが、これを\ndp[i][j] = Σ dp[a][j+1]（a≠i の全頂点）− Σ dp[a][j+1]（a は i の禁止隣接）\nと書き換えると、第2項は全体で M*K 回、dp 設定は N*K 回で、O(M*K + N*K) で間に合う。"
+      },
+      "firstSolved": "自力AC",
+      "notePath": "problems/abc212/abc212_e.md"
+    },
+    "abc212_f": {
+      "id": "abc212_f",
+      "title": "Greedy Takahashi",
+      "url": "https://atcoder.jp/contests/abc212/tasks/abc212_f",
+      "difficulty": 2332,
+      "tags": [
+        "ダブリング",
+        "グラフ拡張",
+        "二分探索"
+      ],
+      "confidence": "確定",
+      "attempts": 1,
+      "latest": {
+        "round": 1,
+        "date": "2026-07-10",
+        "solved": "解説AC",
+        "felt": "難しい",
+        "timeSpent": null,
+        "stumble": [
+          "定数倍高速化",
+          "実装バグ"
+        ],
+        "consideration": "Zの制約が小さければ、クエリを小さい順に並び替えた後にその時刻にどこにいるかをシミュレートしていけば良さそうだが、Zがデカい。\nクエリを時刻小さい順に並べれば、自分の状態としてあり得るのは「どこかの都市にいるか、どこかのバスにいるか」なので N+M 個しか状態がない。\n状態の切り替わりのタイミングだけ記録しつつ進めばいい…と思ったが、これはスタート地点が固定されている場合。\nクエリをスタート地点ごとに分割する手もあるが、スタート候補が N 個 × その後の状態 N+M 個で O(N(N+M)) になりダメそう。\n\nグラフの拡張で何とかできないか。「頂点 a を時刻 p に出発するバス」を一つの頂点とし、\n(a,p) -> (a', t 以降で最初に a' からバスが出る時間) としておくと、すべての状態から行き先が一意に決まる。\nそうするとダブリングが使えて、すべての場所・時刻から N 回進んだ先が記録でき、それを使って二分探索で初めて Z を超える場所を探せばいい。\n\n考慮すべき頂点はバスの本数しかない（各バスの場所と開始時刻を頂点とするため）。整理すると:\n頂点集合 S = {(s_i, t_i) | s_i = i番目のバスの出発都市, t_i = i番目のバスの出発時刻}、|S| = M。\n各頂点から辺 (s_i, t_i) -> (s'_i, t'_i)（s'_i = バス i の到着都市, t'_i = 到着時刻以降で最初に出発するバスの時刻、無ければ inf）を張ると |E| = M。\nこの上でダブリングを行う計算量は |S| * log(パス最大長) = M log M で間に合う。\n各クエリでは、最初に出発する都市 a と時刻 p を求め、(a,p) から進んだ頂点で初めて p' が z を超える箇所を二分探索で探し、\nその手前の頂点から (a', p') への道中で、時刻 Z に「バスに乗っているのか a' で待機しているのか」を判断すればよい。"
+      },
+      "firstSolved": "解説AC",
+      "notePath": "problems/abc212/abc212_f.md"
+    },
+    "abc213_c": {
+      "id": "abc213_c",
+      "title": "Reorder Cards",
+      "url": "https://atcoder.jp/contests/abc213/tasks/abc213_c",
+      "difficulty": 481,
+      "tags": [
+        "座標圧縮",
+        "行列独立"
+      ],
+      "confidence": "確定",
+      "attempts": 1,
+      "latest": {
+        "round": 1,
+        "date": "2026-07-10",
+        "solved": "自力AC",
+        "felt": "簡単",
+        "timeSpent": null,
+        "stumble": [],
+        "consideration": "グリッド系で行ごとや列ごとの操作なので、行ごと列ごとに分割して考えると良さそう。\n「操作の仕方によらず一意」とかいてあるので、やっぱり行ごと列ごとそれぞれ独立に操作すれば良くて、\n座標圧縮して圧縮前 → 圧縮後の座標がわかれば良さそう。"
+      },
+      "firstSolved": "自力AC",
+      "notePath": "problems/abc213/abc213_c.md"
+    },
+    "abc213_d": {
+      "id": "abc213_d",
+      "title": "Takahashi Tour",
+      "url": "https://atcoder.jp/contests/abc213/tasks/abc213_d",
+      "difficulty": 710,
+      "tags": [
+        "オイラーツアー",
+        "木DFS"
+      ],
+      "confidence": "確定",
+      "attempts": 1,
+      "latest": {
+        "round": 1,
+        "date": "2026-07-10",
+        "solved": "自力AC",
+        "felt": "簡単",
+        "timeSpent": null,
+        "stumble": [
+          "実装バグ"
+        ],
+        "consideration": "オイラーツアーを行きがけ順で答えてくれという問題。行き先のソートにならし O(N log N)、\n探索に O(N) なので十分間に合う。"
+      },
+      "firstSolved": "自力AC",
+      "notePath": "problems/abc213/abc213_d.md"
+    },
+    "abc213_e": {
+      "id": "abc213_e",
+      "title": "Stronger Takahashi",
+      "url": "https://atcoder.jp/contests/abc213/tasks/abc213_e",
+      "difficulty": 1423,
+      "tags": [
+        "01BFS",
+        "グラフ帰着",
+        "グラフ拡張"
+      ],
+      "confidence": "確定",
+      "attempts": 1,
+      "latest": {
+        "round": 1,
+        "date": "2026-07-10",
+        "solved": "自力AC",
+        "felt": "簡単",
+        "timeSpent": null,
+        "stumble": [],
+        "consideration": "グラフの拡張系の考察は得意なので、すぐ見えた。\n道がつながっているグリッド同士をコスト0の辺、そのグリッドのまわり（以下で1になっている箇所）に\nコスト1の辺を張り、ゴールまでの最短経路をダイクストラなり01-bfsなりで求めればOK。\n\n```\n0 1 1 1 0\n1 1 1 1 1\n1 1 2 1 1\n1 1 1 1 1\n0 1 1 1 0\n```\n（中心 2 が現在地。1 のマスは1回のパンチで到達可能、四隅 0 は不可）"
+      },
+      "firstSolved": "自力AC",
+      "notePath": "problems/abc213/abc213_e.md"
+    },
+    "abc213_f": {
+      "id": "abc213_f",
+      "title": "Common Prefixes",
+      "url": "https://atcoder.jp/contests/abc213/tasks/abc213_f",
+      "difficulty": 2215,
+      "tags": [
+        "接尾辞配列",
+        "単調スタック"
+      ],
+      "confidence": "候補",
+      "attempts": 1,
+      "latest": {
+        "round": 1,
+        "date": "2026-07-10",
+        "solved": "未AC",
+        "felt": "難しい",
+        "timeSpent": null,
+        "stumble": [
+          "方針決定"
+        ],
+        "consideration": "f(S_k, S_i) について、S[k]!=S[i] ならそもそも 0。\n同じ文字なら、(k<n && i<n && S[k]==C && S[i]==C) が成り立つ間 k++,i++ して、\n成り立たなくなったらそこからの一致数を数える、みたいなことをすれば良さそう。\n「そこからの一致数」は再帰的に適用すれば良さそうだが、そうすると「文字種類が切り替わる回数」の\n処理が必要になってダメそう…困った。\n\n全体の計算量を考えると Σ(k) Σ(i) f(S_k,S_i) を求める必要があり、これだけで O(N^2)。\nf(A,B)=f(B,A) を使うと\nΣ(k) Σ(i) f(S_k,S_i) = 2·Σ(k) Σ(i<k) f(S_k,S_i) + Σ(i)(N-i+1)\n= 2·Σ(k) Σ(i<k) f(S_k,S_i) + N(N+1)/2\nと変形でき、実質 Σ(k) Σ(i<k) f(S_k,S_i) を求めればよい。\n\n各文字の寄与度を考える。例えば S=\"abaabccd\" で S[0] が実際に数えられるのは\nf(S_0,S_0), f(S_0,S_2), f(S_0,S_3) の 3 回。各文字の累積和の区間 Sum みたいになりそうな予感。\nS[i]==S[j] のとき、開始地点 si,sj に対して si--,sj-- をどちらかが 0 になるまで行う → min(i,j) 回足される。\n\n…見えてきた気がしたが、問題を誤読していた。求めるのは各 k について Σ(i) f(S_k,S_i) だった。\nうーーーーん、断念。"
+      },
+      "firstSolved": "未AC",
+      "notePath": "problems/abc213/abc213_f.md"
+    },
+    "abc214_c": {
+      "id": "abc214_c",
+      "title": "Distribution",
+      "url": "https://atcoder.jp/contests/abc214/tasks/abc214_c",
+      "difficulty": 319,
+      "tags": [
+        "グラフ帰着",
+        "環状DP"
+      ],
+      "confidence": "確定",
+      "attempts": 1,
+      "latest": {
+        "round": 1,
+        "date": "2026-07-10",
+        "solved": "自力AC",
+        "felt": "簡単",
+        "timeSpent": null,
+        "stumble": [],
+        "consideration": "グラフっぽい見た目をしているのでグラフにしたい。\n時刻管理より辺にコストをつけて最短経路とかにしたいので、\n高橋くんが始めて宝石を誰かに手渡す時刻 S を 0 として、そこから各人 i に宝石が渡る時間を求めれば良さそう。\nグラフとしては高橋くんの頂点＋各すぬけくんの頂点で、すぬけくんの頂点は円環になっててコストは t のままで OK。\n高橋くん → 各すぬけくんのコストは、渡す時刻 − S で良さそう。"
+      },
+      "firstSolved": "自力AC",
+      "notePath": "problems/abc214/abc214_c.md"
+    },
+    "abc214_d": {
+      "id": "abc214_d",
+      "title": "Sum of Maximum Weights",
+      "url": "https://atcoder.jp/contests/abc214/tasks/abc214_d",
+      "difficulty": 1341,
+      "tags": [
+        "貢献度",
+        "Union-Find"
+      ],
+      "confidence": "確定",
+      "attempts": 1,
+      "latest": {
+        "round": 1,
+        "date": "2026-07-10",
+        "solved": "自力AC",
+        "felt": "簡単",
+        "timeSpent": 10,
+        "stumble": [],
+        "consideration": "寄与度を考えたくなる。各辺が何回選ばれるかがわかれば良さそうで、一番コストがデカい辺 E を A→B だとすると、\n{B→A 以降の部分木のサイズ}*{A→B 以降の部分木のサイズ}になります。これを数えたら、辺 E を削除して次に大きい辺を E として…\nとやっていけばいいので、辺を削除していくということは逆順にして追加していけば良さそうで、\nコストを小さい順に並べ、その辺を追加しながら、両端のサイズをかけた値*cost を合計していけば良さそうです。"
+      },
+      "firstSolved": "自力AC",
+      "notePath": "problems/abc214/abc214_d.md"
+    },
+    "abc214_e": {
+      "id": "abc214_e",
+      "title": "Packing Under Range Regulations",
+      "url": "https://atcoder.jp/contests/abc214/tasks/abc214_e",
+      "difficulty": 1835,
+      "tags": [
+        "貪欲",
+        "multiset",
+        "イベントソート"
+      ],
+      "confidence": "確定",
+      "attempts": 1,
+      "latest": {
+        "round": 1,
+        "date": "2026-07-10",
+        "solved": "自力AC",
+        "felt": "中",
+        "timeSpent": 30,
+        "stumble": [],
+        "consideration": "とりあえず、自分だけが入れられる箱がある人は、そこに入れていい。その箱に入れられる人が複数ある時、\nどんな順番に入れていけばいいか？を考えると良さそう。貪欲かなぁ。区間スケジューリング的に、\n終わりが早い人を選択するといいのかも。終わりが遅い人はまだ入れられる可能性があり、終わりが早い人は\nチャンスが少ないということなので。一つ以上被っている区間に対して、一番左から入れるボールを決定していけば\n良さそう？決定の回数は N 回なので、次を選ぶ処理を O(1) でできれば計算量はよさそう。証明しとこうかな。\nいやー、厳密には証明してませんが、「より可能性がある方を残す」貪欲なのでいいと思います。\nその箱に入るボールが1つしかいない時にそれを選べばいいのはそれはそうで、複数あった場合、\n最適解がこの貪欲の候補 D を選ばず、D' を選んだとします。最適解のその後に D が選ばれていない場合は、\nここで D を選んでも良く、選ばれている場合は先の D を今選んだことにして、後から D を入れていたところに\nD' を入れられる（D' の方が終了が遅いので）。よって証明できてるのでこれで良さそう。"
+      },
+      "firstSolved": "自力AC",
+      "notePath": "problems/abc214/abc214_e.md"
+    },
+    "abc214_f": {
+      "id": "abc214_f",
+      "title": "Substrings",
+      "url": "https://atcoder.jp/contests/abc214/tasks/abc214_f",
+      "difficulty": 1973,
+      "tags": [
+        "DP",
+        "相異なる部分列DP",
+        "累積和DP"
+      ],
+      "confidence": "確定",
+      "attempts": 1,
+      "latest": {
+        "round": 1,
+        "date": "2026-07-10",
+        "solved": "未AC",
+        "felt": "難しい",
+        "timeSpent": null,
+        "stumble": [
+          "遷移・立式",
+          "数学"
+        ],
+        "consideration": "「隣り合わない」「選ぶ場所を決める」がDPっぽいけど、文字列の種類だからどうしようという感じ。\n一旦文字列の種類じゃなくて「選び方が何通りあるか」で考えてみる。\nこの場合、dp[i][j] := i番目まで考えて、i番目を選ぶ or 選ばない（j=1 or 0）の時の選び方の通り数とすると、\ndp[i][0] = dp[i-1][0] + dp[i-1][1];\ndp[i][1] = dp[i-1][0] + 1;（i番目のみを選ぶ場合があるため）\nというDPでいけそう。\n重複して数えたくないので、同じ文字列になる選び方の中で「これを数える」というやつを決めて数えたい。\n今回で言うと「部分文字列のそれぞれの文字が最初に現れる場所を指していく選び方」とするとよさそう。\nたとえば S=\"aabacbdc\" のとき、T=\"a\" となる選び方はいろいろあるけど {0} とする。\nT=\"ab\" は {0,2}、T=\"aac\" は {0,1,4}。\nこうしておくと、他の選び方の T から作れるすべての文字列は、この選び方の後に何かをくっつけることで\n作れるので全パターン網羅できるし、文字列に対して選び方が一意に対応する。\nこの場合さっきのDPの遷移を変えればよさそうで、数えなくていい選び方を無視したい。\ndp[i][0] 側はいいが、dp[i][1] 側（i番目を使う場合）は注意が必要で、i番目から左に見ていって\n選んでない区間に s[i] と同じ文字が含まれているときはその状態に遷移してこられない、みたいなことを\nしないといけない…。余事象もあるかも？ 頭が混乱してきた。"
+      },
+      "firstSolved": "未AC",
+      "notePath": "problems/abc214/abc214_f.md"
+    },
+    "abc244_e": {
+      "id": "abc244_e",
+      "title": "King Bombee",
+      "url": "https://atcoder.jp/contests/abc244/tasks/abc244_e",
+      "difficulty": 1125,
+      "tags": [
+        "グラフDP"
+      ],
+      "confidence": "確定",
+      "attempts": 1,
+      "latest": {
+        "round": 1,
+        "date": "2026-07-10",
+        "solved": "自力AC",
+        "felt": "中",
+        "timeSpent": null,
+        "stumble": [],
+        "consideration": "簡単なケースを考えてみる。「S から K 回移動して T にたどり着くルートを数える」という問題なら\nグラフ DP で行けそう？ `dp[i][j]` := 頂点 i から j 回移動で頂点 T に行くルートの本数、として\nメモ化再帰でいけそう。X の偶奇条件を状態に足して\n`dp[i][j][k]` := 頂点 i から j 回移動で頂点 T に、X を偶数 or 奇数（k=0/1）回通っていける\nルートの本数、としてメモ化再帰でよさそう。"
+      },
+      "firstSolved": "自力AC",
+      "notePath": "problems/abc244/abc244_e.md"
+    },
+    "abc245_d": {
+      "id": "abc245_d",
+      "title": "Polynomial division",
+      "url": "https://atcoder.jp/contests/abc245/tasks/abc245_d",
+      "difficulty": 815,
+      "tags": [
+        "多項式除算",
+        "係数比較",
+        "畳み込み"
+      ],
+      "confidence": "確定",
+      "attempts": 1,
+      "latest": {
+        "round": 1,
+        "date": "2026-07-10",
+        "solved": "自力AC",
+        "felt": "中",
+        "timeSpent": null,
+        "stumble": [],
+        "consideration": "元の式を展開すると各次数の係数が方程式になるので、B_M から順に決めていけばよさそう。\n\n積の展開（例：A が3次、B が2次）で、次数 5,4,3,2 の係数を書き出す:\n\n- c5 = a3·b2\n- c4 = a3·b1 + a2·b2\n- c3 = a3·b0 + a2·b1 + a1·b2\n- c2 = a2·b0 + a1·b1 + a0·b2\n\n一般化すると、上位から t 段目（次数 N+M-t）は\n\n- C_{N+M-t} = Σ_{i=0}^{t} a_{N-i}·b_{M-(t-i)}\n\ni=0 の項 a_N·b_{M-t} を左辺に移して\n\n- b_{M-t} = ( C_{N+M-t} − Σ_{i=1}^{t} a_{N-i}·b_{M-(t-i)} ) / a_N\n\n最高次 C_{N+M}=a_N·b_M で b_M が一意に決まり、以降は既に求めた上位の b_{M-(t-i)}\n（i≥1）を使って三角状に下の次数へ降りていける。A_N≠0 が割り算の保証。"
+      },
+      "firstSolved": "自力AC",
+      "notePath": "problems/abc245/abc245_d.md"
+    }
+  },
+  "tags": {
+    "near_value": [
+      "abc212_c"
+    ],
+    "二分探索": [
+      "abc212_c",
+      "abc212_f"
+    ],
+    "multiset": [
+      "abc212_d",
+      "abc214_e"
+    ],
+    "区間sum": [
+      "abc212_d"
+    ],
+    "言い換え": [
+      "abc212_d"
+    ],
+    "グラフDP": [
+      "abc212_e",
+      "abc244_e"
+    ],
+    "DP": [
+      "abc212_e",
+      "abc214_f"
+    ],
+    "余事象": [
+      "abc212_e"
+    ],
+    "ダブリング": [
+      "abc212_f"
+    ],
+    "グラフ拡張": [
+      "abc212_f",
+      "abc213_e"
+    ],
+    "座標圧縮": [
+      "abc213_c"
+    ],
+    "行列独立": [
+      "abc213_c"
+    ],
+    "オイラーツアー": [
+      "abc213_d"
+    ],
+    "木DFS": [
+      "abc213_d"
+    ],
+    "01BFS": [
+      "abc213_e"
+    ],
+    "グラフ帰着": [
+      "abc213_e",
+      "abc214_c"
+    ],
+    "接尾辞配列": [
+      "abc213_f"
+    ],
+    "単調スタック": [
+      "abc213_f"
+    ],
+    "環状DP": [
+      "abc214_c"
+    ],
+    "貢献度": [
+      "abc214_d"
+    ],
+    "Union-Find": [
+      "abc214_d"
+    ],
+    "貪欲": [
+      "abc214_e"
+    ],
+    "イベントソート": [
+      "abc214_e"
+    ],
+    "相異なる部分列DP": [
+      "abc214_f"
+    ],
+    "累積和DP": [
+      "abc214_f"
+    ],
+    "多項式除算": [
+      "abc245_d"
+    ],
+    "係数比較": [
+      "abc245_d"
+    ],
+    "畳み込み": [
+      "abc245_d"
+    ]
+  }
+}

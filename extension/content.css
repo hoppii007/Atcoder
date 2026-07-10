@@ -1,0 +1,75 @@
+/* 問題セルの背景を solved 状態で塗り分ける --------------------------- */
+td.apn-cell {
+  position: relative !important;
+}
+
+/* solved 状態の背景色は挑戦回数に応じて content.js が inline で塗る
+   （回数が多いほど濃く）。ここでは指定しない。 */
+
+/* タグフィルタの強調／淡色化 */
+td.apn-dim { opacity: 0.28 !important; }
+td.apn-hit { outline: 3px solid #1565c0 !important; outline-offset: -3px; }
+
+/* ツールチップ ------------------------------------------------------- */
+#apn-tooltip {
+  position: fixed;
+  z-index: 2147483647;
+  max-width: 360px;
+  padding: 10px 12px;
+  background: #1e1e2e;
+  color: #eaeaf0;
+  font-size: 12px;
+  line-height: 1.5;
+  border-radius: 8px;
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.4);
+  pointer-events: none;
+  font-family: -apple-system, "Segoe UI", "Hiragino Kaku Gothic ProN", "Yu Gothic", sans-serif;
+}
+#apn-tooltip .apn-tt-head {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 4px;
+  flex-wrap: wrap;
+}
+#apn-tooltip .apn-tt-id { color: #9a9ab5; font-size: 11px; }
+#apn-tooltip .apn-tt-meta { color: #b8b8cc; font-size: 11px; margin-bottom: 4px; }
+#apn-tooltip .apn-tt-tags { margin: 4px 0; }
+#apn-tooltip .apn-tag {
+  display: inline-block;
+  background: #34344a;
+  color: #cfe3ff;
+  border-radius: 4px;
+  padding: 1px 6px;
+  margin: 2px 3px 0 0;
+  font-size: 11px;
+}
+#apn-tooltip .apn-tt-stumble { color: #ffb4a2; font-size: 11px; margin-top: 4px; }
+#apn-tooltip .apn-tt-consid {
+  margin-top: 6px;
+  padding-top: 6px;
+  border-top: 1px solid #3a3a52;
+  color: #d8d8e6;
+  white-space: pre-wrap;
+  max-height: 220px;
+  overflow-y: auto;
+}
+#apn-tooltip .apn-tt-consid-label {
+  color: #9a9ab5;
+  font-size: 10px;
+  margin-bottom: 3px;
+}
+#apn-tooltip .apn-tt-foot { margin-top: 6px; color: #7d7d99; font-size: 10px; }
+
+.apn-badge {
+  display: inline-block;
+  padding: 1px 7px;
+  border-radius: 10px;
+  font-size: 11px;
+  font-weight: 700;
+  color: #fff;
+  background: #555;
+}
+.apn-badge.apn-solved-self { background: #2e7d32; }
+.apn-badge.apn-solved-editorial { background: #ef6c00; }
+.apn-badge.apn-unsolved { background: #c62828; }

@@ -1,0 +1,33 @@
+{
+  "manifest_version": 3,
+  "name": "AtCoder Problems ノート反映",
+  "version": "1.0.0",
+  "description": "自作の problems/ ノート（solved 状態・タグ・考察）を AtCoder Problems の Table 上に反映する。",
+  "icons": {
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  },
+  "action": {
+    "default_title": "ノート反映 — タグでフィルタ",
+    "default_popup": "popup.html",
+    "default_icon": {
+      "48": "icons/icon48.png",
+      "128": "icons/icon128.png"
+    }
+  },
+  "content_scripts": [
+    {
+      "matches": ["https://kenkoooo.com/*"],
+      "js": ["content.js"],
+      "css": ["content.css"],
+      "run_at": "document_idle"
+    }
+  ],
+  "web_accessible_resources": [
+    {
+      "resources": ["data.json"],
+      "matches": ["https://kenkoooo.com/*"]
+    }
+  ],
+  "permissions": ["storage"]
+}
