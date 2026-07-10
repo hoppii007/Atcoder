@@ -89,7 +89,7 @@ std::ostream& operator<<(std::ostream& os, const std::pair<T,S>& p) {
 
 
 /*
-------------------------
+/////////////////////////
 **どの問題?**
 
 **difficulty**
@@ -105,7 +105,7 @@ std::ostream& operator<<(std::ostream& os, const std::pair<T,S>& p) {
 **難所**
 
 ## 問題全体のメモ
--------------------------
+//////////////////////////
 */
 
 
@@ -114,10 +114,10 @@ std::ostream& operator<<(std::ostream& os, const std::pair<T,S>& p) {
 /*
 ------------------------
 **どの問題?**
-ABC214C
+ABC214E
 
 **difficulty**
-319
+1835
 
 **solved**
 (自力AC / 解説AC / 未AC)
@@ -126,12 +126,16 @@ ABC214C
 （簡単 / 中 / 難しい）
 
 **考察ノート**
-グラフっぽい見た目をしているのでグラフにしたい。
-時刻管理より辺にコストをつけて最短経路とかにしたいので、
-高橋くんが始めて宝石を誰かに手渡す時刻Sを0として、そこから各人iに宝石が渡る時間を求めれば良さそう
-グラフとしては高橋くんの頂点+各す抜けくんの頂点で、すぬけくんの頂点は円環になっててコストはtのままでOK
-高橋くん -> 各すぬけくんのコストは、渡す時刻-Sで良さそう
-
+とりあえず、自分だけが入れられる箱がある人は、そこに入れていい。
+その箱に入れられる人が複数ある時、どんな順番に入れていけばいいか？を考えると良さそう
+貪欲かなぁ
+区間スケジューリング的に、終わりが早い人を選択するといいのかも。終わりが遅い人はまだ入れられる可能性があり、終わりが早い人はチャンスが少ないということなので。
+一つ以上被っている区間に対して、一番左から入れるボールを決定していけば良さそう？決定の回数はN回なので、次を選ぶ処理をO(1)でできれば計算量はよさそう。
+証明しとこうかな。
+いやー、厳密には証明してませんが、「より可能性がある方を残す」貪欲なのでいいと思います。
+その箱に入るボールが1つしかいない時にそれを選べばいいのはそれはそうで、複数あった場合、最適解がこの貪欲の候補Dを選ばず、D'を選んだとします。
+最適解のその後にDが選ばれていない場合は、ここでDを選んでも良く、選ばれている場合は先のDを今選んだことにして、後からDを入れていたところにD'を入れられる（D'の方が終了が遅いので）
+よって証明できてるのでこれで良さそう
 
 **難所**
 
@@ -139,43 +143,63 @@ ABC214C
 -------------------------
 */
 
-//O(E+V)でsからの最短経路がもとまる
-//変のコストが0か1しかない場合は使える
-//nextsには{cost,index}にしといてね
-//始点が複数あって全部の中から最短が欲しい時は、ちょっと変更して最初から全部入れるようにしたほうがいい（何回も呼ばないほうがいい）
-vll bfs01(vector<vpll> &nexts, vll starts){
-    vll bfs01s(nexts.size(), inf);
-    deque<pll> q;
-    for(ll s: starts){
-        bfs01s[s] = 0;
-        q.push_front({0,s});
+//trueだったら第1引数が手前に来る
+//p2 < p1として作ると降順になる
+//p1 < p2として作ると昇順になる
+
+struct set_comp{
+    bool operator()(const pll &p1,const pll &p2) const{
+      return p1.snd < p2.snd;
     }
-    while(!q.empty()){
-        pll now = q.front();
-        q.pop_front();
-        for(pll next: nexts[now.second]){
-            ll ncost = bfs01s[now.second]+next.first;
-            if(bfs01s[next.second] <= ncost) continue;
-            bfs01s[next.second] = ncost;
-            if(next.first == 0) q.push_front({ncost, next.second});
-            else q.push_back({ncost, next.second});
+};
+
+int solve(){
+    cinll(n);
+
+    // 座標に対して、その座標で始まる奴らと終わる奴ら
+    map<ll,vpll> starts,ends;
+
+    // 区間が開始する座標集合
+    vll start_ps;
+
+    rep(i, n){
+        cinll(l, r);
+        starts[l].pb({l, r});
+        ends[r].pb({l, r});
+        start_ps.pb(l);
+    }
+    sort(all(start_ps));
+
+    // 現状入れられる区間（r昇順）
+    multiset<pll,set_comp> now;
+
+    ll now_p = start_ps[0];
+    for(pll p: starts[now_p]) now.insert(p);
+    ll ans = 0;
+    while(true){
+        while(!now.empty() && (*now.begin()).snd < now_p) now.erase(now.begin());
+        if(now.empty()){
+            auto it = lower_bound(all(start_ps), now_p);
+            if(it == start_ps.end()) break;
+            now_p = *it;
+            for(pll p: starts[now_p]) now.insert(p);
+            continue;
         }
+        auto it = now.begin();
+        ans++;
+        now.erase(it);
+        now_p++;
+        for(pll p: starts[now_p]) now.insert(p);
+
     }
-    return bfs01s;
+
+    if(ans == n) cout << "Yes" << endl;
+    else cout << "No" << endl;
+    return 0;
 }
 
 int main(){
-    cinll(n);
-    cinvll(s, n);
-    cinvll(t, n);
-    ll mi = *min_element(all(t));
-    vvpll nexts(n+1);
-    rep(i, n){
-        ll ni = (i+1)%n;
-        nexts[i].pb({s[i],ni});
-        nexts[n].pb({t[i]-mi, i});
-    }
-    vll bfs = bfs01(nexts, {n});
-    rep(i, n) cout << mi+bfs[i] << endl;
+    cinll(t);
+    while(t--) solve();
     return 0;
 }
