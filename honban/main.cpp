@@ -89,7 +89,6 @@ std::ostream& operator<<(std::ostream& os, const std::pair<T,S>& p) {
 
 
 /*
-/////////////////////////
 **どの問題?**
 
 **difficulty**
@@ -105,19 +104,17 @@ std::ostream& operator<<(std::ostream& os, const std::pair<T,S>& p) {
 **難所**
 
 ## 問題全体のメモ
-//////////////////////////
 */
 
 
 // --------------------------- ここまでテンプレ ----------------------------
 
 /*
-------------------------
 **どの問題?**
-ABC214E
+ABC244E
 
 **difficulty**
-1835
+1125
 
 **solved**
 (自力AC / 解説AC / 未AC)
@@ -126,80 +123,161 @@ ABC214E
 （簡単 / 中 / 難しい）
 
 **考察ノート**
-とりあえず、自分だけが入れられる箱がある人は、そこに入れていい。
-その箱に入れられる人が複数ある時、どんな順番に入れていけばいいか？を考えると良さそう
-貪欲かなぁ
-区間スケジューリング的に、終わりが早い人を選択するといいのかも。終わりが遅い人はまだ入れられる可能性があり、終わりが早い人はチャンスが少ないということなので。
-一つ以上被っている区間に対して、一番左から入れるボールを決定していけば良さそう？決定の回数はN回なので、次を選ぶ処理をO(1)でできれば計算量はよさそう。
-証明しとこうかな。
-いやー、厳密には証明してませんが、「より可能性がある方を残す」貪欲なのでいいと思います。
-その箱に入るボールが1つしかいない時にそれを選べばいいのはそれはそうで、複数あった場合、最適解がこの貪欲の候補Dを選ばず、D'を選んだとします。
-最適解のその後にDが選ばれていない場合は、ここでDを選んでも良く、選ばれている場合は先のDを今選んだことにして、後からDを入れていたところにD'を入れられる（D'の方が終了が遅いので）
-よって証明できてるのでこれで良さそう
+簡単なケースを考えてみる
+「SからK回移動してTにたどり着くルートを数える」と言う問題なら、グラフDPで行けそう？
+dp[i][j] := 頂点iから、j回移動で頂点Tに行くルートの本数としてメモ化再帰でいけそう
+dp[i][j][k] := 頂点iから、j回移動で、頂点Tに、Xを偶数 or 奇数（k=0 or 1）回通っていけるルートの本数
+としてメモ化再帰でよさそうな気もする
+
 
 **難所**
 
 ## 問題全体のメモ
--------------------------
 */
 
-//trueだったら第1引数が手前に来る
-//p2 < p1として作ると降順になる
-//p1 < p2として作ると昇順になる
+/**
+ * @brief mod付き整数型（long long ベース）
+ * @details 四則演算・累乗・比較を自動で mod を取りながら行う構造体。
+ *          割り算（逆元）はフェルマーの小定理を利用するため、mod が素数であることが前提。
+ *          mod の変更は modll::mod = 値 で行う。デフォルトは 998244353。
+ *
+ * @note 使用例:
+ *   modll a(10), b(3);
+ *   cout << a + b << endl;   // 13
+ *   cout << a / b << endl;   // 10 * 3^(mod-2) mod p
+ *   modll::mod = 1000000007; // mod を変更
+ */
+struct modll{
+public:
+	static ll mod; ///< 法（デフォルト: 998244353）。素数を設定すること。
+	ll value;      ///< mod を取った後の値（0 以上 mod 未満）
 
-struct set_comp{
-    bool operator()(const pll &p1,const pll &p2) const{
-      return p1.snd < p2.snd;
-    }
+	/// @brief デフォルトコンストラクタ。値を 0 で初期化。
+	modll(){
+		this->value = 0;
+	}
+
+	/// @brief 値を指定して構築。負の値も正しく [0, mod) に正規化される。
+	modll(ll v){
+		this->value = v%modll::mod;
+		while(this->value < 0) this->value += modll::mod;
+	}
+
+	/// @brief 出力ストリームへの書き出し
+	friend ostream& operator << (ostream& os, const modll& p){
+		os << p.value;
+		return os;
+	}
+
+	/// @brief ll からの代入
+	modll operator =(const ll &a){
+		value = a;
+		return *this;
+	}
+
+	// --- 算術演算（+, -, *, /, ^） ---
+
+	friend modll operator -(const modll &a, const modll &b){ return modll(a.value-b.value); }
+	friend modll operator -(const modll &a, const ll &b){ return modll(a.value-(b%modll::mod)); }
+	friend modll operator -(const ll &a, const modll &b){ return modll((a%modll::mod)-b.value); }
+	friend modll operator +(const modll &a, const modll &b){ return modll(a.value+b.value); }
+	friend modll operator +(const modll &a, const ll &b){ return modll(a.value+(b%modll::mod)); }
+	friend modll operator +(const ll &a, const modll &b){ return modll((a%modll::mod)+b.value); }
+	friend modll operator *(const modll &a, const modll &b){ return modll(a.value*b.value); }
+	friend modll operator *(const modll &a, const ll &b){ return modll(a.value*(b%modll::mod)); }
+	friend modll operator *(const ll &a, const modll &b){ return modll((a%modll::mod)*b.value); }
+
+	/// @brief 繰り返し二乗法による累乗。a^b mod p を O(log b) で計算。
+	friend modll operator ^(const modll &a, const ll &b){
+		if(b == 0) return modll(1);
+		if(b%2 == 0) return (a*a)^(b/2);
+		else return a*(a^(b-1));
+	}
+
+	/// @brief 除算。フェルマーの小定理により b^(mod-2) を逆元として計算。mod が素数であること。
+	friend modll operator /(const modll &a, const modll &b){ return a*(b^(modll::mod-2)); }
+	friend modll operator /(const modll &a, const ll &b){ return a*(modll(b)^(modll::mod-2)); }
+	friend modll operator /(const ll &a, const modll &b){ return a*(b^(modll::mod-2)); }
+
+	// --- 比較演算 ---
+
+	friend bool operator <(const modll &a, const modll &b){ return a.value < b.value; }
+	friend bool operator <(const modll &a, const ll &b){ return a.value < b; }
+	friend bool operator <(const ll &a, const modll &b){ return a < b.value; }
+	friend bool operator <=(const modll &a, const modll &b){ return a.value <= b.value; }
+	friend bool operator <=(const modll &a, const ll &b){ return a.value <= b; }
+	friend bool operator <=(const ll &a, const modll &b){ return a <= b.value; }
+	friend bool operator >(const modll &a, const modll &b){ return a.value > b.value; }
+	friend bool operator >(const modll &a, const ll &b){ return a.value > b; }
+	friend bool operator >(const ll &a, const modll &b){ return a > b.value; }
+	friend bool operator >=(const modll &a, const modll &b){ return a.value >= b.value; }
+	friend bool operator >=(const modll &a, const ll &b){ return a.value >= b; }
+	friend bool operator >=(const ll &a, const modll &b){ return a >= b.value; }
+	friend bool operator ==(const modll &a, const modll &b){ return a.value == b.value; }
+	friend bool operator ==(const modll &a, const ll &b){ return a.value == b; }
+	friend bool operator ==(const ll &a, const modll &b){ return a == b.value; }
+	friend bool operator !=(const modll &a, const modll &b){ return a.value != b.value; }
+	friend bool operator !=(const modll &a, const ll &b){ return a.value != b; }
+	friend bool operator !=(const ll &a, const modll &b){ return a != b.value; }
+
+	// --- 複合代入演算 ---
+
+	friend void operator +=(modll &a, const modll &b){ a = a+b; }
+	friend void operator +=(modll &a, const ll &b){ a = a+b; }
+	friend void operator +=(ll &a, const modll &b){ a = (a+b).value; }
+	friend void operator -=(modll &a, const modll &b){ a = a-b; }
+	friend void operator -=(modll &a, const ll &b){ a = a-b; }
+	friend void operator -=(ll &a, const modll &b){ a = (a-b).value; }
+	friend void operator *=(modll &a, const modll &b){ a = a*b; }
+	friend void operator *=(modll &a, const ll &b){ a = a*b; }
+	friend void operator *=(ll &a, const modll &b){ a = (a*b).value; }
+	friend void operator /=(modll &a, const modll &b){ a = a/b; }
+	friend void operator /=(modll &a, const ll &b){ a = a/b; }
+	friend void operator /=(ll &a, const modll &b){ a = (a/b).value; }
+
+	// --- インクリメント・デクリメント ---
+
+	friend void operator ++(modll &a, int){ a += 1; } ///< 後置インクリメント
+	friend void operator ++(modll &a){ a += 1; }      ///< 前置インクリメント
+	friend void operator --(modll &a, int){ a -= 1; }  ///< 後置デクリメント
+	friend void operator --(modll &a){ a -= 1; }       ///< 前置デクリメント
 };
+ll modll::mod = 998244353LL;
 
-int solve(){
-    cinll(n);
+modll dp[2000][2001][2];
+bool is_set_dp[2000][2001][2];
+ll S,T,X;
 
-    // 座標に対して、その座標で始まる奴らと終わる奴ら
-    map<ll,vpll> starts,ends;
-
-    // 区間が開始する座標集合
-    vll start_ps;
-
-    rep(i, n){
-        cinll(l, r);
-        starts[l].pb({l, r});
-        ends[r].pb({l, r});
-        start_ps.pb(l);
-    }
-    sort(all(start_ps));
-
-    // 現状入れられる区間（r昇順）
-    multiset<pll,set_comp> now;
-
-    ll now_p = start_ps[0];
-    for(pll p: starts[now_p]) now.insert(p);
-    ll ans = 0;
-    while(true){
-        while(!now.empty() && (*now.begin()).snd < now_p) now.erase(now.begin());
-        if(now.empty()){
-            auto it = lower_bound(all(start_ps), now_p);
-            if(it == start_ps.end()) break;
-            now_p = *it;
-            for(pll p: starts[now_p]) now.insert(p);
-            continue;
-        }
-        auto it = now.begin();
-        ans++;
-        now.erase(it);
-        now_p++;
-        for(pll p: starts[now_p]) now.insert(p);
-
-    }
-
-    if(ans == n) cout << "Yes" << endl;
-    else cout << "No" << endl;
-    return 0;
+modll dfs(vvll& nexts, ll i, ll j, ll k){
+	if(j == 0){
+		if(i == T && k == 0) return 1;
+		else return 0;
+	}
+	if(is_set_dp[i][j][k]) return dp[i][j][k];
+	is_set_dp[i][j][k] = true;
+	dp[i][j][k] = 0;
+	for(ll nxt: nexts[i]){
+		if(i == X) dp[i][j][k] += dfs(nexts, nxt, j-1, (k+1)%2);
+		else dp[i][j][k] += dfs(nexts, nxt, j-1, k);
+	}
+	return dp[i][j][k];
 }
 
 int main(){
-    cinll(t);
-    while(t--) solve();
-    return 0;
+	cinll(n,m,k);
+	cin >> S >> T >> X;
+	S--; T--; X--;
+	vvll nexts(n);
+	rep(i, 2000) rep(j, 2001) rep(k, 2) {
+		is_set_dp[i][j][k] = false;
+		dp[i][j][k] = 0;
+	}
+	rep(i, m){
+		cinll(u, v);
+		u--; v--;
+		nexts[u].pb(v);
+		nexts[v].pb(u);
+	}
+	cout << dfs(nexts, S, k, 0) << endl;
+	return 0;
 }
