@@ -87,9 +87,9 @@ std::ostream& operator<<(std::ostream& os, const std::pair<T,S>& p) {
     return os;
 }
 
-/*
 
 /*
+------------------------
 **どの問題?**
 
 **difficulty**
@@ -105,231 +105,77 @@ std::ostream& operator<<(std::ostream& os, const std::pair<T,S>& p) {
 **難所**
 
 ## 問題全体のメモ
-
-
-int main(){
-
-    return 0;
-}
-
+-------------------------
 */
 
 
-// --------------------- ここまでテンプレ ------------------------
+// --------------------------- ここまでテンプレ ----------------------------
 
 /*
+------------------------
 **どの問題?**
-ABC212F
+ABC214C
 
 **difficulty**
-2332
+319
 
 **solved**
 (自力AC / 解説AC / 未AC)
 
 **felt**
-難しい
+（簡単 / 中 / 難しい）
 
 **考察ノート**
-Zの制約が小さければ、クエリを小さい順に並び替えた後にその時刻にどこにいるかをシミュレートしていけば良さそうですが、Zがデカいですね...
-いや、でもやっぱりクエリを時刻小さい順に並べておけば、自分の状態としてあり得るのは「どこかの都市にいるか、どこかのバスにいるか」なので、
-N+M個しか状態がないはずです。で、状態の切り替わりのタイミングだけ記録しつつ進んでいけばいい...と思ったけど、これはスタート地点が固定されている場合ですね
-クエリをスタート地点ごとに分割してやるてもありますが、スタート地点の候補がN個、その後進んでいく状態の個数がN+M個なので、O(N*(N+M))とかになってダメそうです...
-うーん困った
-グラフの拡張みたいな感じでなんとかできないでしょうか。
-頂点aを時刻pに出発するバス、みたいなのを一つの頂点として、行き先は例えばa -> a'という辺で、出発時刻をs、到着時刻をtとすると、
-(a,p) -> (a',t以降で最初にa'からバスが出る時間)としておくと、すべての状態から行き先が一意にきまります。
-そうするとダブリングが使えて、すべての場所、時刻からN回進んだ場所、みたいなのが記録でき、それを使って二分探索で初めてZを超える場所を探す、みたいなことをすればいい気がします
-ただすべての場所、時刻に対してやろうとすると計算量は大丈夫でしょうか？
-考慮すべきすべての頂点は、バスの本数しかないはずです（各バスの場所と開始時刻を頂点とするため）
-とすると2*m敷かないはずなので、なんかいけそうな気がしてきました
-整理してみましょう。
-まず、頂点集合Sを、S = {(s_i, t_i) | s_i=i番目のバスの出発都市、t_i=i番目のバスの出発時刻}
-として、各頂点から辺を(s_i, t_i) -> (s'_i, t'_i)（s'_iはバスiの到着都市、t'_iはバスiの到着時刻以降、最初に出発するバスの時刻（ない場合はinf））とします
-すると、|S| = M、|E={辺の集合}| = Mです。（各辺に対して行き先が一意に定まるので）
-この上でダブリングを行う計算量は、|S| * log(パスの最大長)なので、|S| * log |E|=MlogM
-ダブリングの構築は間に合いそうです。
-あとは各クエリに対して、そのクエリ設定で最初に出発する都市aと時刻pを求め、(a,p)から進んだ頂点(a', p')であって初めてp'がzを超える場所を二分探索で探し、その前の頂点から(a', p')に来る道中で、時刻Zのタイミングでバスに乗っているのかa'で待機しているのかを判断すれば良さそうです
-これ、実装が大変だな...
-丁寧に実装します。
+グラフっぽい見た目をしているのでグラフにしたい。
+時刻管理より辺にコストをつけて最短経路とかにしたいので、
+高橋くんが始めて宝石を誰かに手渡す時刻Sを0として、そこから各人iに宝石が渡る時間を求めれば良さそう
+グラフとしては高橋くんの頂点+各す抜けくんの頂点で、すぬけくんの頂点は円環になっててコストはtのままでOK
+高橋くん -> 各すぬけくんのコストは、渡す時刻-Sで良さそう
+
 
 **難所**
-考察も難しいけど、グラフの拡張系のひらめき考察は得意なので、思ったより早めに方針はたった。が、そこからの実装がかなり重かった。
 
 ## 問題全体のメモ
+-------------------------
 */
 
-struct Bus{
-    ll a, b, s, t;
-    ll i;
-    bool operator<(const Bus& bus) const {
-        if(a != bus.a) return a < bus.a;
-        return s < bus.s;
+//O(E+V)でsからの最短経路がもとまる
+//変のコストが0か1しかない場合は使える
+//nextsには{cost,index}にしといてね
+//始点が複数あって全部の中から最短が欲しい時は、ちょっと変更して最初から全部入れるようにしたほうがいい（何回も呼ばないほうがいい）
+vll bfs01(vector<vpll> &nexts, vll starts){
+    vll bfs01s(nexts.size(), inf);
+    deque<pll> q;
+    for(ll s: starts){
+        bfs01s[s] = 0;
+        q.push_front({0,s});
     }
-};
-
-/**
- * @brief ダブリング（Doubling）
- *
- * 各状態から1回の遷移先が決まっているとき、任意の状態から K 回先の遷移先を高速に求める。
- * 前処理でダブリングテーブルを構築し、クエリごとに K のビットを見て遷移を合成する。
- *
- * @note 前処理 O(N log K), クエリ O(log K)（N = 状態数, K = 最大遷移回数）
- */
-struct Doubling{
-    /** @brief dub[i][j] := 状態 i から 2^j 回遷移した先（遷移先がなければ -1） */
-    vvll dub;
-
-    ll LOG = 30;
-
-    Doubling(){}
-
-    /**
-     * @brief ダブリングテーブルを構築する
-     * @param nexts 各状態からの1回の遷移先。遷移先がない場合は -1。
-     *              nexts のサイズが状態数 N となる。
-     */
-    Doubling(vll &nexts){
-        ll n = nexts.size();
-        dub.resize(n, vll(LOG+1));
-        // 2^0 = 1回の遷移先をそのまま格納
-        rep(i,n) dub[i][0] = nexts[i];
-        // 2^j 回の遷移 = 2^(j-1) 回の遷移を2回適用
-        rep(j,1,LOG+1) rep(i,n){
-            if(dub[i][j-1] == -1) dub[i][j] = -1;
-            else dub[i][j] = dub[dub[i][j-1]][j-1];
+    while(!q.empty()){
+        pll now = q.front();
+        q.pop_front();
+        for(pll next: nexts[now.second]){
+            ll ncost = bfs01s[now.second]+next.first;
+            if(bfs01s[next.second] <= ncost) continue;
+            bfs01s[next.second] = ncost;
+            if(next.first == 0) q.push_front({ncost, next.second});
+            else q.push_back({ncost, next.second});
         }
     }
-
-    /**
-     * @brief 状態 n から k 回遷移した先を返す（単発クエリ用）
-     * @param n 開始状態
-     * @param k 遷移回数（0 <= k <= 2^60 ≒ 10^18）
-     * @return k 回遷移した先の状態。途中で遷移先がなくなった場合は -1。
-     * @note 全状態を一括で求める場合は kth_next_all を使うこと（キャッシュ効率が良い）
-     */
-    ll kth_next(ll n, ll k){
-        for(ll j=0;(1LL << j) <= k;j++){
-            if(k & (1LL << j)) n = dub[n][j];
-            if(n == -1) return -1;
-        }
-        return n;
-    }
-
-    /**
-     * @brief 全状態から k 回遷移した先を一括で求める
-     * @param k 遷移回数（0 <= k <= 2^60 ≒ 10^18）
-     * @return vll dest[i] := 状態 i から k 回遷移した先。遷移先がなければ -1。
-     * @note kth_next を N 回呼ぶよりキャッシュ効率が良く高速
-     */
-    vll kth_next_all(ll k){
-        ll n = dub.size();
-        vll cur(n);
-        rep(i,n) cur[i] = i;
-        for(ll j=0;(1LL << j) <= k;j++){
-            if(k & (1LL << j)){
-                vll nxt(n);
-                rep(i,n){
-                    if(cur[i] == -1) nxt[i] = -1;
-                    else nxt[i] = dub[cur[i]][j];
-                }
-                cur = nxt;
-            }
-        }
-        return cur;
-    }
-};
+    return bfs01s;
+}
 
 int main(){
-    cinll(n, m, q);
-
-    // 各都市から出発するバスの時刻集合
-    vector<vector<Bus>> stimes(n);
-    vector<Bus> buses;
-
-    rep(i, m){
-        cinll(a, b, s, t);
-        a--; b--;
-        stimes[a].pb(Bus{a, b, s, t});
-        buses.pb(Bus{a,b,s,t});
-    }
+    cinll(n);
+    cinvll(s, n);
+    cinvll(t, n);
+    ll mi = *min_element(all(t));
+    vvpll nexts(n+1);
     rep(i, n){
-        stimes[i].pb(Bus{i,i,inf,inf});
-        buses.pb(Bus{i,i,inf,inf});
+        ll ni = (i+1)%n;
+        nexts[i].pb({s[i],ni});
+        nexts[n].pb({t[i]-mi, i});
     }
-    rep(i, n) sort(all(stimes[i]));
-    sort(all(buses));
-    map<Bus,ll> to_idx;
-    rep(i, buses.size()){
-        buses[i].i = i;
-        to_idx[buses[i]] = i;
-    }
-    rep(i, n) rep(j, stimes[i].size()) stimes[i][j].i = to_idx[stimes[i][j]];
-
-    vll nexts(buses.size());
-    rep(i, buses.size()){
-        Bus bus = buses[i];
-        if(bus.s == inf) {
-            nexts[i] = i;
-            continue;
-        }
-        // 頂点 bus.b で、時刻 t 以降で最初に出るバスを探す
-        Bus nbus = *lower_bound(all(stimes[bus.b]), Bus{bus.b, bus.b, bus.t, bus.t});
-        nexts[i] = nbus.i;
-    }
-
-    Doubling doub(nexts);
-
-    // rep(i, buses.size()){
-    //     cout << buses[i].a << " " << buses[i].b << " " << buses[i].s << " " << buses[i].t << endl;
-    // }
-
-    vll prev(buses.size());
-    rep(i, buses.size()) prev[nexts[i]] = i;
-
-    while(q--){
-        cinll(x, y, z);
-        y--;
-        // 時刻x以降で最初に出るバスを求める
-        Bus bus = *lower_bound(all(stimes[y]), Bus{y, y, x, x});
-        //cout << bus.a<<"を" << bus.s << "に出発" << endl;
-        if(bus.s == inf){
-            cout << y+1 << endl;
-            continue;
-        }
-        // busから始めて、最初にzより大きくなる箇所を探す
-        //二分探索のジャッジ用のやつ
-        auto nibutan_judge = [&](ll mid){
-            return z <= buses[doub.kth_next(bus.i, mid)].s;
-        };
-        ll ok = inf;
-        ll ng = -1;
-        while(abs(ok-ng) > 1){
-            ll mid = (ok+ng)/2;
-            if(nibutan_judge(mid)) ok = mid;
-            else ng = mid;
-        }
-        //cout << "ok=" << ok << endl;
-        if(ok == 0){
-            //cout << "ngo" << endl;
-            // その場にとどまり続けてるか、バスに乗れるか？
-            if(z <= bus.s) cout << y+1 << endl;
-            else cout << bus.a+1 << " " << bus.b+1 << endl;
-            continue;
-        }
-        // ok-1回移動したバスの到着時刻と比べればいい
-        Bus bus2 = buses[doub.kth_next(bus.i, ok-1)];
-        if(z <= bus2.t) cout << bus2.a+1 << " " << bus2.b+1 << endl;
-        else cout << bus2.b+1 << endl;
-    }
-
-
-    // rep(i, n){
-    //     cout << "i:" << i << " ";
-    //     for(Bus b: stimes[i]) cout << "{" << b.b << " " << b.s << " " << b.t << "}, ";
-    //     cout << endl;
-    // }
-
-
+    vll bfs = bfs01(nexts, {n});
+    rep(i, n) cout << mi+bfs[i] << endl;
     return 0;
 }
