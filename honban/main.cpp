@@ -111,28 +111,53 @@ std::ostream& operator<<(std::ostream& os, const std::pair<T,S>& p) {
 
 /*
 **どの問題?**
-ABC246D
+ABC307
 
 **difficulty**
-1148
+666
 
 **solved**
-(自力AC / 解説AC / 未AC)
+自力AC
 
 **felt**
-（簡単 / 中 / 難しい）
+簡単
 
 **考察ノート**
-数式系なのでいったんwolfram alphaに入れてみる
-(a+b)*(a^2+b^2)
+文字列を()でかこう系なので、stackとかでいけそう。
+現在までの「)」以降の「(」の個数を持っておいて、)を見つけたら(まで消していく、とかでよさそう
 
 **難所**
+難所というほとではないが、配列の最後の要素を取るのにa.rend()としてしまってちょっと時間を使ってしまった。凡ミス
 
 ## 問題全体のメモ
 */
 
 
 int main(){
+    cinll(n);
+    cinstr(s);
+    ll cnt = 0;
+    vc a;
+    rep(i, s.size()){
 
+        if(s[i] == ')'){
+            if(cnt > 0){
+                //cout << "ngo " << cnt << a.size() <<  endl;
+                while(*a.rbegin() != '('){
+                    a.pop_back();
+                }
+                cnt--;
+                a.pop_back();
+            }
+            else a.pb(s[i]);
+            continue;
+        }
+        
+        if(s[i] == '(') cnt++;
+        a.pb(s[i]);
+
+    }
+    rep(i, a.size()) cout << a[i];
+    cout << endl;
 	return 0;
 }

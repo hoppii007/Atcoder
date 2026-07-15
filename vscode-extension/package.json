@@ -1,0 +1,49 @@
+{
+  "name": "atcoder-problem-picker",
+  "displayName": "AtCoder Problem Picker",
+  "description": "problems/ に未記録の AtCoder 問題からランダムに1問選んで開く",
+  "version": "0.1.0",
+  "publisher": "local",
+  "engines": {
+    "vscode": "^1.75.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "main": "./extension.js",
+  "activationEvents": [
+    "onStartupFinished"
+  ],
+  "contributes": {
+    "commands": [
+      {
+        "command": "atcoderPicker.pick",
+        "title": "AtCoder: 未挑戦の問題をランダムに開く"
+      },
+      {
+        "command": "atcoderPicker.list",
+        "title": "AtCoder: 未挑戦の候補を一覧から選んで開く"
+      }
+    ],
+    "configuration": {
+      "title": "AtCoder Problem Picker",
+      "properties": {
+        "atcoderPicker.from": {
+          "type": "integer",
+          "default": 212,
+          "description": "対象にする開始コンテスト番号（ABC）"
+        },
+        "atcoderPicker.to": {
+          "type": "integer",
+          "default": 318,
+          "description": "対象にする終了コンテスト番号（ABC）"
+        },
+        "atcoderPicker.levels": {
+          "type": "string",
+          "default": "cde",
+          "description": "対象レベル（例: cde）。problems/ に md が無いものを未挑戦とみなす"
+        }
+      }
+    }
+  }
+}
