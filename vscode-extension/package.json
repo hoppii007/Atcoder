@@ -23,6 +23,18 @@
       {
         "command": "atcoderPicker.list",
         "title": "AtCoder: 未挑戦の候補を一覧から選んで開く"
+      },
+      {
+        "command": "atcoderTimer.record",
+        "title": "AtCoder: 記録する（solved/felt/つまずきを入力）"
+      },
+      {
+        "command": "atcoderTimer.toggle",
+        "title": "AtCoder: タイマー開始／一時停止"
+      },
+      {
+        "command": "atcoderTimer.reset",
+        "title": "AtCoder: タイマーをリセット"
       }
     ],
     "configuration": {

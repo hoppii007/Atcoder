@@ -3,6 +3,7 @@
 const vscode = require("vscode");
 const fs = require("fs");
 const path = require("path");
+const timer = require("./timer");
 
 /** problems/ ディレクトリを持つワークスペースフォルダを探す。 */
 function find_problems_dir() {
@@ -65,7 +66,8 @@ async function pick() {
   const chosen = candidates[Math.floor(Math.random() * candidates.length)];
   const label = `ABC${chosen.contest} ${chosen.level.toUpperCase()}`;
   await vscode.env.openExternal(vscode.Uri.parse(url_of(chosen.contest, chosen.level)));
-  vscode.window.showInformationMessage(`AtCoder Picker: ${label} を開きました（未挑戦 ${candidates.length} 問中）`);
+  await timer.reset_and_start(); // 問題を開いたらタイマーをリセット＆スタート
+  vscode.window.showInformationMessage(`AtCoder Picker: ${label} を開きました（未挑戦 ${candidates.length} 問中）— タイマー開始`);
 }
 
 /** 一覧から選んで開く（QuickPick）。 */
@@ -84,6 +86,7 @@ async function list() {
   });
   if (picked) {
     await vscode.env.openExternal(vscode.Uri.parse(url_of(picked.c.contest, picked.c.level)));
+    await timer.reset_and_start(); // 問題を開いたらタイマーをリセット＆スタート
   }
 }
 
@@ -100,8 +103,13 @@ function activate(context) {
   button.command = "atcoderPicker.pick";
   button.show();
   context.subscriptions.push(button);
+
+  // 解答タイマー（B-4: time_spent_min 自動化 + solved/felt/つまずき入力）
+  timer.activate(context);
 }
 
-function deactivate() {}
+function deactivate() {
+  timer.deactivate();
+}
 
 module.exports = { activate, deactivate };
