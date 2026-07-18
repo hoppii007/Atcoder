@@ -8,6 +8,7 @@
  * @note 計算量: O(log min(a, b))
  */
 ll gcd(ll a,ll b){
+	if(b == 0) return a;
     if(a<b) return gcd(b,a);
     ll r;
     while((r=a%b)){
