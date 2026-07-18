@@ -111,53 +111,120 @@ std::ostream& operator<<(std::ostream& os, const std::pair<T,S>& p) {
 
 /*
 **どの問題?**
-ABC307
+ABC218E
 
 **difficulty**
-666
+1004
 
 **solved**
-自力AC
+(自力AC / 解説AC / 未AC)
 
 **felt**
-簡単
+（簡単 / 中 / 難しい）
 
 **考察ノート**
-文字列を()でかこう系なので、stackとかでいけそう。
-現在までの「)」以降の「(」の個数を持っておいて、)を見つけたら(まで消していく、とかでよさそう
+最小全域木みたいにできそう
+最小全域木は、使う辺のコストの総和を最小化するアルゴリズム
+今回の場合、辺を取り除くのにコストがかかって、それを最大化したいから、やっぱり使う辺のコストの総和を最小化したい。
+負の辺が使われてるとまずいけど、全部の辺から最小コストを引いた後（つまり、最小コストがマイナスの場合果たすことになる。最小コストを0基準にしてコストを振り直す感じ）
+木を構成すると辺の本数はN-1本となるから、コストの総和 + 最小コスト*(N-1)でよさそう
 
 **難所**
-難所というほとではないが、配列の最後の要素を取るのにa.rend()としてしまってちょっと時間を使ってしまった。凡ミス
 
 ## 問題全体のメモ
 */
 
+struct UnionFind {
+public:
+	vll par; // par[i]:iの親の番号　(例) par[3] = 2 : 3の親が2
+	vll kosu;
+	ll Count; //全体として何個の集合があるか
+	
+	UnionFind(ll n) : par(n),kosu(n),Count(n) { //最初は全てが根であるとして初期化
+		rep(i,n){
+			par[i] = i;
+			kosu[i] = 1;
+		}
+	}
+
+	ll root(ll x) { // データxが属する木の根を再帰で得る：root(x) = {xの木の根}
+		if (par[x] == x) return x;
+		return par[x] = root(par[x]);
+	}
+
+	void unite(ll x, ll y) { // xとyの木を併合
+		ll rx = root(x); //xの根をrx
+		ll ry = root(y); //yの根をry
+		if (rx == ry) return; //xとyの根が同じ(=同じ木にある)時はそのまま
+		par[rx] = ry; //xとyの根
+		kosu[ry] += kosu[rx];
+		Count--;
+	}
+
+	bool same(ll x, ll y) { // 2つのデータx, yが属する木が同じならtrueを返す
+		ll rx = root(x);
+		ll ry = root(y);
+		return rx == ry;
+	}
+	
+	ll size(ll x){
+		return kosu[root(x)];
+	}
+	ll size(){
+		return Count;
+	}
+};
+
+//0 ~ N-1までのグラフ（連結）の中で、最小全域木を作る
+// O(E log E)
+//無向グラフだったとしても有向グラフとして作るから、同じu,vを結ぶ編は一つしか出てこない
+//costの型ll（基本的にはllかdouble）
+//nextsは{cost,index}
+//実際の最小コストだけが欲しいときは、戻り値の型をllにして、minCostを返せばいい
+ll kruskal(vector<vector<pair<ll,ll>>> &nexts){
+	UnionFind uf(nexts.size());
+	struct KruskalEdge{
+		ll u,v;
+		ll c;
+	};
+	vector<KruskalEdge> edges;
+	rep(i, nexts.size()) for(pair<ll,ll> e: nexts[i]){
+		edges.push_back({i, e.second, e.first});
+	}
+	//trueだったら第1引数が手前に来る
+	//p1 < p2として作ると昇順になる
+	//p2 < p1として作ると降順になる
+	
+	//sort(all(v), compf);みたいに使ってね
+	std::function<bool(KruskalEdge&, KruskalEdge&)> compf = [&](const KruskalEdge &p1,const KruskalEdge &p2) {
+		return p1.c < p2.c;
+	};
+	
+	sort(all(edges), compf);
+	ll minCost = 0;
+	vector<vector<pair<ll,ll>>> ret(nexts.size());
+	rep(i,edges.size()){
+		if(!uf.same(edges[i].u, edges[i].v)){
+			uf.unite(edges[i].u, edges[i].v);
+			minCost += edges[i].c;
+			ret[edges[i].u].push_back({edges[i].c, edges[i].v});
+			ret[edges[i].v].push_back({edges[i].c, edges[i].u});
+		}
+	}
+	//最小コストだけがほしいならここでminCostを返す
+	return minCost;
+}
 
 int main(){
-    cinll(n);
-    cinstr(s);
-    ll cnt = 0;
-    vc a;
-    rep(i, s.size()){
-
-        if(s[i] == ')'){
-            if(cnt > 0){
-                //cout << "ngo " << cnt << a.size() <<  endl;
-                while(*a.rbegin() != '('){
-                    a.pop_back();
-                }
-                cnt--;
-                a.pop_back();
-            }
-            else a.pb(s[i]);
-            continue;
-        }
-        
-        if(s[i] == '(') cnt++;
-        a.pb(s[i]);
-
-    }
-    rep(i, a.size()) cout << a[i];
-    cout << endl;
+	cinll(n, m);
+	vll a(m), b(m), c(m);
+	rep(i, m) cin >> a[i] >> b[i] >> c[i];
+	vvpll nexts(n);
+	rep(i, m){
+		chmax(c[i], 0LL);
+		nexts[a[i]-1].pb({c[i], b[i]-1});
+		nexts[b[i]-1].pb({c[i], a[i]-1});
+	}
+	cout << accumulate(all(c), 0LL) - (kruskal(nexts)) << endl;
 	return 0;
 }
