@@ -87,190 +87,78 @@ std::ostream& operator<<(std::ostream& os, const std::pair<T,S>& p) {
     return os;
 }
 
-
-/*
-**どの問題?**
-
-**difficulty**
-
-**solved**
-(自力AC / 解説AC / 未AC)
-
-**felt**
-（簡単 / 中 / 難しい）
-
-**考察ノート**
-
-**難所**
-
-## 問題全体のメモ
-*/
-
-
-// --------------------------- ここまでテンプレ ----------------------------
-
-/**
- * @brief a と b の最大公約数を求める
- * @param a 非負整数
- * @param b 非負整数
- * @return gcd(a, b)
- * @note 計算量: O(log min(a, b))
- */
-ll gcd(ll a,ll b){
-	if(b == 0) return a;
-	if(a<b) return gcd(b,a);
-	ll r;
-	while((r=a%b)){
-		a = b;
-		b = r;
-	}
-	return b;
-}
-
-/**
- * @brief 配列 a の全要素の最大公約数を求める
- * @param a 正整数の配列（要素はすべて 0 より大きいこと）
- * @return gcd(a[0], a[1], ..., a[n-1])
- * @note 計算量: O(n log max(a))
- */
-ll gcds(vll a){
-	ll ret = a[0];
-	rep(i,a.size()){
-		ret = gcd(ret,a[i]);
+string to_upper(string s){
+	string ret = "";
+	rep(i,s.size()){
+		if('a' <= s[i] && s[i] <= 'z') ret += string(1, s[i] -'a' + 'A');
+		else ret += string(1, s[i]);
 	}
 	return ret;
 }
 
-/**
- * @brief 直線 ax + by + c = 0 を表す構造体
- * @note 同じ直線が同じ (a, b, c) で表現されるよう、以下の正規化を行う:
- *       1. gcd(|a|, |b|, |c|) で割って既約にする
- *       2. a, b, c のうち最初に現れる非零の値が正になるよう符号を揃える
- *       これにより operator< で直線の集合管理（map/set のキー）が可能。
- */
-struct L {
-	ll a, b, c;
-	L(){}
-	/**
-	 * @brief 係数 (ta, tb, tc) から直線を構築する（正規化込み）
-	 * @param ta x の係数
-	 * @param tb y の係数
-	 * @param tc 定数項
-	 * @note a と b の少なくとも一方が非零であることを前提とする
-	 */
-	L(ll ta, ll tb, ll tc): a(ta), b(tb), c(tc) {
-		ll g = gcds({abs(a),abs(b),abs(c)});
-		a /= g;
-		b /= g;
-		c /= g;
+//メンバ lower_bound を持つか判定（set / multiset は持つ、vector は持たない）
+template<typename C, typename = void>
+struct has_member_lower_bound : false_type {};
+template<typename C>
+struct has_member_lower_bound<C, void_t<decltype(declval<C&>().lower_bound(declval<const typename C::value_type&>()))>> : true_type {};
 
-		// 最初に出てくる 0 じゃないやつが - なら -1 をかけて符号を統一
-		for(ll t: {a,b,c}) if(t != 0){
-			if(t < 0){
-				a *= -1;
-				b *= -1;
-				c *= -1;
-			}
-			break;
-		}
+/**
+ * @brief 昇順のコンテナから最も近い値のイテレータを返す
+ *
+ * @tparam C ソート済み vector、または set / multiset
+ * @param c  対象コンテナ（空でないこと）
+ * @param t  探索する値
+ * @return   t に最も近い要素を指すイテレータ
+ *
+ * @pre vector を渡す場合は昇順ソート済みであること
+ * @pre c は空でないこと
+ * @pre c は非 const であること（const コンテナは const_iterator になるため）
+ * @note 同距離の場合は小さい方を返す
+ * @note set / multiset ではメンバの lower_bound に自動で切り替わる。
+ *       これらに std::lower_bound を使うとイテレータ移動が O(N) になり O(log N) にならない
+ * @complexity O(log N)
+ *
+ * @example
+ * std::vector<ll> v = {1, 3, 5, 7};
+ * auto it = near_value(v, 4); // *it == 3
+ * std::multiset<ll> m = {1, 3, 5, 7};
+ * auto mit = near_value(m, 4); // *mit == 3
+ */
+template<typename C>
+typename C::iterator near_value(C &c, const typename C::value_type &t){
+	//set / multiset はメンバ版、vector などは std::lower_bound
+	typename C::iterator it;
+	if constexpr (has_member_lower_bound<C>::value) it = c.lower_bound(t);
+	else it = lower_bound(c.begin(), c.end(), t);
+	// 以上のやつが一個もないとき（すべてtより小さいとき）
+	if(it == c.end()) return prev(it);
+	// 一個前もあればそれと今の比較
+	if(it != c.begin()){
+		auto pit = prev(it);
+		//一個前の方がitよりtに近ければそれを返す
+		if(abs(*pit-t) <= abs(*it-t)) return pit;
 	}
-	bool operator<(const L& l) const {
-		return tie(a,b,c) < tie(l.a, l. b, l.c);
-	}
-	/**
-	 * @brief 2 直線が一致するか
-	 * @note 正規化済みのため、(a, b, c) の一致と直線としての一致が同値になる
-	 */
-	bool operator==(const L& l) const {
-		return tie(a,b,c) == tie(l.a, l.b, l.c);
-	}
-	bool operator!=(const L& l) const {
-		return !(*this == l);
-	}
-};
-
-/**
- * @brief 点 p1 と点 p2 を通る直線を返す
- * @param p1 通る点その1
- * @param p2 通る点その2（p1 と異なること）
- * @return p1, p2 を通る直線 L
- * @note 方向ベクトル (dx, dy) に対し法線ベクトル (dy, -dx) を係数として採用。
- *       定数項は p1 が直線上にある条件から決定。
- */
-L make_line(pll p1, pll p2){
-	ll dx = p2.fst - p1.fst;
-	ll dy = p2.snd - p1.snd;
-	return L(dy, -dx, p1.snd*dx - p1.fst*dy);
-}
-
-/**
- * @brief 点 p1 と点 p2 の垂直二等分線を返す
- * @param p1 端点その1
- * @param p2 端点その2（p1 と異なること）
- * @return p1, p2 から等距離にある点の集合をなす直線 L
- * @note |P-p1|^2 = |P-p2|^2 を展開して得られる
- *       2(x2-x1)x + 2(y2-y1)y + (x1^2+y1^2-x2^2-y2^2) = 0 を用いる。
- *       係数に座標の 2 乗が現れるため、座標が大きいとオーバーフローに注意。
- */
-L perpendicular_bisector(pll p1, pll p2){
-	ll a = 2 * (p2.fst - p1.fst);
-	ll b = 2 * (p2.snd - p1.snd);
-	ll c = p1.fst*p1.fst + p1.snd*p1.snd - p2.fst*p2.fst - p2.snd*p2.snd;
-	return L(a, b, c);
-}
-
-/**
- * @brief 2 直線が平行かを判定する
- * @param l1 直線その1
- * @param l2 直線その2
- * @return 平行なら true
- * @note 法線ベクトル (a, b) 同士の外積が 0 かで判定する。
- *       一致する 2 直線も平行として true を返すため、
- *       「平行だが異なる」を見たいときは l1 != l2 と併用する。
- */
-bool is_parallel(const L& l1, const L& l2){
-	return l1.a * l2.b - l2.a * l1.b == 0;
-}
-
-/**
- * @brief 2 直線が垂直かを判定する
- * @param l1 直線その1
- * @param l2 直線その2
- * @return 垂直なら true
- * @note 法線ベクトル (a, b) 同士の内積が 0 かで判定する
- */
-bool is_perpendicular(const L& l1, const L& l2){
-	return l1.a * l2.a + l1.b * l2.b == 0;
-}
-
-/**
- * @brief 点 p を通り、直線 l に垂直な直線を返す
- * @param p 通る点
- * @param l 基準となる直線
- * @return p を通り l に垂直な直線 L
- * @note l の法線 (a, b) を法線としない向き、すなわち法線 (-b, a) を採用する。
- *       定数項は p が直線上にある条件から決定。
- */
-L perpendicular_line(pll p, const L& l){
-	return L(-l.b, l.a, l.b*p.fst - l.a*p.snd);
-}
-
-int solve(){
-	cinll(px, py, qx, qy, rx, ry, sx, sy);
-	L l1 = perpendicular_bisector({px,py}, {qx, qy});
-	L l2 = perpendicular_bisector({rx,ry}, {sx, sy});
-
-	if(is_parallel(l1, l2)){
-		if(l1 == l2) cout << "Yes" << endl;
-		else cout << "No" << endl;
-	}
-	else cout << "Yes" << endl;
-
-	return 0;
+	// 一個前がなければそこ
+	return it;
 }
 
 int main(){
-	cinll(t);
-	while(t--) solve();
+	cinll(n);
+	multiset<ll> m;
+	rep(i, n){
+		cinll(t);
+		m.insert(t);
+	}
+	ll now = 0;
+	ll ans = 0;
+	while(m.size() > 0){
+		auto it = near_value(m, now);
+		ans += abs(*it - now);
+		now = *it;
+		m.erase(it);
+	}
+	cout << ans << endl;
+
+
 	return 0;
 }
