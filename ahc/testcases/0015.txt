@@ -1,0 +1,16 @@
+15 4
+.a..dc.....d..a
+..d.d.Dd..ad...
+d.aa..#.d.dc..a
+d..c....a.d.a..
+...d.d......a.a
+....da.aaa..a..
+...d.aBd.ad.a.a
+.d.adC.d.a.d...
+.da...bba.a..d.
+.a......ad..b.b
+..a...d.aa.c.d.
+...ad..d.a..cd.
+a.ada....d.dc..
+....d.aaAa.d...
+..ad.c..ad...a.
