@@ -1,6 +1,3 @@
-
-
-
 #include<bits/stdc++.h>
 //入力系
 #define cinll(...) ll __VA_ARGS__; input(__VA_ARGS__);
@@ -60,6 +57,7 @@ const ll mod = 998244353LL;
 // const ll mod = 1000000007LL;
 // const ll mod = 10007;
 const ll inf = 1300100100100100100LL;
+// const ll inf = 1001001001LL;
 const double PI=3.1415926535897932384626433832795028841971;
 
 //入力
@@ -90,40 +88,50 @@ std::ostream& operator<<(std::ostream& os, const std::pair<T,S>& p) {
 }
 
 
-// --------------------- ここまでテンプレ ------------------------
+/*
+**どの問題?**
+
+**difficulty**
+
+**solved**
+(自力AC / 解説AC / 未AC)
+
+**felt**
+（簡単 / 中 / 難しい）
+
+**考察ノート**
+
+**難所**
+
+## 問題全体のメモ
+*/
 
 
-int solve(){
-    cinll(x, y, k);
-    ll ans = 0;
-    set<ll> se;
-    while(x != y){
-        cout << "x=" << x << endl;
-        ans++;
-        if(x*k > y && se.count(x/k) == 0){
-            se.insert(x/k);
-            x = x/k;
-        }
-        else{
-            if(x*k <= y && y <= x*k+k-1) break;
+// --------------------------- ここまでテンプレ ----------------------------
 
-            ll ok = k-1;
-            ll ng = -1;
-            while(abs(ok-ng) > 1){
-                ll mid = (ok+ng)/2;
-                if(y <= (x*k+mid)*k+k-1) ok = mid;
-                else ng = mid;
-            }
-            cout << "ok=" << ok << " " << x*k+ok << endl;
-            x = x*k+ok;
-        }
-    }
-    cout << x << endl;
-    cout << ans << endl;
+// s番目から、残り可能移動距離lで行ける最大の座標
+ll f(vll& a, ll s, ll l){
+	if(l < 0) return -inf;
+	ll now = 0;
+	rep(i, s, a.size()){
+		now += a[i];
+		if(l < now) return i;
+	}
+	return a.size();
+}
+
+// s番目から、残り可能移動距離lで行ける最大の座標
+ll f2(vll& a, ll s, ll l){
+	if(l < 0) return -inf;
+	ll now = 0;
+	mrep(i, s-1){
+		now += a[i];
+		if(l < now) return i+1;
+	}
+	return 0;
 }
 
 int main(){
-    cinll(t);
-    while(t--) solve();
-    return 0;
+	
+	return 0;
 }
