@@ -1,0 +1,13 @@
+12 6
+..#d.c#ff.c#
+C#c.##a..cc.
+.#f#..c.B.#f
+ffe.#fc.f##.
+fff#fc#.#.#c
+.#f#f##c.c#c
+ccEc.ce.c.fb
+D#fcF.#..fd.
+c.###c##.#.f
+f#..f#.###.#
+.ce.#.cAf#.#
+#.#f.###f.af

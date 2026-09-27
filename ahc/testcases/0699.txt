@@ -1,0 +1,18 @@
+17 7
+d..#e...##de#b.#g
+g##cdg.f.e#..bb#g
+gf#.##f.....g.g.E
+.#cce#gbg##e.egf#
+eee#.##bdd##..g.e
+ge.b.e...##ge.f..
+b.###a.D#..ebef..
+##.eb..#cdec..#ee
+#b##.#e...#.e#gF#
+#c..e...##.c.C.#b
+.#..#bcg.be#..#..
+Acg##Bdb.de#.e..#
+#b##.ef#c##fgfb..
+#gg#b##fdc##e..be
+#d.ebeg.#eb#fgb.g
+.e.cbee.#..ge#ebg
+###g.#fbf##bG#g#e

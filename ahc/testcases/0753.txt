@@ -1,0 +1,18 @@
+17 5
+.bbba.cbcdba.ddca
+.b#.bc.b##.......
+b.dbc.acbec#c..e.
+....#.b...bb.d.de
+bb.b.ebd.b.d#.cd#
+ed#..bec...b..dd.
+ddc.c##.d.d.b.dd.
+b.ceEdca..cb.cd.b
+cbb#.dAd.b.D#d..b
+d#..b...b#.#b.bd.
+b.de.a.a.a.#.b#d.
+..ed..ceb.d....bb
+bb#d#.b#bde.d.dc.
+b.b..addddc.cC#d.
+bc.edbdcdcbdb#...
+.d.ddcb.b.bddaddb
+cb#c.a..dcd.b.B#c

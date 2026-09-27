@@ -2,11 +2,15 @@
 """AHC072: テストケース生成 + main.cpp のスコア計測
 
 使い方:
-    python3 ahc/bench.py                 # 50件のケースで計測(初回は生成)
+    python3 ahc/bench.py                 # 1000件のケースで計測(初回は生成)
     python3 ahc/bench.py --num 100       # 件数を変える
     python3 ahc/bench.py --regen         # テストケースを作り直す
     python3 ahc/bench.py --tag beam      # この実行にラベルを付ける
-    python3 ahc/bench.py --jobs 4        # 並列実行(時間依存の解法はスコアがぶれる)
+    python3 ahc/bench.py --jobs 4        # 並列数を指定(既定は専有できる高性能コア数)
+
+時間依存の解法でも厳密に比較できるよう、各ケースのソルバーは高性能コア1つに
+専有で固定し(HTの片割れ・Eコアは使わない)、採点は別のCPUで行う(Windows/Linux)。
+Mac は固定できないので、並列数を高性能コア数に抑えるだけになる。
 
 テストケースは固定シードで ahc/testcases/ に保存され、以降の実行では再利用される。
 同じケースで測るので、コードを変えた前後のスコアを比較できる。
@@ -29,7 +33,10 @@ import subprocess
 import sys
 import time
 from collections import deque
-from concurrent.futures import ThreadPoolExecutor
+import functools
+import multiprocessing
+import os
+from concurrent.futures import ProcessPoolExecutor, as_completed
 from datetime import datetime
 from pathlib import Path
 
@@ -37,6 +44,7 @@ HERE = Path(__file__).resolve().parent
 PENALTY = 100000   # 残り1匹あたりのペナルティ
 MAX_T = 100000     # 操作回数上限
 MAX_H = 8          # 塔の高さ上限
+BASE_CASES = 50    # 履歴で合計をそろえるときの基準ケース数
 DIRS = {"U": (-1, 0), "D": (1, 0), "L": (0, -1), "R": (0, 1)}
 
 N_BUCKETS = [(12, 14), (15, 17), (18, 20)]
@@ -228,6 +236,17 @@ def judge(n, k, grid, out_text):
 
 # ============================ 実行 ============================
 
+def default_cxx():
+    """環境変数 CXX → g++-12 → g++ の順で使えるコンパイラを探す"""
+    if os.environ.get("CXX"):
+        return os.environ["CXX"]
+    for name in ("/usr/local/bin/g++-12", "g++-12", "g++"):
+        path = shutil.which(name)
+        if path:
+            return path
+    return "g++"
+
+
 def build(src, binary, cxx):
     cmd = [cxx, "-std=gnu++20", "-O2", "-o", str(binary), str(src)]
     print(f"[build] {' '.join(cmd)}")
@@ -237,17 +256,120 @@ def build(src, binary, cxx):
         sys.exit("コンパイルに失敗しました")
 
 
+# ============================ CPU 固定(厳密計測用) ============================
+# 時間依存の解法を並列に回してもスコアがぶれないよう、
+#   ・ソルバーは「高性能コア1つ(ハイパースレッドの片割れは使わない)」に専有で固定
+#   ・採点(Python)はソルバー用以外の論理CPUに逃がす
+# という配置にする。固定は「自プロセスの affinity を変えてから子を起動する」ことで
+# 子に継承させる(起動直後から固定されるので競合の隙間がない)。
+
+def _windows_cpu_sets():
+    """Windows の CPU Set 情報から [(論理CPU番号, コア番号, 効率クラス)] を返す"""
+    import ctypes
+    from ctypes import wintypes
+    k32 = ctypes.WinDLL("kernel32", use_last_error=True)
+    size = wintypes.ULONG(0)
+    k32.GetSystemCpuSetInformation(None, 0, ctypes.byref(size), None, 0)
+    buf = ctypes.create_string_buffer(size.value)
+    if not k32.GetSystemCpuSetInformation(buf, size, ctypes.byref(size), None, 0):
+        return []
+    raw, off, res = buf.raw, 0, []
+    while off < size.value:
+        rec_size = int.from_bytes(raw[off:off + 4], "little")
+        # SYSTEM_CPU_SET_INFORMATION: +14 LogicalProcessorIndex, +15 CoreIndex, +18 EfficiencyClass
+        res.append((raw[off + 14], raw[off + 15], raw[off + 18]))
+        off += rec_size
+    return res
+
+
+def _linux_cpu_sets():
+    res = []
+    for cpu in sorted(os.sched_getaffinity(0)):
+        topo = Path(f"/sys/devices/system/cpu/cpu{cpu}/topology")
+        try:
+            core = int((topo / "core_id").read_text()) + 1000 * int(
+                (topo / "physical_package_id").read_text())
+        except (OSError, ValueError):
+            core = cpu
+        res.append((cpu, core, 0))
+    return res
+
+
+def plan_cpus():
+    """(ソルバー用CPUリスト, 採点用CPUリスト) を返す。固定できない環境では (None, None)"""
+    if os.name == "nt":
+        sets = _windows_cpu_sets()
+    elif hasattr(os, "sched_setaffinity"):
+        sets = _linux_cpu_sets()
+    else:
+        return None, None
+    if not sets:
+        return None, None
+    best = max(eff for _, _, eff in sets)
+    solver, used_cores = [], set()
+    for lp, core, eff in sets:
+        if eff == best and core not in used_cores:
+            used_cores.add(core)
+            solver.append(lp)
+    # 採点は低効率コアを優先。無ければソルバーと被らない論理CPU(HTの片割れ)を使う
+    others = [lp for lp, _, eff in sets if eff != best]
+    if not others:
+        others = [lp for lp, _, _ in sets if lp not in solver]
+    return solver, others or None
+
+
+def set_affinity(cpus):
+    if not cpus:
+        return
+    if os.name == "nt":
+        import ctypes
+        mask = sum(1 << c for c in cpus)
+        k32 = ctypes.WinDLL("kernel32")
+        k32.GetCurrentProcess.restype = ctypes.c_void_p
+        k32.SetProcessAffinityMask(ctypes.c_void_p(k32.GetCurrentProcess()), ctypes.c_size_t(mask))
+    else:
+        os.sched_setaffinity(0, set(cpus))
+
+
+def mac_perf_cores():
+    """Apple Silicon の高性能コア数(取れなければ None)"""
+    try:
+        r = subprocess.run(["sysctl", "-n", "hw.perflevel0.physicalcpu"],
+                           capture_output=True, text=True)
+        return int(r.stdout.strip())
+    except (OSError, ValueError):
+        return None
+
+
+_SOLVER_CPU = None   # このワーカーが専有するソルバー用CPU
+_JUDGE_CPUS = None   # このワーカーが採点に使うCPU
+
+
+def _init_worker(slot_queue, judge_cpus):
+    global _SOLVER_CPU, _JUDGE_CPUS
+    _SOLVER_CPU = slot_queue.get()
+    _JUDGE_CPUS = judge_cpus
+    set_affinity(_JUDGE_CPUS)
+
+
 def run_case(binary, case, cases_dir, timeout):
     in_path = cases_dir / f"{case['idx']:04d}.txt"
     n, k = case["n"], case["k"]
     grid = in_path.read_text(encoding="utf-8").splitlines()[1:]
     rec = dict(case)
     with in_path.open("rb") as fin:
+        if _SOLVER_CPU is not None:
+            set_affinity([_SOLVER_CPU])   # 起動する子プロセスに継承させる
         t0 = time.perf_counter()
+        proc = subprocess.Popen([str(binary)], stdin=fin,
+                                stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        if _SOLVER_CPU is not None:
+            set_affinity(_JUDGE_CPUS)   # 出力の読み取りはソルバーのコアを使わない
         try:
-            proc = subprocess.run([str(binary)], stdin=fin,
-                                  capture_output=True, timeout=timeout)
+            stdout, _ = proc.communicate(timeout=timeout)
         except subprocess.TimeoutExpired:
+            proc.kill()
+            proc.communicate()
             rec.update(status="TLE", ms=timeout * 1000, T=None, E=None, score=None)
             return rec
         ms = (time.perf_counter() - t0) * 1000
@@ -255,7 +377,7 @@ def run_case(binary, case, cases_dir, timeout):
         rec.update(status=f"RE({proc.returncode})", ms=ms, T=None, E=None, score=None)
         return rec
     try:
-        T, E = judge(n, k, grid, proc.stdout.decode())
+        T, E = judge(n, k, grid, stdout.decode())
     except Illegal as e:
         rec.update(status="WA", ms=ms, T=None, E=None, score=None, message=str(e))
         return rec
@@ -344,6 +466,11 @@ def summarize(records):
     return st, ok, bad
 
 
+def sum50(st):
+    """ケース数によらず比較できるよう、平均×50 にそろえた合計"""
+    return None if st["mean"] is None else st["mean"] * BASE_CASES
+
+
 def write_history_md(out_root):
     """各runの result.json を集めて、スコア履歴の md を組み立て直す"""
     rows = []
@@ -356,16 +483,16 @@ def write_history_md(out_root):
     if not rows:
         return None
 
-    sums = [d["stats"]["sum"] for _, d in rows if d["stats"]["sum"] is not None]
+    sums = [sum50(d["stats"]) for _, d in rows if d["stats"]["mean"] is not None]
     best = min(sums) if sums else None
 
     rows.reverse()   # 新しい順(プレビューで最新が一番上に来るように)
 
     md = ["# スコア履歴", "",
           "1行が1回の計測。**新しい順**に並べている。スコアは小さいほど良い。",
-          "`★` は合計スコアが最小(=最良)の回。",
-          "テストケースは seed とケース数が同じ回どうしでしか比較できない点に注意。", "",
-          "| | 日時 | tag | sha1 | seed | ケース | 全員帰巣 | 合計 | 平均 | 中央値 | 最小 | 最大 | 最大時間 | 詳細 |",
+          f"`50件換算` は ケース数によらず 平均×{BASE_CASES} にそろえた合計。`★` はこれが最小(=最良)の回。",
+          "テストケースは seed が同じ回どうしでしか比較できない点に注意。", "",
+          "| | 日時 | tag | sha1 | seed | ケース | 全員帰巣 | 50件換算 | 平均 | 中央値 | 最小 | 最大 | 最大時間 | 詳細 |",
           "|---|---|---|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---|"]
     for name, d in rows:
         st = d["stats"]
@@ -373,10 +500,11 @@ def write_history_md(out_root):
         when = (f"{stamp[0:4]}-{stamp[4:6]}-{stamp[6:8]} "
                 f"{stamp[9:11]}:{stamp[11:13]}:{stamp[13:15]}") if len(stamp) >= 15 else stamp
         cases = ci(st["cases"]) + (f" (失敗 {ci(st['failed'])})" if st["failed"] else "")
-        mark = "★" if st["sum"] is not None and st["sum"] == best else ""
+        mark = "★" if st["mean"] is not None and sum50(st) == best else ""
         md.append(f"| {mark} | {when} | {d.get('tag','')} | `{d.get('sha1','')}` | "
                   f"{d.get('master_seed','')} | {cases} | "
-                  f"{ci(st['solved'])} / {ci(st['ok'])} | {ci(st['sum'])} | {cf(st['mean'])} | "
+                  f"{ci(st['solved'])} / {ci(st['ok'])} | **{ci(sum50(st))}** | "
+                  f"{cf(st['mean'])} | "
                   f"{cf(st['median'])} | {ci(st['min'])} | {ci(st['max'])} | "
                   f"{ci(st['max_ms'])} ms | [summary]({name}/summary.md) |")
     md.append("")
@@ -387,17 +515,19 @@ def write_history_md(out_root):
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("--num", type=int, default=50, help="テストケース数 (既定50)")
+    ap.add_argument("--num", type=int, default=1000, help="テストケース数 (既定1000)")
     ap.add_argument("--seed", type=int, default=0, help="生成のマスターシード (既定0)")
     ap.add_argument("--regen", action="store_true", help="テストケースを作り直す")
     ap.add_argument("--tag", default="", help="この実行のラベル")
-    ap.add_argument("--jobs", type=int, default=1,
-                    help="並列数 (既定1。増やすと速いが時間依存の解法はスコアがぶれる)")
+    ap.add_argument("--jobs", type=int, default=0,
+                    help="並列数 (0=自動: 専有できる高性能コア数。それ以上には増やせない)")
+    ap.add_argument("--no-pin", action="store_true",
+                    help="CPU固定をしない(厳密さより手軽さを優先したいとき)")
     ap.add_argument("--timeout", type=float, default=5.0, help="1ケースの打ち切り秒数")
     ap.add_argument("--src", default=str(HERE / "main.cpp"))
     ap.add_argument("--cases-dir", default=str(HERE / "testcases"))
     ap.add_argument("--out-dir", default=str(HERE / "bench_results"))
-    ap.add_argument("--cxx", default="/usr/local/bin/g++-12")
+    ap.add_argument("--cxx", default=default_cxx())
     ap.add_argument("--no-build", action="store_true", help="ビルドを省略して既存のバイナリを使う")
     ap.add_argument("--history-only", action="store_true",
                     help="計測はせず、既存のrunから履歴mdを作り直すだけ")
@@ -417,7 +547,7 @@ def main():
 
     cases = prepare_cases(cases_dir, args.num, args.seed, args.regen)
 
-    binary = run_dir / "a.out"
+    binary = run_dir / ("a.exe" if os.name == "nt" else "a.out")
     if args.no_build:
         binary = Path(str(src).replace(".cpp", ".out"))
     else:
@@ -428,13 +558,37 @@ def main():
     code = src.read_bytes()
     sha = hashlib.sha1(code).hexdigest()[:12]
 
-    print(f"[run] {len(cases)} ケース, jobs={args.jobs}")
-    t0 = time.perf_counter()
-    if args.jobs <= 1:
-        records = [run_case(binary, c, cases_dir, args.timeout) for c in cases]
+    solver_cpus, judge_cpus = (None, None) if args.no_pin else plan_cpus()
+    if solver_cpus:
+        limit = len(solver_cpus)
     else:
-        with ThreadPoolExecutor(max_workers=args.jobs) as ex:
-            records = list(ex.map(lambda c: run_case(binary, c, cases_dir, args.timeout), cases))
+        limit = mac_perf_cores() or max(1, (os.cpu_count() or 2) // 2)
+    if args.jobs <= 0:
+        args.jobs = limit
+    elif args.jobs > limit:
+        print(f"[warn] jobs={args.jobs} は専有できるコア数 {limit} を超えるため {limit} に下げます")
+        args.jobs = limit
+    if solver_cpus:
+        solver_cpus = solver_cpus[:args.jobs]
+        print(f"[run] {len(cases)} ケース, jobs={args.jobs}, "
+              f"ソルバー固定CPU={solver_cpus}, 採点CPU={judge_cpus}")
+    else:
+        print(f"[run] {len(cases)} ケース, jobs={args.jobs} (この環境ではCPU固定なし)")
+
+    t0 = time.perf_counter()
+    task = functools.partial(run_case, binary, cases_dir=cases_dir, timeout=args.timeout)
+    # 採点(judge)は純Pythonで重いので、GILを避けるためプロセス並列にする
+    slot_queue = multiprocessing.Manager().Queue()
+    for cpu in (solver_cpus or [None] * args.jobs):
+        slot_queue.put(cpu)
+    records = [None] * len(cases)
+    with ProcessPoolExecutor(max_workers=args.jobs, initializer=_init_worker,
+                             initargs=(slot_queue, judge_cpus)) as ex:
+        futs = {ex.submit(task, c): pos for pos, c in enumerate(cases)}
+        for done, fut in enumerate(as_completed(futs), 1):
+            records[futs[fut]] = fut.result()
+            print(f"\r[run] {done}/{len(cases)}", end="", flush=True)
+    print()
     wall = time.perf_counter() - t0
 
     st, ok, bad = summarize(records)
@@ -448,7 +602,7 @@ def main():
     if st["mean"] is not None:
         print(f"score  : 平均 {cf(st['mean'])}  中央値 {cf(st['median'])}  "
               f"最小 {ci(st['min'])}  最大 {ci(st['max'])}  標準偏差 {cf(st['stdev'])}")
-        print(f"         合計 {ci(st['sum'])}")
+        print(f"         合計 {ci(st['sum'])}  50件換算 {ci(sum50(st))}")
     print(f"time   : 平均 {ci(st['mean_ms'])}ms  最大 {ci(st['max_ms'])}ms  全体 {cf(wall)}s")
     print()
     print("=== N×K グリッド (平均スコア / 件数) ===")

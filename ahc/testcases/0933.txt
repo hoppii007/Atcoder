@@ -1,0 +1,21 @@
+20 6
+..f.cd.....ac.da.e.a
+a#.eaba..aa.b.a.aa.b
+.a....a..ab...b.b...
+.aB.....d.baa....a..
+..a..a...a..a.caee..
+c.b..aad.....a..a.a.
+ccd.a.....aaabbc...a
+...a.........F.aa...
+a..d..da.dab....aa.a
+....b...c.ada....c..
+a.a.aaabaa..c....aa.
+...aeca.e.e...abac..
+.#..eae.b...A..aaac.
+.a...a.ac..cb.ab.Cd.
+d.aa..b.d.a.ac...daa
+.b.......da...b..ac.
+...e....D..b.a..fb.a
+E.c...dc.....c.a..ab
+c.....aca.b..ada.c..
+.d....a.a.ee......ba

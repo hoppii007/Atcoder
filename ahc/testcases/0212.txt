@@ -1,0 +1,19 @@
+18 4
+.cbbbb#..cbb.db.dd
+b...a..#ab..bd.b.#
+.#.b..d...d..bbb..
+.bbb..b.d....abbaa
+...cdbac.b..cb..#.
+.dbb.b#...b.bb.b..
+..b.bc.c.d......#.
+dcb..bb#.b.dbddbbb
+.d.b..b.bb.cbbbb.a
+.bdcbb.#...b...Db.
+.a.c...d.bd..ba.b.
+.b.b.......Bdbbbd#
+b..ab.da.d.b.....#
+d..b.b.bc.daCda#.b
+...b.dbb.Aca..b..d
+...cb.abb.d..dd.bb
+....b..abbbd...b..
+d.b.bc.c...bb....b

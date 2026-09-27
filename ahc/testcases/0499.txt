@@ -1,0 +1,14 @@
+13 6
+b.#b...Cbbb..
+.db.b..#..c..
+.bcb#bE..bbc.
+b#fbb.##bb#.c
+b..##.c..bcb#
+##c##cb#.d..b
+d.Bb.#c.#.c.e
+#.bc..b#.#b.#
+b..#bbcc...c.
+dDb.b.d.b#b.d
+b#..a#.b.#A.#
+..#ab.....b#a
+.b.a.dd.Fbb.b

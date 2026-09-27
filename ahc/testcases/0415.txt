@@ -1,0 +1,18 @@
+17 7
+.d##.ac....gac..a
+.ca#..ab..aaA.e.#
+.fac.aacc#g.c.d.#
+c.b.de...aa.gc..e
+.a..ca...B.#.a..a
+c....abd.bg.dcc.#
+b#cadfc#E..ba.c.#
+..#c#aa.#aa#ccafD
+...#G.a#..c.aa#ba
+g.aF.a#...f.....a
+#.c..eabbc.#a.ge.
+c.d.d.acgcacbfa.a
+.bdc.c#caab.a..ac
+..d.g#..c#.aace.c
+........aga..#cfa
+.d#.#.a.d.aaaac..
+d.#....#ac.e.d.bC

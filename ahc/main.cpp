@@ -1,3 +1,22 @@
+//============================================================================
+// AHC072 A - Somersault Slimes  解法の方針
+//----------------------------------------------------------------------------
+// (1) 集合計画(焼きなまし)
+//     各スライムを「同色の集合地点(クラスタ, 8匹以下)」に割り当てる。
+//     近似コスト = Σ(メンバー∪集合地点のMST長 + 集合地点から巣までの距離)
+//     近傍: move(1匹を別クラスタへ) / swap(同色2匹を交換) /
+//           shift(集合地点を動かす) / merge(2クラスタを統合)
+// (2) デコーダ(クラスタごとに「寄せる → 巣へ運ぶ」を続けて行う。大きいクラスタから)
+//     寄せる: 遠いメンバーから集合地点へ1マスずつ運び、集合地点から GATHER_R 以内の
+//             「空き or 一番上が同色」のマスに着いたら止める(1本の塔にはしない)。
+//             運ぶ道はルートDPで選び、道中の同色も拾う。
+//     巣へ運ぶ: 寄せた一団を巣から遠いものから carryTop で運ぶ。近くの同色(collectNearby)・
+//             道中の同色(ルートDP)・横の同色(sidePick)を回収しながら巣へ向かう。
+// (3) 仕上げ
+//     取りこぼしを、左上から順に一番上のスライムから carryTop で巣まで運ぶ。
+//     ※焼きなましのコストモデルは「集合地点に1本の塔として集める」前提のまま。
+// ※運ぶ操作は常に飛距離1。旧方式のブロック集約(gatherBlocks)は比較用に残してある。
+//============================================================================
 #include<bits/stdc++.h>
 //入力系
 #define cinll(...) ll __VA_ARGS__; input(__VA_ARGS__);
@@ -743,6 +762,379 @@ void gatherBlocks(State &s){
     }
 }
 
+//------------------------------ 集合計画(焼きなまし) ------------------------------
+//各スライムを「同色の集合地点(クラスタ)」へ割り当てる計画を焼きなましで作り、
+//デコーダ(gatherCluster)で操作列にする。
+//近似コスト(1クラスタ) = メンバー∪集合地点のMST長(集める手数) + 集合地点から巣までの距離
+//  ※デコーダが常に飛距離1で運ぶことを前提にしたモデル
+
+const double PLAN_TL = 900;    //計画の焼きなましを打ち切る時刻(ms)(調整ノブ)
+const double SA_T0   = 3.0;    //焼きなましの開始温度(調整ノブ)
+const double SA_T1   = 0.1;    //焼きなましの終了温度(調整ノブ)
+const ll NEAR_CAND   = 8;      //付け替え相手として見る近い同色スライムの数(調整ノブ)
+const ll CL_CAP      = MAX_H;  //1クラスタの匹数上限(集合地点に1本の塔として積むため)
+
+//床マス間の距離(全ペア)。cellDist[a][b] (a,bはidx、どちらかが壁なら-1)
+vector<vector<int>> cellDist;
+void calcCellDist(){
+    ll nn = F.n * F.n;
+    cellDist.assign(nn, vector<int>(nn, -1));
+    rep(i,F.n) rep(j,F.n){
+        if(!F.isFloor[i][j]) continue;
+        vvll d = F.bfs({{i,j}});
+        ll a = F.idx(i,j);
+        rep(x,F.n) rep(y,F.n) cellDist[a][F.idx(x,y)] = (int)d[x][y];
+    }
+}
+
+struct Cluster {
+    ll c = -1;    //色
+    ll p = -1;    //集合地点(idx)
+    vll mem;      //メンバー(スライムの初期位置idx)
+    ll cost = 0;  //近似コスト
+};
+
+struct Plan {
+    vector<Cluster> cl;
+    vll owner;        //owner[idx] = そのマスにいたスライムの所属クラスタ(スライムがいないマスは-1)
+    vll pointOwner;   //pointOwner[idx] = そのマスを集合地点にしているクラスタ(巣は管理しない)
+    vll freeIds;      //メンバーが0になった空きクラスタ
+    ll total = 0;     //近似コストの総和
+};
+
+bool isNestCell(ll p){ return F.nestColor[p / F.n][p % F.n] >= 0; }
+
+//メンバーmem ∪ {p} のMST長 + pから色cの巣までの距離
+ll clusterCost(ll c, ll p, const vll &mem){
+    if(mem.empty()) return 0;
+    static ll nodes[CL_CAP + 1], best[CL_CAP + 1];
+    static bool used[CL_CAP + 1];
+    ll cnt = 0;
+    nodes[cnt++] = p;
+    for(ll x : mem) if(x != p) nodes[cnt++] = x;
+    //Prim法(高々9点なので O(点数^2) で十分)
+    rep(a,cnt){ best[a] = inf; used[a] = false; }
+    best[0] = 0;
+    ll mst = 0;
+    rep(_,cnt){
+        ll u = -1;
+        rep(a,cnt) if(!used[a] && (u < 0 || best[a] < best[u])) u = a;
+        used[u] = true;
+        mst += best[u];
+        rep(a,cnt) if(!used[a]) chmin(best[a], (ll)cellDist[nodes[u]][nodes[a]]);
+    }
+    return mst + F.nestDist[c][p / F.n][p % F.n];
+}
+
+//クラスタid(色c、メンバーmem)の集合地点をpにできるか
+//  自分の巣 / 空き床 / 自分のメンバーのマス のいずれかで、他クラスタの集合地点と重ならないこと
+//  (他色のスライムがいるマスに集めると、そのスライムを埋めてしまう)
+bool pointOk(const Plan &pl, ll id, ll c, ll p, const vll &mem){
+    ll i = p / F.n, j = p % F.n;
+    if(!F.isFloor[i][j]) return false;
+    ll nc = F.nestColor[i][j];
+    if(nc == c) return true;
+    if(nc >= 0) return false;
+    if(pl.pointOwner[p] >= 0 && pl.pointOwner[p] != id) return false;
+    if(F.initTower[p].h == 0) return true;
+    return find(all(mem), p) != mem.end();
+}
+
+//クラスタidの集合地点を付け替える(pointOwnerも更新)
+void setPoint(Plan &pl, ll id, ll p){
+    Cluster &q = pl.cl[id];
+    if(q.p >= 0 && !isNestCell(q.p) && pl.pointOwner[q.p] == id) pl.pointOwner[q.p] = -1;
+    q.p = p;
+    if(p >= 0 && !isNestCell(p)) pl.pointOwner[p] = id;
+}
+
+//メンバーが0になったクラスタを空きにする
+void freeCluster(Plan &pl, ll id){
+    setPoint(pl, id, -1);
+    pl.cl[id].mem.clear();
+    pl.cl[id].cost = 0;
+    pl.freeIds.push_back(id);
+}
+
+//色c・集合地点p・メンバーmemのクラスタを新しく作る
+ll newCluster(Plan &pl, ll c, ll p, const vll &mem, ll cost){
+    ll id;
+    if(!pl.freeIds.empty()){ id = pl.freeIds.back(); pl.freeIds.pop_back(); }
+    else{ id = pl.cl.size(); pl.cl.push_back(Cluster()); }
+    Cluster &q = pl.cl[id];
+    q.c = c; q.p = -1; q.mem = mem; q.cost = cost;
+    setPoint(pl, id, p);
+    for(ll x : mem) pl.owner[x] = id;
+    return id;
+}
+
+//vからxを1つ取り除いたものをoutに入れる
+void eraseTo(const vll &v, ll x, vll &out){
+    out.clear();
+    for(ll y : v) if(y != x) out.push_back(y);
+}
+
+//焼きなましの受理判定
+bool accept(ll delta, double temp){
+    if(delta <= 0) return true;
+    return rnd.prob() < exp(-(double)delta / temp);
+}
+
+//初期計画: 全スライムが単独クラスタで、集合地点は自分の位置
+void initPlan(Plan &pl){
+    ll nn = F.n * F.n;
+    pl.cl.clear();
+    pl.freeIds.clear();
+    pl.owner.assign(nn, -1);
+    pl.pointOwner.assign(nn, -1);
+    pl.total = 0;
+    rep(x,nn){
+        if(F.initTower[x].h == 0) continue;
+        ll c = F.initTower[x].top();
+        vll mem = {x};
+        ll cost = clusterCost(c, x, mem);
+        newCluster(pl, c, x, mem, cost);
+        pl.total += cost;
+    }
+}
+
+//計画を焼きなましで改善する。近傍は4種類:
+//  move  : 1匹を同色の別クラスタ(または新しい単独クラスタ)へ移す
+//  swap  : 別クラスタにいる同色2匹を入れ替える
+//  shift : 集合地点を 隣のマス / メンバーのマス / 巣 へ動かす
+//  merge : 同色の2クラスタを1つにまとめる
+void optimizePlan(Plan &pl){
+    //スライム一覧と、各スライムに近い同色スライム
+    vll slimes;
+    rep(x,F.n*F.n) if(F.initTower[x].h > 0) slimes.push_back(x);
+    vvll nearSame(F.n * F.n);
+    for(ll x : slimes){
+        vpll cand;   //(距離, idx)
+        for(ll y : slimes){
+            if(y == x || F.initTower[y].top() != F.initTower[x].top()) continue;
+            cand.push_back({cellDist[x][y], y});
+        }
+        sort(all(cand));
+        rep(a, min((ll)cand.size(), NEAR_CAND)) nearSame[x].push_back(cand[a].snd);
+    }
+
+    vll ma, mb;   //近傍で使う作業用のメンバー列
+    double start = timer.now();
+    double span = max(1.0, PLAN_TL - start);
+    double temp = SA_T0;
+    ll iter = 0;
+    while(true){
+        if((iter & 255) == 0){
+            double now = timer.now();
+            if(now > PLAN_TL) break;
+            temp = SA_T0 * pow(SA_T1 / SA_T0, (now - start) / span);
+        }
+        iter++;
+
+        ll x = slimes[rnd(slimes.size())];
+        ll A = pl.owner[x];
+        Cluster &a = pl.cl[A];
+        ll kind = rnd(10);
+
+        if(kind < 5){
+            //--- move ---
+            if(x == a.p && a.mem.size() > 1) continue;   //集合地点のメンバーは抜けられない
+            if(rnd(4) == 0){
+                //新しい単独クラスタとして独立させる(集合地点は自分のマス)
+                if(a.mem.size() <= 1) continue;
+                eraseTo(a.mem, x, ma);
+                ll ca = clusterCost(a.c, a.p, ma);
+                ll cn = clusterCost(a.c, x, {x});
+                ll delta = ca + cn - a.cost;
+                if(!accept(delta, temp)) continue;
+                a.mem = ma; a.cost = ca;
+                newCluster(pl, a.c, x, {x}, cn);
+                pl.total += delta;
+            }else{
+                if(nearSame[x].empty()) continue;
+                ll y = nearSame[x][rnd(nearSame[x].size())];
+                ll B = pl.owner[y];
+                if(B == A) continue;
+                Cluster &b = pl.cl[B];
+                if((ll)b.mem.size() >= CL_CAP) continue;
+                eraseTo(a.mem, x, ma);
+                mb = b.mem; mb.push_back(x);
+                ll ca = clusterCost(a.c, a.p, ma);
+                ll cb = clusterCost(b.c, b.p, mb);
+                ll delta = ca + cb - a.cost - b.cost;
+                if(!accept(delta, temp)) continue;
+                b.mem = mb; b.cost = cb;
+                pl.owner[x] = B;
+                if(ma.empty()) freeCluster(pl, A);
+                else{ a.mem = ma; a.cost = ca; }
+                pl.total += delta;
+            }
+        }else if(kind < 7){
+            //--- swap ---
+            if(nearSame[x].empty()) continue;
+            ll y = nearSame[x][rnd(nearSame[x].size())];
+            ll B = pl.owner[y];
+            if(B == A) continue;
+            Cluster &b = pl.cl[B];
+            if(x == a.p || y == b.p) continue;           //集合地点のメンバーは動かさない
+            eraseTo(a.mem, x, ma); ma.push_back(y);
+            eraseTo(b.mem, y, mb); mb.push_back(x);
+            ll ca = clusterCost(a.c, a.p, ma);
+            ll cb = clusterCost(b.c, b.p, mb);
+            ll delta = ca + cb - a.cost - b.cost;
+            if(!accept(delta, temp)) continue;
+            a.mem = ma; a.cost = ca;
+            b.mem = mb; b.cost = cb;
+            pl.owner[x] = B; pl.owner[y] = A;
+            pl.total += delta;
+        }else if(kind < 9){
+            //--- shift ---
+            ll np = -1;
+            ll r = rnd(3);
+            if(r == 0){
+                ll d = rnd(4);
+                ll ni = a.p / F.n + DI[d], nj = a.p % F.n + DJ[d];
+                if(!F.ok(ni,nj)) continue;
+                np = F.idx(ni,nj);
+            }else if(r == 1){
+                np = a.mem[rnd(a.mem.size())];
+            }else{
+                np = F.idx(F.nestPos[a.c].fst, F.nestPos[a.c].snd);
+            }
+            if(np == a.p || !pointOk(pl, A, a.c, np, a.mem)) continue;
+            ll ca = clusterCost(a.c, np, a.mem);
+            ll delta = ca - a.cost;
+            if(!accept(delta, temp)) continue;
+            setPoint(pl, A, np);
+            a.cost = ca;
+            pl.total += delta;
+        }else{
+            //--- merge ---
+            if(nearSame[x].empty()) continue;
+            ll y = nearSame[x][rnd(nearSame[x].size())];
+            ll B = pl.owner[y];
+            if(B == A) continue;
+            Cluster &b = pl.cl[B];
+            if((ll)(a.mem.size() + b.mem.size()) > CL_CAP) continue;
+            //Aの集合地点のままBを吸収する
+            ma = a.mem; ma.insert(ma.end(), all(b.mem));
+            ll ca = clusterCost(a.c, a.p, ma);
+            ll delta = ca - a.cost - b.cost;
+            if(!accept(delta, temp)) continue;
+            for(ll z : b.mem) pl.owner[z] = A;
+            a.mem = ma; a.cost = ca;
+            freeCluster(pl, B);
+            pl.total += delta;
+        }
+    }
+#ifdef LOCAL
+    cerr << "plan_iter=" << iter << "\n";
+#endif
+}
+
+//------------------------------ デコーダ(計画 → 操作列) ------------------------------
+//クラスタごとに「集合地点のまわりへゆるく寄せる → 巣へ向かいながら回収する」を続けて行う。
+
+const ll GATHER_R = 2;   //集合地点からこの距離以内まで寄せたら止める(調整ノブ。0なら1本の塔に積む)
+
+//m匹の色cを、ルート(nxt)に沿って目標(distの0のマス)へ1マスずつ運ぶ。
+//目標からの距離がR以下で「空き or 一番上が色c」のマスに着地したら止まる
+//(他色のスライムの上で止まると、そのスライムを埋めてしまうため)。
+//止まったマスを(ci,cj)に入れる。1手でも動かせたらtrue。
+bool carryNear(State &s, ll &ci, ll &cj, ll m, ll c, ll R,
+               const vvll &dist, const vector<vvll> &nxt){
+    bool moved = false;
+    while(dist[ci][cj] > 0){
+        if((ll)s.ops.size() >= MAX_T || timer.now() > TL) break;
+        ll d = nxt[m][ci][cj];
+        if(d < 0) break;
+        ll ni = ci + DI[d], nj = cj + DJ[d];
+        bool canStop = dist[ni][nj] <= R && (s.height(ni,nj) == 0 || s.at(ni,nj).top() == c);
+        ll h = s.height(ci,cj);
+        if(h < m) break;
+        if(!s.tryDo(Action(ci,cj,h-m,d,1))) break;
+        moved = true;
+        ci = ni; cj = nj;
+        m = topRun(s,ci,cj,c);          //着地点の同色を回収した分だけ増える
+        if(canStop) break;
+        if(m <= 0 || m > MAX_H) break;
+    }
+    return moved;
+}
+
+//クラスタのメンバーを、集合地点から距離GATHER_R以内へゆるく寄せる。
+//集合地点から遠いメンバーから順に、道中の同色も拾いながら運ぶ(ルートDPが拾える道を選ぶ)。
+//寄せ終えた一団がいるマスをzoneに入れる。
+void gatherCluster(State &s, const Cluster &q, vpll &zone){
+    zone.clear();
+    if(q.mem.empty()) return;
+    ll c = q.c, gi = q.p / F.n, gj = q.p % F.n;
+    vvll dist = F.bfs({{gi,gj}});
+    static vvll gain;
+    static vector<vvll> val, nxt;
+
+    //最初から範囲内にいるメンバーは動かさない
+    for(ll x : q.mem){
+        ll i = x / F.n, j = x % F.n;
+        if(dist[i][j] <= GATHER_R && topRun(s,i,j,c) > 0) zone.push_back({i,j});
+    }
+
+    vb skip(q.mem.size(), false);   //寄せられなかったメンバー
+    while(true){
+        if((ll)s.ops.size() >= MAX_T || timer.now() > TL) return;
+
+        //まだ一番上に色cが残っている範囲外のメンバーのうち、集合地点から最も遠いもの
+        ll bx = -1, bd = -1;
+        rep(x, q.mem.size()){
+            if(skip[x]) continue;
+            ll i = q.mem[x] / F.n, j = q.mem[x] % F.n;
+            if(dist[i][j] <= GATHER_R) continue;
+            if(topRun(s,i,j,c) == 0) continue;
+            if(dist[i][j] > bd){ bd = dist[i][j]; bx = x; }
+        }
+        if(bx < 0) return;
+        ll si = q.mem[bx] / F.n, sj = q.mem[bx] % F.n;
+
+        buildRoute(s, c, gi, gj, dist, F.isFloor, gain, val, nxt);
+        ll m0 = pickLift(gain[si][sj], si, sj, val);
+        if(m0 == 0){ skip[bx] = true; continue; }   //集合地点まで行けない
+
+        ll ci = si, cj = sj;
+        if(!carryNear(s, ci, cj, m0, c, GATHER_R, dist, nxt)){ skip[bx] = true; continue; }
+        //途中で止まった場合も、一団がいるマスとして巣へ運ぶ対象にする
+        if(topRun(s,ci,cj,c) > 0) zone.push_back({ci,cj});
+    }
+}
+
+//zoneにいる色cの一団を、巣から遠いマスから順に巣へ運ぶ。
+//carryTopが近くの同色(collectNearby)・道中の同色(ルートDP)・横の同色(sidePick)を
+//回収しながら運ぶので、集合地点のまわりに寄せた同色はここでまとめて拾われる。
+void deliverZone(State &s, ll c, vpll zone){
+    sort(all(zone));
+    zone.erase(unique(all(zone)), zone.end());
+    sort(all(zone), [&](const pll &a, const pll &b){
+        return F.nestDist[c][a.fst][a.snd] > F.nestDist[c][b.fst][b.snd];
+    });
+    for(auto [i,j] : zone){
+        while(topRun(s,i,j,c) > 0 && carryTop(s,i,j)){
+            if((ll)s.ops.size() >= MAX_T || timer.now() > TL) return;
+        }
+    }
+}
+
+//計画に従って、クラスタごとに「寄せる → 巣へ運ぶ」を行う。大きいクラスタから処理する。
+void runPlan(State &s, const Plan &pl){
+    vpll order;   //(-匹数, クラスタid)
+    rep(id, pl.cl.size()) if(!pl.cl[id].mem.empty()) order.push_back({-(ll)pl.cl[id].mem.size(), id});
+    sort(all(order));
+    vpll zone;
+    for(auto [negSize, id] : order){
+        if((ll)s.ops.size() >= MAX_T || timer.now() > TL) return;
+        gatherCluster(s, pl.cl[id], zone);
+        deliverZone(s, pl.cl[id].c, zone);
+    }
+}
+
 //============================================================================
 
 int main(){
@@ -755,10 +1147,16 @@ int main(){
     s.init();
 
     //解法:
-    //  (1) 粗いブロックごとに、ブロック内の同色をできるだけ1か所へ寄せる
-    //  (2) できた塊を基準に、左上から順に一番上のスライムを自分の巣まで帰していく
-    //      (道中と横にいる同色も回収しながら運ぶ)
-    gatherBlocks(s);
+    //  (1) 各スライムの集合地点(クラスタ)を焼きなましで決める
+    //  (2) クラスタごとに、集合地点のまわりへゆるく寄せ、巣へ向かいながら回収する
+    //  (3) 取りこぼしを、左上から順に一番上のスライムから巣へ帰していく
+    calcCellDist();
+    Plan plan;
+    initPlan(plan);
+    ll initEst = plan.total;
+    optimizePlan(plan);
+    runPlan(s, plan);
+    ll planT = s.ops.size();
 
     while(!s.done() && (ll)s.ops.size() < MAX_T && timer.now() <= TL){
         bool moved = false;
@@ -775,6 +1173,14 @@ int main(){
     cerr << s.dump();
     cerr << "actions=" << s.enumActions().size() << "\n";
     cerr << "time=" << timer.now() << "ms\n";
+    //近似コストと実際の手数の対応を見るための行
+    ll clusterNum = 0;
+    for(const Cluster &q : plan.cl) if(!q.mem.empty()) clusterNum++;
+    cerr << "PLAN init_est=" << initEst << " est=" << plan.total
+         << " clusters=" << clusterNum << " plan_T=" << planT
+         << " T=" << s.ops.size() << " E=" << s.remain << "\n";
+#else
+    (void)initEst; (void)planT;
 #endif
 
     s.print(cout);

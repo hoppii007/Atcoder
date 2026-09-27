@@ -1,0 +1,13 @@
+12 5
+...e.d..A..b
+.c.deca...ec
+b..d..B.c...
+....ddc..#b.
+.ed.dcb...dc
+..ca.d...a..
+ce.eb.bb...d
+c.c........d
+..ba.cD....d
+.de.d.......
+..d.ca.EC.d.
+...ddb...a..

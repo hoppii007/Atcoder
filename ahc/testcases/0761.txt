@@ -1,0 +1,16 @@
+15 7
+..d#..##.f###.G
+c..#a..d.#a....
+g..eb..b###b..f
+#....#.Bg..cag.
+#f#..g.b#efDf#.
+#dc##e#.#fg.db#
+A.bdg#gg.b#d..c
+...#...c.g..#.g
+cd..c.fFg....##
+#.d....#d#bg#ae
+.#..f#.#..dE..f
+.b...e#.dad.#.#
+.#.#db#.#C.#d..
+cbag#f#e..ed.##
+#b.#..e.ed.#.e.

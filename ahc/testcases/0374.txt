@@ -1,0 +1,18 @@
+17 6
+...ae.e.#.e.#.###
+e..ee#..e#e.c...e
+.c##e#b#.e.bCec#f
+a.a....e...#eaA#.
+af####.##ae.##e.e
+.#e#.e##bea.##a.f
+..e##be#a.#ae#a#b
+fee#.a##.e.b..#ed
+.baa.#e.#.#..##.#
+e#.#ee#...#.e.f#e
+a.e##.#...e#.#d..
+##eF#b#.ae..cf#e#
+####e...ae.bb####
+###...e.e..d#.##e
+#Daa#.#..ea.d....
+##..ae#.f.#.a.B#.
+##e.ea###d.e.E###

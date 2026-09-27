@@ -1,0 +1,18 @@
+17 4
+#...dd....a.aa..a
+...#d#...ab#...d.
+d.bb.d.........da
+a.....#b.c..a#.d.
+.ba.c..#a..d.a...
+.d.c.#d...adaad.a
+d..#a....ad#..d..
+...a..a...dc..a..
+.b.ca.b.a.#.d....
+.aDd.bb....da..d.
+....acdaa.cdadaa#
+.add.a....aB.b...
+..c..d.a..a.#....
+bc.A..#aa...#.C..
+b.....a#.ab...dad
+......#a....#....
+bbb.a.a........#a
