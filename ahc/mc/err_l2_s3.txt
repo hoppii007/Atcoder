@@ -1,0 +1,21 @@
+[0.00s] best 105
+[0.00s] best 92
+[0.01s] best 91
+[0.01s] best 85
+[0.02s] best 84
+[0.07s] best 79
+[0.24s] best 78
+[0.28s] best 75
+[0.29s] best 73
+[0.30s] best 72
+[0.71s] best 71
+[0.73s] best 70
+[1.51s] best 69
+[1.52s] best 68
+[1.52s] best 67
+[1.88s] best 66
+[2.30s] best 65
+[2.95s] best 62
+[2.97s] best 60
+[13.12s] best 59
+iters 19 best 59

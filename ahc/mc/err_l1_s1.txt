@@ -1,0 +1,13 @@
+[0.00s] best 93
+[0.00s] best 90
+[0.01s] best 80
+[0.07s] best 75
+[0.19s] best 69
+[0.26s] best 68
+[0.28s] best 67
+[0.76s] best 63
+[0.86s] best 62
+[2.36s] best 61
+[3.73s] best 60
+[3.76s] best 57
+iters 4000 best 57
