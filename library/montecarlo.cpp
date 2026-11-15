@@ -1,4 +1,4 @@
-
+#pragma once
 //MonteCarloTreeSearch
 //現状はマルバツゲームのAIになってる
 namespace MonteCarloTreeSearch{
@@ -25,7 +25,7 @@ namespace MonteCarloTreeSearch{
         int EXPAND_THRESHOLD = 10;  //何回訪問したら展開するか？
         
         ///////この辺でアドホックな盤面情報を入れていく///////////
-        vi grid;
+        vector<int> grid;
         int turn;
         bool preIsFinished;
         int preI;
@@ -36,7 +36,7 @@ namespace MonteCarloTreeSearch{
         State(){
             gen = mt19937(rd());
 
-            grid = vi(9, 0);
+            grid = vector<int>(9, 0);
             turn = 1;
         }
 
@@ -50,8 +50,8 @@ namespace MonteCarloTreeSearch{
             prePreAction = preAction;
             preAction = action;
             turn = (turn==1?-1:1);
-            vvi lines = {{0,1,2}, {3,4,5}, {6,7,8}, {0,3,6}, {1,4,7}, {2,5,8}, {0,4,8}, {2,4,6}};
-            for(vi &line: lines) if(grid[line[0]] == grid[line[1]] && grid[line[1]] == grid[line[2]] && grid[line[0]] != 0){
+            vector<vector<int>> lines = {{0,1,2}, {3,4,5}, {6,7,8}, {0,3,6}, {1,4,7}, {2,5,8}, {0,4,8}, {2,4,6}};
+            for(vector<int> &line: lines) if(grid[line[0]] == grid[line[1]] && grid[line[1]] == grid[line[2]] && grid[line[0]] != 0){
                 isFinished = true;
                 if(grid[line[0]] == 1)  nowW = 1;
                 else nowW = -1;

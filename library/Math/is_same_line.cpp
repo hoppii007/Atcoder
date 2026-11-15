@@ -1,3 +1,4 @@
+#pragma once
 /**
  * @brief 3点が同一直線上にあるかを判定する
  * @details 各点を (x, y) = (fst, snd) として扱う。

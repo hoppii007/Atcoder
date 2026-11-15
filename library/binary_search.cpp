@@ -1,3 +1,4 @@
+// @no-include（main の中に貼るスニペット。#include では使えない）
 //二分探索のジャッジ用のやつ
 auto nibutan_judge = [&](ll mid){
     return true;

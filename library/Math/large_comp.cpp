@@ -1,4 +1,4 @@
-
+#pragma once
 // a <= b*cを判定
 bool lte(ll a, ll b, ll c){
     if(b == 0 || c == 0) return a <= 0;

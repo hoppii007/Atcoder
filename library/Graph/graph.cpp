@@ -1,4 +1,4 @@
-
+#pragma once
 template<typename T = long long> // costの型
 struct Graph {
     ///////////////辺の構造体↓/////////////

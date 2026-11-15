@@ -1,4 +1,4 @@
-
+#pragma once
 //aは昇順ソート済み
 //以下の個数
 ll cnt_lte(vll &a, ll t){

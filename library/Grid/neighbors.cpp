@@ -1,4 +1,4 @@
-
+#pragma once
 //縦0以上h未満、横0以上w未満の(i,j)の4近傍をとる
 vpll kinbo4(ll h,ll w, ll i,ll j){
     vpll ret;

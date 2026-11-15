@@ -1,4 +1,4 @@
-
+#pragma once
 //O(max(a) + a.size())
 //0,1,2,...の中で、aに含まれない最小
 ll mex(vll& a){

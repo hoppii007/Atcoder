@@ -1,4 +1,4 @@
-
+#pragma once
 //nexts : {cost, id}
 //N * Nのdpを返す
 vvll warshall_floyd(vector<vpll> &nexts){

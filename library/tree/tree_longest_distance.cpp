@@ -1,4 +1,4 @@
-
+#pragma once
 //木に対して、頂点から最も遠い点（複数ある場合はどれか一つ）の{距離、番号}を返す
 //longestDistanceFromRoot(nexts, s)のように使う
 pll longestDistanceFromRoot(vvll &nexts, ll now, ll prev=-1){

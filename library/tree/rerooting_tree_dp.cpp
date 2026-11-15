@@ -1,3 +1,4 @@
+#pragma once
 /**
  * @brief 全方位木DP（Rerooting Tree DP）
  *

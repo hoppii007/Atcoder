@@ -1,4 +1,4 @@
-
+#pragma once
 template<typename T>
 vector<vector<T>> transpose(vector<vector<T>> &a){
     ll h = a.size();

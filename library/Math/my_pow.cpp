@@ -1,4 +1,4 @@
-
+#pragma once
 //O(logB)でa^bが計算できる
 ll mypow(ll a,ll b){
     if(b == 0) return 1;

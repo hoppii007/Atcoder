@@ -1,3 +1,4 @@
+#pragma once
 /**
  * @brief mod付き整数型（long long ベース）
  * @details 四則演算・累乗・比較を自動で mod を取りながら行う構造体。

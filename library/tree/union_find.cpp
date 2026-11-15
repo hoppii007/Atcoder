@@ -1,4 +1,4 @@
-
+#pragma once
 /**
  * @brief Union-Find（素集合データ構造）
  * @note 各操作 ほぼ O(1)（経路圧縮あり）

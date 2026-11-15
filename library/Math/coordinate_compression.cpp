@@ -1,3 +1,4 @@
+#pragma once
 /**
  * @brief 座標圧縮
  * @details 与えられた座標列を、値の大小関係を保ったまま 0-indexed の連番に変換する。

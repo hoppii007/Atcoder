@@ -1,4 +1,4 @@
-
+#pragma once
 string to_upper(string s){
     string ret = "";
     rep(i,s.size()){

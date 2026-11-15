@@ -1,3 +1,4 @@
+#pragma once
 /**
  * @brief 有向グラフの閉路判定
  * @param nexts 隣接リスト（nexts[i] は頂点 i から伸びる辺の行き先一覧）

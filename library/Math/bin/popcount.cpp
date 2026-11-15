@@ -1,4 +1,4 @@
-
+#pragma once
 ll popcount(ll n){
     ll ret = 0;
     while(n > 0){

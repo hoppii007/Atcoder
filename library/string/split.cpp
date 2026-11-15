@@ -1,3 +1,4 @@
+#pragma once
 /**
  * @brief 文字列を指定した区切り文字で分割する
  * @param s 分割対象の文字列

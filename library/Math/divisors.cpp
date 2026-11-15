@@ -1,4 +1,4 @@
-
+#pragma once
 //約数の個数はだいたいO(N^1/3)らしい
 //計算自体はO(N^1/2)
 vll divisors(ll n){

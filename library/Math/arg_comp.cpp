@@ -1,4 +1,4 @@
-
+#pragma once
 /**
  * @brief 偏角ソート用比較関数
  * @details 2 次元ベクトル p0, p1 の偏角を比較し、arg(p0) < arg(p1) なら true を返す。

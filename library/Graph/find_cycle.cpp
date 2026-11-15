@@ -1,4 +1,4 @@
-
+#pragma once
 /**
  * @brief 有向グラフから root を起点としてサイクルを 1 つ取得
  * @param nexts 隣接リスト（nexts[i] は頂点 i から伸びる辺の行き先一覧）

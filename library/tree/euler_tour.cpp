@@ -1,3 +1,4 @@
+#pragma once
 // ツアーの順番に頂点番号を記録（入ったところは v 、出たところは ~v）
 // in と out を見れば逆引きも可能
 struct EulerTour {

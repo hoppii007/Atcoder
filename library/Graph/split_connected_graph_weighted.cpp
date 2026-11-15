@@ -1,3 +1,5 @@
+#pragma once
+#include "library/tree/union_find.cpp"
 /**
  * @brief 重み付き隣接リストを連結成分ごとに分割する（split_connected_graph の重み付き版）
  * @param nexts 重み付き隣接リスト（nexts[i] は頂点 i から出る辺の {コスト, 行き先} 一覧）。辺の向きは無視して連結性を判定する

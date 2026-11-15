@@ -1,66 +1,7 @@
-
-//一回の行き先が決まってる状態から、K回先を計算する O(N log K)
-//要素数:n
-//各状態(0 ~ n)から、2^60回までの遷移先を求める(10^18ちょいくらい)
-// dub[i][j] := iから2^j回遷移した先
-//一回の行き先をnextsに入れとく
-//行き先がないやつは-1
-vvll doubling(vll &nexts){
-    vvll dub(nexts.size(), vll(61));
-    rep(i,nexts.size()) dub[i][0] = nexts[i];
-    rep(j,1,61) rep(i,nexts.size()){
-        if(dub[i][j-1] == -1) dub[i][j] = -1;
-        else dub[i][j] = dub[dub[i][j-1]][j-1];
-    }
-    return dub;
-}
-
-// 行き先の遷移と、その時のコスト（辺の重さ）を渡す
-// op で集計関数も渡す
-template<typename M>
-vector<vector<pair<M,ll>>> doubling_with_val(vector<pair<M,ll>> &nexts){
-    vector<vector<pair<M,ll>>> ret(nexts.size(), vector<pair<M,ll>>(61));
-    rep(i,nexts.size()){
-        ret[i][0] = nexts[i];
-    }
-    rep(j,1,61) rep(i,nexts.size()){
-        if(ret[i][j-1].snd == -1){
-            ret[i][j] = ret[i][j-1];
-        }
-        else{
-            ret[i][j].fst = ret[i][j-1].fst * ret[ret[i][j-1].snd][j-1].fst;
-            ret[i][j].snd = ret[ret[i][j-1].snd][j-1].snd;
-        }
-    }
-    return ret;
-}
-
-//木の中で、rootからの距離を入れる
-//O(N)
-vll treeDepth(ll root, vvll &nexts){
-    vll ret(nexts.size(), inf);
-    std::function<void(ll,ll)> subDfs = [&](ll now, ll d){
-        ret[now] = d;
-        for(ll next: nexts[now]) if(ret[next] == inf) subDfs(next, d+1);
-    };
-    subDfs(root, 0);
-    return ret;
-}
-
-//木の中で、rootを指定して、各頂点のparentsを設定する
-//親の親は自分自身にしておく
-//O(N)
-vll treeParents(ll root, vvll &nexts){
-    vll ret(nexts.size(), inf);
-    std::function<void(ll,ll)> subDfs = [&](ll now, ll parent){
-        ret[now] = parent;
-        for(ll next: nexts[now]) if(ret[next] == inf) subDfs(next, now);
-    };
-    //親の親を-1にしたりしたいときはここの第二引数を変更
-    //infにするときは注意
-    subDfs(root, -1);
-    return ret;
-}
+#pragma once
+#include "library/doubling.cpp"
+#include "library/tree/tree_depth.cpp"
+#include "library/tree/tree_parents.cpp"
 
 //各頂点は0 ~ N-1の番号で管理
 //共通祖先をO(Log V)で出すやつ
@@ -84,13 +25,13 @@ public:
     LcaTree(ll r, vvll &nexts){
         //parentsとrootをセット
         root = r;
-        parents = treeParents(root, nexts);
+        parents = tree_parents(root, nexts);
 
         //rootからの距離をセット
-        distToRoot = treeDepth(root, nexts);
+        distToRoot = tree_depth(root, nexts);
 
         //遡る用のdubling配列を用意
-        backDub = dubling(parents);
+        backDub = Doubling(parents).dub;
     }
 
     //頂点uからn回遡りたい

@@ -1,4 +1,4 @@
-
+#pragma once
 //木の中で、rootからの距離を入れる
 //O(N)
 vll tree_depth(ll root, vvll &nexts){

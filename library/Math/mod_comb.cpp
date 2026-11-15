@@ -1,3 +1,5 @@
+#pragma once
+#include "library/Math/mod_ll.cpp"
 struct ModComb {
     vector<modll> f;
     vector<modll> invf;

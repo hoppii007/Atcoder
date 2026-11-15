@@ -1,3 +1,4 @@
+#pragma once
 /**
  * @brief 配列 v の全要素の最小公倍数を求める
  * @param v 正整数の配列

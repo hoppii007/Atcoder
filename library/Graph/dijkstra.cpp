@@ -1,4 +1,4 @@
-
+#pragma once
 //O((E+V)logV)でsからの最短経路がもとまる
 //負の辺があるとダメ
 //nextsには{cost,index}にしといてね

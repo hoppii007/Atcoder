@@ -4,6 +4,7 @@ const vscode = require("vscode");
 const fs = require("fs");
 const path = require("path");
 const timer = require("./timer");
+const include_completion = require("./include_completion");
 
 /** problems/ ディレクトリを持つワークスペースフォルダを探す。 */
 function find_problems_dir() {
@@ -106,6 +107,9 @@ function activate(context) {
 
   // 解答タイマー（B-4: time_spent_min 自動化 + solved/felt/つまずき入力）
   timer.activate(context);
+
+  // #include "library/..." のパス補完
+  include_completion.activate(context);
 }
 
 function deactivate() {

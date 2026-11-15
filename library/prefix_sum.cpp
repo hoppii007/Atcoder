@@ -1,3 +1,3 @@
-
+// @no-include（main の中に貼るスニペット。#include では使えない）
 vll r$1($1.size()+1, 0);
 rep(i,$1.size()) r$1[i+1] = r$1[i]+$1[i];

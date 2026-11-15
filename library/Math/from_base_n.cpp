@@ -1,3 +1,4 @@
+#pragma once
 /**
  * @brief n進数表記された配列を10進数に変換する
  * @param n 基数（2以上の整数）

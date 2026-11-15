@@ -1,3 +1,4 @@
+#pragma once
 //{いくつあったか、何が}
 template <typename T>
 vector<pair<T,ll>> run_length(vector<T> &a){

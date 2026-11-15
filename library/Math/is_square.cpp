@@ -1,4 +1,4 @@
-
+#pragma once
 //四つの頂点の情報をもらい、正方形かどうかを判別する
 //overlapIsOutがtrueなら、ぴったりなってる時ダメにする
 bool is_square(pll a,pll b,pll c,pll d, bool overlapIsOut = true){

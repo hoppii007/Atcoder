@@ -1,4 +1,4 @@
-
+// @no-include（main の中に貼るスニペット。#include では使えない）
 struct UnionFind {
 public:
     vll par; // par[i]:iの親の番号　(例) par[3] = 2 : 3の親が2

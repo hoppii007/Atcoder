@@ -1,3 +1,5 @@
+#pragma once
+#include "library/tree/union_find.cpp"
 /**
  * @brief 隣接リストを連結成分ごとの隣接リストに分割する
  * @param nexts 隣接リスト（nexts[i] は頂点 i から出る辺の行き先一覧）。辺の向きは無視して連結性を判定する

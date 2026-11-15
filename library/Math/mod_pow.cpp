@@ -1,4 +1,4 @@
-
+#pragma once
 /**
  * @brief a^b mod p を計算する
  * @param a 底

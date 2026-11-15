@@ -1,3 +1,4 @@
+#pragma once
 //visitは全てfalseで作っとく
 //visit[root]はtrueにしとく
 void dfs(vvll &nexts, vb &visit, ll now, ll prev = -1){

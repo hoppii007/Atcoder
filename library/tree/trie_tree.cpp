@@ -1,4 +1,4 @@
-
+#pragma once
 //文字列の検索がmax(s_i.size())で可能
 //共通接頭辞の数を数えたりできる
 class TrieTree{

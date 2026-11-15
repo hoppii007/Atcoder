@@ -1,4 +1,4 @@
-
+#pragma once
 //DAG（るーぷをふくんじゃだめ）に対してトポロジカルソートし、根っこが一番左にくるようにする
 //ループとかあったらバグるからマジやめてね
 vll topological_sort(vvll &nexts){

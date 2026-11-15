@@ -1,5 +1,4 @@
-
-
+#pragma once
 /**
  * @brief a と b の最小公倍数を求める
  * @param a 正整数

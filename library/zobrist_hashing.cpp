@@ -1,3 +1,5 @@
+#pragma once
+#include "library/Math/random.cpp"
 /**
  * @brief Zobrist Hashing
  *

@@ -1,3 +1,4 @@
+#pragma once
 /**
  * @brief a を b で割った値の切り上げを返す
  * @param a 被除数

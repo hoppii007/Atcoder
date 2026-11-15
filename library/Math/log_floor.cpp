@@ -1,4 +1,4 @@
-
+#pragma once
 //O(log n)で、a^b <= nとなる最大のbを求める（logの切り捨て的な）
 ll log_floor(ll n, ll a){
     ll ret = 0;

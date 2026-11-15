@@ -1,3 +1,4 @@
+#pragma once
 /**
  * @brief 文字列の部分文字列を半開区間 [i, j) で切り出す
  * @param s 元の文字列

@@ -1,3 +1,6 @@
+#pragma once
+#include "library/Math/monoid.cpp"
+#include "library/tree/segment_tree.cpp"
 
 // a[i]より右の中で、a[i]より小さい数を数える
 // a は重複があってもOK
@@ -6,6 +9,9 @@ namespace Tentosu {
     ll my_add(ll a, ll b){ return a+b; }
     ll my_max(ll a, ll b){ return max(a, b); }
     ll my_min(ll a, ll b){ return min(a, b); }
+    using AddM = Monoid<ll, my_add, 0>;
+    using MaxM = Monoid<ll, my_max, -inf>;
+    using MinM = Monoid<ll, my_min, inf>;
     vll shift_minus(vll& a){
         ll min_a = *min_element(all(a));
         vll ta = a;
@@ -16,7 +22,7 @@ namespace Tentosu {
     vll cnt_right_lt(vll& a){
         vll ta = shift_minus(a);
 
-        SegmentTree<ll> st(*max_element(all(ta))+1, my_add, 0LL);
+        SegmentTree<AddM> st(*max_element(all(ta))+1);
         vll ret(ta.size(), 0);
 
         mrep(i, (ll)ta.size()-1){
@@ -29,7 +35,7 @@ namespace Tentosu {
     vll cnt_left_lt(vll& a){
         vll ta = shift_minus(a);
 
-        SegmentTree<ll> st(*max_element(all(ta))+1, my_add, 0LL);
+        SegmentTree<AddM> st(*max_element(all(ta))+1);
         vll ret(ta.size(), 0);
 
         rep(i, a.size()){
@@ -42,7 +48,7 @@ namespace Tentosu {
     vll find_right_lt(vll& a){
         vll ta = shift_minus(a);
 
-        SegmentTree<ll> st(*max_element(all(ta))+1, my_min, inf);
+        SegmentTree<MinM> st(*max_element(all(ta))+1);
         vll ret(ta.size(), inf);
 
         mrep(i, (ll)a.size()-1){
@@ -56,7 +62,7 @@ namespace Tentosu {
     vll find_left_lt(vll& a){
         vll ta = shift_minus(a);
 
-        SegmentTree<ll> st(*max_element(all(ta))+1, my_max, -inf);
+        SegmentTree<MaxM> st(*max_element(all(ta))+1);
         vll ret(ta.size(), -inf);
 
         rep(i, a.size()){

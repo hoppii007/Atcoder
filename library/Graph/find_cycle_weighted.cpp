@@ -1,4 +1,4 @@
-
+#pragma once
 /// @brief 重み付き有向辺。u から v へ向かうコスト c の辺を表す
 struct Edge{
     ll u, v, c;

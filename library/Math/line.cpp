@@ -1,3 +1,5 @@
+#pragma once
+#include "library/Math/gcds.cpp"
 /**
  * @brief 直線 ax + by + c = 0 を表す構造体
  * @note 同じ直線が同じ (a, b, c) で表現されるよう、以下の正規化を行う:

@@ -1,3 +1,4 @@
+#pragma once
 /**
  * @brief 強連結成分分解（Kosaraju 法）
  *

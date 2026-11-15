@@ -1,4 +1,4 @@
-
+// @no-include（main の中に貼るスニペット。#include では使えない）
 //型を入力
 queue<$1> q;
 

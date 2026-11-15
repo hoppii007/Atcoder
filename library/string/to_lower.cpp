@@ -1,4 +1,4 @@
-
+#pragma once
 string to_lower(string s){
     string ret = "";
     rep(i,s.size()) {

@@ -31,6 +31,12 @@ AtCoder の解答フローを支援する VSCode 拡張。2 機能を持つ。
 - リロードしてもタイマーは消えない（`workspaceState` に永続化）。
 - その他コマンド: `AtCoder: タイマー開始／一時停止`, `AtCoder: タイマーをリセット`
 
+### ライブラリ include 補完
+
+C++ ファイルで `#include "` と打つと `library/` が、`#include "library/` 以降はフォルダ・`.cpp` ファイルが
+候補に出る（ファイルには `@brief` を説明として表示、選択中は Doxygen コメントをプレビュー）。
+提出時の展開は [`../scripts/expand.py`](../scripts/expand.py)（`Ctrl+Shift+I` の `build_input` で自動実行）。
+
 ## 設定（Settings → 拡張機能 → AtCoder Problem Picker）
 
 | 設定 | 既定 | 説明 |

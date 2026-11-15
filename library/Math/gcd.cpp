@@ -1,5 +1,4 @@
-
-
+#pragma once
 /**
  * @brief a と b の最大公約数を求める
  * @param a 非負整数

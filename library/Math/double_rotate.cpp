@@ -1,4 +1,4 @@
-
+#pragma once
 //原点中心に反時計回りに回転（ラジアン）
 //xy平面で
 pair<double, double> double_rotate(pair<double,double> p, double theta){

@@ -1,4 +1,4 @@
-
+#pragma once
 //区間更新、区間クエリはこいつにおまかせ！
 ///////注意/////////
 //・T,opT,idTがモノイドになっている
@@ -185,6 +185,7 @@ public:
     }
 };
 
+/* 使用例
 // 区間加算、区間和取得
 // ・TとOの積が*で定義されてないとダメ
 // ・vector<T>のvを用意しておく
@@ -221,3 +222,4 @@ LazySegmentTree<pair<T,ll>, O> lst(
     id_o,
     [](O o, pair<T,ll> t){ return (o==id_o)?t:pair<T,ll>{o*t.snd, t.snd}; }
 );
+*/

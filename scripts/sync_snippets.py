@@ -2,6 +2,9 @@
 """
 library/ フォルダからVSCodeスニペットを自動生成するスクリプト
 
+対象は先頭行が `// @no-include` のファイル（main の中に貼るスニペット）だけ。
+それ以外のライブラリは #include "library/..." で使うのでスニペットにしない。
+
 使い方:
   python scripts/sync_snippets.py
 
@@ -22,6 +25,9 @@ from typing import Optional, List, Dict
 
 LIBRARY_DIR = Path(__file__).parent.parent / "library"
 OUTPUT_FILE = Path(__file__).parent.parent / ".vscode" / "snippets.code-snippets"
+
+# スニペット本文・説明から除外する行（#include で使うための行）
+INCLUDE_ONLY_LINE = re.compile(r'^\s*(#\s*pragma\s+once\b|#\s*include\s*"library/|//\s*@no-include)')
 
 
 
@@ -80,12 +86,13 @@ def parse_library_file(filepath: Path) -> Optional[dict]:
                 if line.startswith("* ") and not line.startswith("* @"):
                     description = line[2:].strip()
                     break
-                if line.startswith("//") and not line.startswith("// @snippet"):
+                if line.startswith("//") and not line.startswith("// @snippet") and not INCLUDE_ONLY_LINE.match(line):
                     description = line.lstrip("/").strip()
                     break
 
     # bodyを構築（前後の空行と不要な引用符を除去）
-    body_lines = lines[body_start:]
+    # #include 用の行（#pragma once / 依存ライブラリの #include / @no-include 目印）は貼り付け時には不要なので除く
+    body_lines = [line for line in lines[body_start:] if not INCLUDE_ONLY_LINE.match(line)]
 
     # 先頭・末尾の空行を除去
     while body_lines and not body_lines[0].strip():
@@ -115,9 +122,18 @@ def parse_library_file(filepath: Path) -> Optional[dict]:
     return {"name": name, "snippet": snippet}
 
 
+NO_INCLUDE_MARK = re.compile(r"^\s*//\s*@no-include")
+
+
 def collect_library_files() -> List[Path]:
-    """library/ 以下の全 .cpp ファイルを収集"""
-    return sorted(LIBRARY_DIR.rglob("*.cpp"))
+    """library/ 以下の .cpp のうち、先頭行が // @no-include のもの（main に貼るスニペット）だけを収集。
+    それ以外のライブラリは #include "library/..." で読み込み、提出時に scripts/expand.py で展開する。"""
+    files = []
+    for path in sorted(LIBRARY_DIR.rglob("*.cpp")):
+        first_line = path.read_text(encoding="utf-8").split("\n", 1)[0]
+        if NO_INCLUDE_MARK.match(first_line):
+            files.append(path)
+    return files
 
 
 def generate_snippets() -> Dict:

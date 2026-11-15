@@ -1,3 +1,4 @@
+#pragma once
 /**
  * @brief パス上のモノイド値集約（LCA は内部で利用）
  *

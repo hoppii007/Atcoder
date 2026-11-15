@@ -1,4 +1,4 @@
-
+#pragma once
 //ミリ秒で経過時間を取得
 class TimeKeeper {
 public:

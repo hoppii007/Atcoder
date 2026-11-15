@@ -1,3 +1,4 @@
+#pragma once
 /**
  * @brief 接尾辞配列（Suffix Array）をダブリング法で構築する
  *

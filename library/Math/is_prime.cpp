@@ -1,4 +1,4 @@
-
+#pragma once
 // O(log a)
 bool is_prime(ll a){
     if(a <= 1) return false;

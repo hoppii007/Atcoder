@@ -1,6 +1,6 @@
-
+#pragma once
 // sからgまでの、最短経路を一つ求め、返す
-// depends: [dijkstra]
+#include "library/Graph/dijkstra.cpp"
 // 辿り着けない場合、空配列を返す
 // O(V+E + (V+E)logV)
 vll min_dist_path(vvpll &nexts, ll s, ll g){
@@ -13,9 +13,11 @@ vll min_dist_path(vvpll &nexts, ll s, ll g){
     if(dijk[s] == inf) return vll();
 
     while(s != g){
-        pll nxt = {inf, -1};
-        for(pll cand: nexts[s]) chmin(nxt, {dijk[cand.snd], cand.snd});
-        s = nxt.snd;
+        // 「辺のコスト + 行き先から g までの距離 == s から g までの距離」となる辺は最短路上にある
+        for(pll cand: nexts[s]) if(dijk[cand.snd] != inf && cand.fst + dijk[cand.snd] == dijk[s]){
+            s = cand.snd;
+            break;
+        }
         ret.pb(s);
     }
     return ret;

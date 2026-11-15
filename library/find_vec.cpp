@@ -1,4 +1,4 @@
-
+// @no-include（main の中に貼るスニペット。#include では使えない）
 //fr$1[i] := iより右にある最初のhogeのindex
 vll fr$1($1.size(), $1.size());
 mrep(i, $1.size()-2){

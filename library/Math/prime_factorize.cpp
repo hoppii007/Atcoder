@@ -1,4 +1,4 @@
-
+#pragma once
 /**
  * @brief 素因数分解
  * @param n 素因数分解する正の整数（n >= 1）

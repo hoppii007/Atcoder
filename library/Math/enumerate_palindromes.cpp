@@ -1,4 +1,4 @@
-
+#pragma once
 //n以下の回文列挙（O(√N)）
 //n <= 10^12
 vll enumerate_palindromes(ll n){

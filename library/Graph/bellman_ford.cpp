@@ -1,4 +1,4 @@
-
+#pragma once
 //単一始点から、全頂点までの最短距離がわかる
 //nextsは{cost, idx}
 //O(|V|*|E|)

@@ -1,4 +1,4 @@
-
+#pragma once
 // 各頂点に対して、その頂点より左(or右)の区間の中で一番小さいところに辺を張る二分木
 // 構築はO(N)
 struct CartesianTree{

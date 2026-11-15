@@ -1,3 +1,4 @@
+#pragma once
 /**
  * @brief 文字列が回文かどうか判定する
  * @param s 判定対象の文字列

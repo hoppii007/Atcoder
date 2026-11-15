@@ -1,3 +1,4 @@
+#pragma once
 /**
  * @brief ダブリング（Doubling）＋ モノイド値の累積
  *

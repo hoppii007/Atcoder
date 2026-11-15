@@ -1,4 +1,4 @@
-
+#pragma once
 //コンビネーションを列挙 -> v_combs
 //コンビネーションを出すとき、どこを使ったかの情報のみを列挙 -> vb_combs
 class Comb{

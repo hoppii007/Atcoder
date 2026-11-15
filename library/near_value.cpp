@@ -1,4 +1,4 @@
-
+#pragma once
 //メンバ lower_bound を持つか判定（set / multiset は持つ、vector は持たない）
 template<typename C, typename = void>
 struct has_member_lower_bound : false_type {};

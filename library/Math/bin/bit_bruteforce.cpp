@@ -1,4 +1,4 @@
-
+// @no-include（main の中に貼るスニペット。#include では使えない）
 //bit全探索
 //要素数$1）
 rep(state,$1){

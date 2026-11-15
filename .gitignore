@@ -7,3 +7,13 @@
 
 # タイマーのセッション記録（拡張が出力する一時ファイル）
 honban/.session.json
+
+# 提出用に展開したコード（scripts/expand.py の出力）
+submit.cpp
+
+# プリコンパイル済みヘッダ（scripts/build.py が生成）
+*.gch
+
+# clangd 用のコンパイルフラグ（--target が PC 依存のため追跡しない）
+compile_flags.txt
+template.hpp.gch.cxx

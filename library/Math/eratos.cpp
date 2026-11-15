@@ -1,4 +1,4 @@
-
+#pragma once
 /**
  * @brief エラトステネスの篩
  * @param n 上限値（n 以下の素数を列挙する）
