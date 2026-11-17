@@ -37,6 +37,11 @@ C++ ファイルで `#include "` と打つと `library/` が、`#include "librar
 候補に出る（ファイルには `@brief` を説明として表示、選択中は Doxygen コメントをプレビュー）。
 提出時の展開は [`../scripts/expand.py`](../scripts/expand.py)（`Ctrl+Shift+I` の `build_input` で自動実行）。
 
+### ライブラリの使い方ホバー
+
+`#include "library/..."` の行にカーソルを合わせると、そのライブラリの `@brief`・先頭の Doxygen ブロック
+（`@code` の使用例）・定義一覧（シグネチャ＋説明）・依存ライブラリ・ファイルを開くリンクを表示する。
+
 ## 設定（Settings → 拡張機能 → AtCoder Problem Picker）
 
 | 設定 | 既定 | 説明 |

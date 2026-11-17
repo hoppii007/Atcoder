@@ -5,6 +5,7 @@ const fs = require("fs");
 const path = require("path");
 const timer = require("./timer");
 const include_completion = require("./include_completion");
+const library_hover = require("./library_hover");
 
 /** problems/ ディレクトリを持つワークスペースフォルダを探す。 */
 function find_problems_dir() {
@@ -110,6 +111,9 @@ function activate(context) {
 
   // #include "library/..." のパス補完
   include_completion.activate(context);
+
+  // #include "library/..." にカーソルを合わせると使い方を表示
+  library_hover.activate(context);
 }
 
 function deactivate() {
