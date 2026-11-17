@@ -2,7 +2,7 @@
 /**
  * @brief Union-Find（素集合データ構造）
  *
- *   UnionFind uf(n)  … 要素 0..n-1 で初期化
+ *   union_find uf(n)  … 要素 0..n-1 で初期化
  *   uf.root(x)       … x のグループの根  ほぼ O(1)
  *   uf.unite(x, y)   … x と y のグループを併合  ならし O(log N)
  *   uf.is_same(x, y) … x と y が同じグループか  ほぼ O(1)
@@ -13,20 +13,20 @@
  * @note get_nodes で受けた参照の中身は以降の unite で変わりうる
  *
  * @code
- * UnionFind uf(n);
+ * union_find uf(n);
  * uf.unite(0, 1);
  * bool same = uf.is_same(0, 1);  // true
  * const vll& g = uf.get_nodes(0);
  * @endcode
  */
-struct UnionFind {
+struct union_find {
 public:
 	vll par;
 	vll count_size;
 	ll count_group;
 	vvll nodes;
 
-	UnionFind(int n) : par(n), count_size(n), count_group(n), nodes(n) {
+	union_find(int n) : par(n), count_size(n), count_group(n), nodes(n) {
 		for (int i = 0; i < n; i++) {
 			par[i] = i;
 			count_size[i] = 1;

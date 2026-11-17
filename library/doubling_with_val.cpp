@@ -2,11 +2,11 @@
 /**
  * @brief ダブリング＋モノイド値（K 回先の状態と経路上の辺の値の累積を求める）
  *
- *   DoublingWithVal<M> d(nexts, vals)  … テーブル構築  O(N log K)
+ *   doubling_with_val<M> d(nexts, vals)  … テーブル構築  O(N log K)
  *   d.kth_next(n, k)                   … {累積値, n から k 回遷移した先}  O(log k)
  *   d.kth_next_all(k)                  … 全状態について {累積値, 到達状態} の配列  O(N log k)
  *
- * @tparam M モノイド（library/Math/monoid.cpp の Monoid）
+ * @tparam M モノイド（library/Math/monoid.cpp の monoid）
  * @param nexts 各状態の1回の遷移先（無ければ -1）
  * @param vals  vals[i] = 状態 i 発の辺の値（M::value_type）
  * @note 途中で遷移先が無くなると到達状態は -1、累積値はそこまでの分。k = 0 なら {M::e(), n}
@@ -15,25 +15,25 @@
  * @code
  * ll op_sum(ll a, ll b){ return a + b; }
  * ll e_sum(){ return 0; }
- * using Sum = Monoid<ll, op_sum, e_sum>;
+ * using sum_monoid = monoid<ll, op_sum, e_sum>;
  *
  * vll nexts = {1, 2, 3, -1};
  * vll vals  = {10, 20, 30, 0};
- * DoublingWithVal<Sum> d(nexts, vals);
+ * doubling_with_val<sum_monoid> d(nexts, vals);
  * auto [acc, dest] = d.kth_next(0, 2);  // {30, 2}
  * @endcode
  */
 template<typename M>
-struct DoublingWithVal {
+struct doubling_with_val {
     using T = typename M::value_type;
     static constexpr ll LOG = 60;
 
     vvll dub;
     vector<vector<T>> val;
 
-    DoublingWithVal(){}
+    doubling_with_val(){}
 
-    DoublingWithVal(vll& nexts, vector<T>& vals){
+    doubling_with_val(vll& nexts, vector<T>& vals){
         ll n = nexts.size();
         dub.assign(n, vll(LOG+1, -1));
         val.assign(n, vector<T>(LOG+1, M::e()));

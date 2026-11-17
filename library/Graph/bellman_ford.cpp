@@ -18,17 +18,17 @@ vll bellman_ford(vvpll &nexts, vll starts){
     for(ll s: starts) ret[s] = 0;
     ll cnt = 0;
     while(cnt < nexts.size()) {
-        bool isEnd = true;
+        bool is_end = true;
         rep(i,nexts.size()){
             if(ret[i] == inf) continue;
             for(pll next: nexts[i]){
                 if(ret[next.snd] > ret[i]+next.fst){
-                    isEnd = false;
+                    is_end = false;
                     ret[next.snd] = ret[i]+next.fst;
                 }
             }
         }
-        if(isEnd) break;
+        if(is_end) break;
         cnt++;
     }
     //ここでcnt == nexts.size()となっていれば負の閉路が存在する

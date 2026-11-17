@@ -10,19 +10,19 @@
  */
 vll eratos(ll n){
     if(n < 2) return {};
-    vb isPrime(n+1,true);
-    isPrime[0] = false;
-    isPrime[1] = false;
+    vb is_prime(n+1,true);
+    is_prime[0] = false;
+    is_prime[1] = false;
     for(ll i = 2;i*i<=n;++i){
-        if(isPrime[i]){
+        if(is_prime[i]){
             for(ll j = i+i;j<=n;j+=i){
-                isPrime[j] = false;
+                is_prime[j] = false;
             }
         }
     }
     vll ret;
     rep(i,n+1){
-        if(isPrime[i]) ret.push_back(i);
+        if(is_prime[i]) ret.push_back(i);
     }
     return ret;
 }

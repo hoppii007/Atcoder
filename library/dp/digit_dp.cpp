@@ -2,18 +2,18 @@
 //Nを適当な心数表記したやつ（最上位桁が一番左）
 vll digits = {2,4,0,1};
 //dp[i桁目まで考えて（0桁目は最上位の上）][状態がjで][smaller]なやつの値
-ll stateNum =70;
-mll dp[digits.size()+1][stateNum][2];
+ll state_num =70;
+mll dp[digits.size()+1][state_num][2];
 
 //初期化
-rep(i,digits.size()+1) rep(j,stateNum) rep(smaller, 2) dp[i][j][smaller] = 0;
+rep(i,digits.size()+1) rep(j,state_num) rep(smaller, 2) dp[i][j][smaller] = 0;
 
 //初期値の設定
 //だいたい最上位の上を0固定にして、Nと完全一致が一つある、としてスタートすればいい
 dp[0][/*最上位の上に0が一つある状態のstate*/0][0] = 1;
 
 //digits[0]から始めるけど、dp[1]から更新、みたいな感じ
-rep(i,digits.size()) rep(state,stateNum) rep(smaller,2){
+rep(i,digits.size()) rep(state,state_num) rep(smaller,2){
     //何進数かでここは変わる
     ll lim = (smaller==1)?1:digits[i];
     rep(nd, lim+1){
@@ -23,7 +23,7 @@ rep(i,digits.size()) rep(state,stateNum) rep(smaller,2){
         //stateでndを選んだ時の新しいstate
         ll nstate = state + nd;
         //stateが変になる時、つまり遷移できない・しても意味がない時はcontinueでoK
-        if(nstate >= stateNum) continue;
+        if(nstate >= state_num) continue;
 
         //現状の一つのstateと、その遷移先が定まったから、あとは遷移
         //dpをmllで作っとけばmodとらなくてOK

@@ -2,7 +2,7 @@
 /**
  * @brief 区間の集合（半開区間 [l, r) を set で管理し、重なり・隣接は自動で統合）
  *
- *   IntervalSet is                … 空集合で初期化
+ *   interval_set is                … 空集合で初期化
  *   is.insert(l, r)               … [l, r) を追加し、新たに覆われた長さを返す  ならし O(log N)
  *   is.erase(l, r)                … [l, r) を削除し、削除された長さを返す      ならし O(log N)
  *   is.include(x)                 … x がどれかの区間に含まれるか  O(log N)
@@ -12,7 +12,7 @@
  *   is.sets                       … 区間 {l, r} の set
  *
  * @code
- * IntervalSet is;
+ * interval_set is;
  * is.insert(1, 5);            // 4
  * is.insert(3, 8);            // 3   （[1, 8) に統合）
  * is.erase(2, 4);             // 2   （[1, 2), [4, 8)）
@@ -20,7 +20,7 @@
  * vpll v = is.intersection(0, 5);  // {{1, 2}, {4, 5}}
  * @endcode
  */
-struct IntervalSet{
+struct interval_set{
     set<pll> sets = {};
 
     set<pll>::iterator lb(ll x){

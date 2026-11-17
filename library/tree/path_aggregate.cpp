@@ -3,7 +3,7 @@
 /**
  * @brief 木のパス上の辺の値の集約（LCA つき）
  *
- *   PathAggregate<M> pa(root, nexts) … 構築  O(N log N)
+ *   path_aggregate<M> pa(root, nexts) … 構築  O(N log N)
  *   pa.path_val(u, v)                … u-v パス上の辺の値の集約  O(log N)
  *   pa.lca(u, v)                     … u と v の LCA  O(log N)
  *   pa.dist(u, v)                    … u-v 間の辺数  O(log N)
@@ -17,7 +17,7 @@
  * @code
  * ll op_sum(ll a, ll b){ return a + b; }
  * ll e_sum(){ return 0; }
- * using Sum = Monoid<ll, op_sum, e_sum>;
+ * using sum_monoid = monoid<ll, op_sum, e_sum>;
  *
  * // 辺 (u, v, w) を双方向に登録
  * vector<vector<pll>> g(n);   // {辺の値, 隣接頂点}
@@ -25,12 +25,12 @@
  *     g[u].push_back({w, v});
  *     g[v].push_back({w, u});
  * }
- * PathAggregate<Sum> tree(0, g);
+ * path_aggregate<sum_monoid> tree(0, g);
  * ll s = tree.path_val(3, 7);  // 3-7 パス上の辺重みの和
  * @endcode
  */
 template<typename M>
-struct PathAggregate {
+struct path_aggregate {
     using T = typename M::value_type;
     static constexpr ll LOG = 60;
 
@@ -41,7 +41,7 @@ struct PathAggregate {
     vvll back_dub;
     vector<vector<T>> val_dub;
 
-    PathAggregate(ll r, vector<vector<pair<T,ll>>>& nexts): root(r){
+    path_aggregate(ll r, vector<vector<pair<T,ll>>>& nexts): root(r){
         ll n = nexts.size();
         parents.assign(n, -1);
         parent_val.assign(n, M::e());

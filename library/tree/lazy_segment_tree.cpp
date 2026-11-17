@@ -3,14 +3,14 @@
 /**
  * @brief 遅延セグメント木（区間作用・区間取得）
  *
- *   LazySegmentTree<MS, MF, mapping> lst(v) … 配列 v から構築  O(N)
- *   LazySegmentTree<MS, MF, mapping> lst(n) … 長さ n（全要素 MS::e()）で構築
+ *   lazy_segtree<MS, MF, mapping> lst(v) … 配列 v から構築  O(N)
+ *   lazy_segtree<MS, MF, mapping> lst(n) … 長さ n（全要素 MS::e()）で構築
  *   lst.change(l, r, f)                  … [l, r) の各 x を mapping(f, x) に  O(log N)
  *   lst.get(l, r)                        … [l, r) の MS::merge による集約（l == r なら MS::e()）  O(log N)
  *   lst.find_first_condition(l, r, cond) … [l, r) で cond(a[i]) が true の最小の i（無ければ -1）  O(log N)
  *
- * @tparam MS      要素のモノイド Monoid<S, op, e>
- * @tparam MF      作用のモノイド Monoid<F, composition, id>。composition(f_new, f_old) は「f_old の後に f_new」
+ * @tparam MS      要素のモノイド monoid<S, op, e>
+ * @tparam MF      作用のモノイド monoid<F, composition, id>。composition(f_new, f_old) は「f_old の後に f_new」
  * @tparam mapping S mapping(F f, S x)：作用 f を要素 x に適用した値
  * @note 区間はすべて半開区間 [l, r)（0-indexed）
  * @note cond は「区間内のどれかの要素で true なら、その区間の集約値でも true」となること（例: min < 0）
@@ -23,9 +23,9 @@
  * ll op_f(ll f_new, ll f_old){ return f_new + f_old; }
  * ll e_f(){ return 0; }
  * S mapping(ll f, S x){ return {x.fst + f * x.snd, x.snd}; }
- * using Lst = LazySegmentTree<Monoid<S, op_s, e_s>, Monoid<ll, op_f, e_f>, mapping>;
+ * using range_add_sum = lazy_segtree<monoid<S, op_s, e_s>, monoid<ll, op_f, e_f>, mapping>;
  *
- * Lst lst(vector<S>(n, {0, 1}));
+ * range_add_sum lst(vector<S>(n, {0, 1}));
  * lst.change(l, r, x);       // [l, r) に x を加算
  * ll s = lst.get(l, r).fst;  // [l, r) の和
  *
@@ -36,7 +36,7 @@
  * @endcode
  */
 template<typename MS, typename MF, typename MS::value_type (*mapping)(typename MF::value_type, typename MS::value_type)>
-class LazySegmentTree{
+class lazy_segtree{
     using S = typename MS::value_type;
     using F = typename MF::value_type;
     int n, size, log;
@@ -72,8 +72,8 @@ class LazySegmentTree{
     }
 
 public:
-    LazySegmentTree(int n_) : LazySegmentTree(vector<S>(n_, MS::e())) {}
-    LazySegmentTree(const vector<S>& v) : n(v.size()) {
+    lazy_segtree(int n_) : lazy_segtree(vector<S>(n_, MS::e())) {}
+    lazy_segtree(const vector<S>& v) : n(v.size()) {
         size = 1;
         log = 0;
         while(size < n){ size <<= 1; log++; }

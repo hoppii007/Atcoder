@@ -6,20 +6,20 @@
  *   tk.now()    … start() からの経過ミリ秒（double、1ms 単位）
  *
  * @code
- * TimeKeeper tk;
+ * time_keeper tk;
  * tk.start();
  * while(tk.now() < 1900){ ... }
  * @endcode
  */
-class TimeKeeper {
+class time_keeper {
 public:
-    chrono::system_clock::time_point  startPoint, endPoint;
+    chrono::system_clock::time_point  start_point, end_point;
     void start(){
-        startPoint = chrono::system_clock::now();
+        start_point = chrono::system_clock::now();
     }
     double now(){
-        endPoint = chrono::system_clock::now();
-        double elapsed = chrono::duration_cast<std::chrono::milliseconds>(endPoint-startPoint).count();
+        end_point = chrono::system_clock::now();
+        double elapsed = chrono::duration_cast<std::chrono::milliseconds>(end_point-start_point).count();
         return elapsed;
     }
 };

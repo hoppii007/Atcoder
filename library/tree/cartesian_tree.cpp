@@ -2,7 +2,7 @@
 /**
  * @brief Cartesian Tree（配列から作る最小値ヒープの二分木）
  *
- *   CartesianTree ct(a) … 構築  O(N)
+ *   cartesian_tree ct(a) … 構築  O(N)
  *   ct.root             … 根（a の最小値の位置）
  *   ct.left[i]          … i の左の子（無ければ -inf）
  *   ct.right[i]         … i の右の子（無ければ -inf）
@@ -13,15 +13,15 @@
  *
  * @code
  * vll a = {3, 1, 4, 1, 5};
- * CartesianTree ct(a);
+ * cartesian_tree ct(a);
  * ll r = ct.root;  // 1
  * @endcode
  */
-struct CartesianTree{
+struct cartesian_tree{
     vll v;
     vll left, right, parent;
     ll root = -inf;
-    CartesianTree(vll &a): v(a), left(a.size(),-inf), right(a.size(),-inf), parent(a.size(),-inf){
+    cartesian_tree(vll &a): v(a), left(a.size(),-inf), right(a.size(),-inf), parent(a.size(),-inf){
         stack<ll> s;
         rep(i, a.size()){
             ll last_pop = -inf;

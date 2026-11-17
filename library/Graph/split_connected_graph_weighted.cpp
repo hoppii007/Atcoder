@@ -16,7 +16,7 @@
  */
 vector<vvpll> split_connected_graph(vvpll& nexts){
     ll n = nexts.size();
-    UnionFind uf(n);
+    union_find uf(n);
     rep(i, n) for(auto& [cost, next]: nexts[i]){
         uf.unite(i, next);
     }

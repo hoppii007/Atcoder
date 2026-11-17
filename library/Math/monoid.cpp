@@ -14,18 +14,18 @@
  * // 区間和
  * ll op_sum(ll a, ll b){ return a + b; }
  * ll e_sum(){ return 0; }
- * using Sum = Monoid<ll, op_sum, e_sum>;
+ * using sum_monoid = monoid<ll, op_sum, e_sum>;
  *
  * // 区間最小
  * ll op_min(ll a, ll b){ return min(a, b); }
  * ll e_min(){ return inf; }
- * using Min = Monoid<ll, op_min, e_min>;
+ * using min_monoid = monoid<ll, op_min, e_min>;
  *
- * SegmentTree<Sum> seg(a);
+ * segtree<sum_monoid> seg(a);
  * @endcode
  */
 template<typename T, T (*op)(T, T), T (*E)()>
-struct Monoid {
+struct monoid {
     using value_type = T;
     static T e(){ return E(); }
     static constexpr auto merge = op;

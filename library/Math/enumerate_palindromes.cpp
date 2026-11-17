@@ -22,14 +22,14 @@ vll enumerate_palindromes(ll n){
     ll ten = sub_pow(10,s.size()/2);
     rep(i,10) if(i <= n) se.insert(i);
     rep(i,1,ten){
-        string strL = to_string(i);
-        string strR = to_string(i);
-        reverse(all(strR));
-        ll tmp = stoll(strL + strR);
+        string str_l = to_string(i);
+        string str_r = to_string(i);
+        reverse(all(str_r));
+        ll tmp = stoll(str_l + str_r);
         if(tmp > n) break;
-        se.insert(stoll(strL + strR));
+        se.insert(stoll(str_l + str_r));
         rep(j,10) {
-            tmp = stoll(strL + to_string(j) + strR);
+            tmp = stoll(str_l + to_string(j) + str_r);
             if(tmp > n) break;
             se.insert(tmp);
         }

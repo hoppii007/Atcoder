@@ -2,7 +2,7 @@
 /**
  * @brief ダブリング（各状態の遷移先から K 回先を高速に求める）
  *
- *   Doubling d(nexts)            … テーブル構築  O(N log K)
+ *   doubling d(nexts)            … テーブル構築  O(N log K)
  *   d.kth_next(n, k)             … n から k 回遷移した先（途中で無くなれば -1）  O(log k)
  *   d.kth_next_all(k)            … 全状態から k 回遷移した先の配列  O(N log k)
  *   d.max_step_while(n, pred)    … pred が真の間だけ進んだ {回数, 到達状態}  O(log K)
@@ -14,20 +14,20 @@
  *
  * @code
  * vll nexts = {1, 2, 3, -1};
- * Doubling d(nexts);
+ * doubling d(nexts);
  * ll x = d.kth_next(0, 2);   // 2
  * ll y = d.kth_next(0, 5);   // -1
  * auto [cnt, last] = d.max_step_while(0, [&](ll s){ return s <= 2; });  // {2, 2}
  * @endcode
  */
-struct Doubling{
+struct doubling{
     vvll dub;
 
     ll LOG = 60;
 
-    Doubling(){}
+    doubling(){}
 
-    Doubling(vll &nexts){
+    doubling(vll &nexts){
         ll n = nexts.size();
         dub.resize(n, vll(LOG+1));
         // 2^0 = 1回の遷移先をそのまま格納

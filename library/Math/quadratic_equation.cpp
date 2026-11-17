@@ -11,13 +11,13 @@
  * @endcode
  */
 vll quadratic_equation(ll a, ll b, ll c){
-    std::function<bool(ll)> isZero = [&](ll x){
+    std::function<bool(ll)> is_zero = [&](ll x){
         if((-b*x-c)%a != 0) return false;
         return x*x == (-b*x-c)/a;
     };
 
     //一点0があるとき
-    if(b%(2*a) == 0 && isZero(-b/(2*a))){
+    if(b%(2*a) == 0 && is_zero(-b/(2*a))){
         return {-b/(2*a)};
     }
     
@@ -47,7 +47,7 @@ vll quadratic_equation(ll a, ll b, ll c){
         else ng = mid;
     }
     //ピッタリ0ならOK
-    if(isZero(ok)) ret.push_back(ok);
+    if(is_zero(ok)) ret.push_back(ok);
     
     //極値点の右側
     if(a > 0){
@@ -65,7 +65,7 @@ vll quadratic_equation(ll a, ll b, ll c){
         if(binary_search_judge(mid)) ok = mid;
         else ng = mid;
     }
-    if(isZero(ok)) ret.push_back(ok);
+    if(is_zero(ok)) ret.push_back(ok);
 
     return ret;
 }

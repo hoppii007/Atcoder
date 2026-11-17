@@ -11,7 +11,7 @@
  * bool b = is_square({0, 1}, {1, 0}, {2, 1}, {1, 2});  // true
  * @endcode
  */
-bool is_square(pll a,pll b,pll c,pll d, bool overlapIsOut = true){
+bool is_square(pll a,pll b,pll c,pll d, bool overlap_is_out = true){
     vpll ps = {a,b,c,d};
     sort(all(ps));
     swap(ps[2], ps[3]);
@@ -19,7 +19,7 @@ bool is_square(pll a,pll b,pll c,pll d, bool overlapIsOut = true){
     ll dx = ps[3].first-ps[0].first;
     ll dy = ps[3].second-ps[0].second;
     ll len = dx*dx + dy*dy;
-    if(overlapIsOut && len == 0) return false;
+    if(overlap_is_out && len == 0) return false;
     rep(i,ps.size()){
         dx = ps[(i+1)%4].first - ps[i].first;
         dy = ps[(i+1)%4].second - ps[i].second;

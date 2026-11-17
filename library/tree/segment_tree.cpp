@@ -3,28 +3,29 @@
 /**
  * @brief セグメント木（点更新・区間取得）
  *
- *   SegmentTree<M> seg(v) … 配列 v から構築  O(N)
- *   SegmentTree<M> seg(n) … 長さ n（全要素 M::e()）で構築  O(N)
+ *   segtree<M> seg(v) … 配列 v から構築  O(N)
+ *   segtree<M> seg(n) … 長さ n（全要素 M::e()）で構築  O(N)
  *   seg.change(i, x)      … a[i] = x  O(log N)
  *   seg.get(i)            … a[i]  O(1)
  *   seg.get(l, r)         … [l, r) の M::merge による集約（l == r なら M::e()）  O(log N)
+ *   cout << seg           … 葉 a[0..n) を空白区切りで出力（デバッグ用）  O(N)
  *
- * @tparam M モノイド Monoid<T, op, e>
+ * @tparam M モノイド monoid<T, op, e>
  * @note 区間は半開区間 [l, r)（0-indexed）
  *
  * @code
  * ll op_sum(ll a, ll b){ return a + b; }
  * ll e_sum(){ return 0; }
- * using Sum = Monoid<ll, op_sum, e_sum>;
+ * using sum_monoid = monoid<ll, op_sum, e_sum>;
  *
  * vll a = {1, 2, 3, 4, 5};
- * SegmentTree<Sum> seg(a);
+ * segtree<sum_monoid> seg(a);
  * seg.change(2, 10);          // a[2] を 10 に
  * ll s = seg.get(1, 4);       // a[1] + a[2] + a[3] = 16
  * @endcode
  */
 template<typename M>
-class SegmentTree{
+class segtree{
     using T = typename M::value_type;
     int n, size;
     vector<T> d;
@@ -32,9 +33,9 @@ class SegmentTree{
     void update(int k){ d[k] = M::merge(d[2*k], d[2*k+1]); }
 
 public:
-    SegmentTree() : n(0), size(1), d(2, M::e()) {}
-    SegmentTree(int n_) : SegmentTree(vector<T>(n_, M::e())) {}
-    SegmentTree(const vector<T>& v) : n(v.size()) {
+    segtree() : n(0), size(1), d(2, M::e()) {}
+    segtree(int n_) : segtree(vector<T>(n_, M::e())) {}
+    segtree(const vector<T>& v) : n(v.size()) {
         size = 1;
         while(size < n) size <<= 1;
         d.assign(2*size, M::e());
@@ -61,5 +62,14 @@ public:
             r >>= 1;
         }
         return M::merge(sml, smr);
+    }
+
+    /// @brief 葉 a[0..n) を空白区切りで出力する（デバッグ用。cout << seg）
+    friend ostream& operator<<(ostream& os, const segtree& seg){
+        for(int i = 0; i < seg.n; i++){
+            if(i) os << ' ';
+            os << seg.d[seg.size + i];
+        }
+        return os;
     }
 };

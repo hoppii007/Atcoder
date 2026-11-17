@@ -10,10 +10,10 @@
  * @note 0 < d < 1 で d 自体が分子・分母 n 以下で表せるなら la/lb = ra/rb = d
  *
  * @code
- * vll r = SternBrocotTree(Frac(2, 7), 5);  // {1, 4, 1, 3}：1/4 <= 2/7 <= 1/3
+ * vll r = SternBrocotTree(fraction(2, 7), 5);  // {1, 4, 1, 3}：1/4 <= 2/7 <= 1/3
  * @endcode
  */
-vll SternBrocotTree(Frac d, ll n){
+vll SternBrocotTree(fraction d, ll n){
     ll la,lb;
     ll ra,rb;
     la = 0; lb = 1;
@@ -26,19 +26,19 @@ vll SternBrocotTree(Frac d, ll n){
             return {la,lb,ra,rb};
         }
         
-        if(d == Frac(ma,mb)){
+        if(d == fraction(ma,mb)){
             return {ma,mb,ma,mb};
         }
         
         
         //左側にあるとき
-        if(d < Frac(ma,mb)){
+        if(d < fraction(ma,mb)){
             //潜れる限界まで行く
             ll two = 2;
             ll na = ra + two * la;
             ll nb = rb + two * lb;
             
-            while(na <= n && nb <= n && d < Frac(na,nb)){
+            while(na <= n && nb <= n && d < fraction(na,nb)){
                 ma = na;
                 mb = nb;
                 two *= 2;
@@ -48,13 +48,13 @@ vll SternBrocotTree(Frac d, ll n){
             ra = ma;
             rb = mb;
         }
-        else if(d > Frac(ma,mb)){
+        else if(d > fraction(ma,mb)){
             //潜れる限界まで行く
             ll two = 2;
             ll na = la + two * ra;
             ll nb = lb + two * rb;
             
-            while(na <= n && nb <= n && d > Frac(na,nb)){
+            while(na <= n && nb <= n && d > fraction(na,nb)){
                 ma = na;
                 mb = nb;
                 two *= 2;

@@ -1,81 +1,37 @@
-// @no-include（main の中に貼るスニペット。#include では使えない）
-struct UnionFind {
-public:
-    vll par; // par[i]:iの親の番号　(例) par[3] = 2 : 3の親が2
-    vll kosu;
-    ll Count; //全体として何個の集合があるか
-    
-    UnionFind(ll n) : par(n),kosu(n),Count(n) { //最初は全てが根であるとして初期化
-        rep(i,n){
-            par[i] = i;
-            kosu[i] = 1;
-        }
-    }
+#pragma once
+#include "library/tree/union_find.cpp"
+/**
+ * @brief クラスカル法で最小全域木（非連結なら最小全域森）を求める  O(E log E)
+ *
+ *   auto [cost, tree] = kruskal(nexts)
+ *     cost … 採用した辺のコスト合計
+ *     tree … 最小全域木の隣接リスト tree[u] = {cost, v}（無向。両向きに入る）
+ *
+ * @tparam T コストの型（ll / double など）
+ * @param nexts 隣接リスト nexts[u] = {cost, v}。無向グラフは両向きに入っていてよい
+ *
+ * @code
+ * vvpll nexts(n);
+ * nexts[0].pb({3, 1}); nexts[1].pb({3, 0});
+ * auto [cost, tree] = kruskal(nexts);
+ * @endcode
+ */
+template<typename T>
+pair<T, vector<vector<pair<T, ll>>>> kruskal(const vector<vector<pair<T, ll>>> &nexts){
+    ll n = nexts.size();
+    vector<tuple<T, ll, ll>> edges;  // {cost, u, v}
+    for(ll u = 0; u < n; u++) for(auto &[c, v]: nexts[u]) edges.emplace_back(c, u, v);
+    sort(edges.begin(), edges.end());
 
-    ll root(ll x) { // データxが属する木の根を再帰で得る：root(x) = {xの木の根}
-        if (par[x] == x) return x;
-        return par[x] = root(par[x]);
+    union_find uf(n);
+    T cost = 0;
+    vector<vector<pair<T, ll>>> tree(n);
+    for(auto &[c, u, v]: edges){
+        if(uf.is_same(u, v)) continue;
+        uf.unite(u, v);
+        cost += c;
+        tree[u].push_back({c, v});
+        tree[v].push_back({c, u});
     }
-
-    void unite(ll x, ll y) { // xとyの木を併合
-        ll rx = root(x); //xの根をrx
-        ll ry = root(y); //yの根をry
-        if (rx == ry) return; //xとyの根が同じ(=同じ木にある)時はそのまま
-        par[rx] = ry; //xとyの根
-        kosu[ry] += kosu[rx];
-        Count--;
-    }
-
-    bool same(ll x, ll y) { // 2つのデータx, yが属する木が同じならtrueを返す
-        ll rx = root(x);
-        ll ry = root(y);
-        return rx == ry;
-    }
-    
-    ll size(ll x){
-        return kosu[root(x)];
-    }
-    ll size(){
-        return Count;
-    }
-};
-
-//0 ~ N-1までのグラフ（連結）の中で、最小全域木を作る
-// O(E log E)
-//無向グラフだったとしても有向グラフとして作るから、同じu,vを結ぶ編は一つしか出てこない
-//costの型$1（基本的にはllかdouble）
-//nextsは{cost,index}
-//実際の最小コストだけが欲しいときは、戻り値の型をllにして、minCostを返せばいい
-vector<vector<pair<$1,ll>>> kruskal(vector<vector<pair<$1,ll>>> &nexts){
-    UnionFind uf(nexts.size());
-    struct KruskalEdge{
-        ll u,v;
-        $1 c;
-    };
-    vector<KruskalEdge> edges;
-    rep(i, nexts.size()) for(pair<$1,ll> e: nexts[i]){
-        edges.push_back({i, e.second, e.first});
-    }
-    //trueだったら第1引数が手前に来る
-    //p1 < p2として作ると昇順になる
-    //p2 < p1として作ると降順になる
-    
-    //sort(all(v), compf);みたいに使ってね
-    std::function<bool(KruskalEdge&, KruskalEdge&)> compf = [&](const KruskalEdge &p1,const KruskalEdge &p2) {
-        return p1.c < p2.c;
-    };
-    
-    sort(all(edges), compf);
-    $1 minCost = 0;
-    vector<vector<pair<$1,ll>>> ret(nexts.size());
-    rep(i,edges.size()){
-        if(!uf.same(edges[i].u, edges[i].v)){
-            uf.unite(edges[i].u, edges[i].v);
-            minCost += edges[i].c;
-            ret[edges[i].u].push_back({edges[i].c, edges[i].v});
-            ret[edges[i].v].push_back({edges[i].c, edges[i].u});
-        }
-    }
-    //最小コストだけがほしいならここでminCostを返す
-    return ret;
+    return {cost, tree};
 }

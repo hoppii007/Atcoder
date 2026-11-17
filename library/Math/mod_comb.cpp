@@ -10,12 +10,12 @@
  * @note n <= N であること。modll::mod は素数
  *
  * @code
- * ModComb mc;
+ * mod_comb mc;
  * mc.init(200000);
  * modll x = mc.comb(5, 2);  // 10
  * @endcode
  */
-struct ModComb {
+struct mod_comb {
     vector<modll> f;
     vector<modll> invf;
 
