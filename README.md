@@ -5,6 +5,7 @@
 OS ごとに切り替わる。コンパイラは `scripts/cxx.py` が自動で選ぶ（Windows: WinLibs の g++ / mac: Homebrew の `g++-N`）。
 
 ## mac
+詳しい手順・確認方法・トラブルシュートは [SETUP_MAC.md](SETUP_MAC.md)。
 ```sh
 git clone <このリポジトリ> && cd Atcoder
 bash scripts/setup_mac.sh   # g++ 確認・精進パネル拡張のリンク・clangd 設定・ビルド確認
