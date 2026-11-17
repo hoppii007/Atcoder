@@ -1,5 +1,27 @@
 
-# 環境構築
+# セットアップ（Windows / mac 共通の構成）
+
+`.vscode/tasks.json` は同じタスク名（`build` / `build_input` / `build_run` / `submit` / `sync_snippets`）が
+OS ごとに切り替わる。コンパイラは `scripts/cxx.py` が自動で選ぶ（Windows: WinLibs の g++ / mac: Homebrew の `g++-N`）。
+
+## mac
+```sh
+git clone <このリポジトリ> && cd Atcoder
+bash scripts/setup_mac.sh   # g++ 確認・精進パネル拡張のリンク・clangd 設定・ビルド確認
+```
+最後に表示されるキーバインドを `keybindings.json` に追加し、VSCode を再起動する。
+
+## Windows
+- `winget install BrechtSanders.WinLibs.POSIX.UCRT`（g++）
+- `python scripts/setup_clangd.py`（clangd 用 `compile_flags.txt` を生成）
+- `~/.vscode/extensions/atcoder-problem-picker` から `vscode-extension/` へシンボリックリンク
+
+## マシン間で引き継がれないもの
+- `honban/.session.json`（レビュー待ちの記録）… 記録した PC でレビューまで済ませてから移る
+- 精進パネルの進行中の問題・タイマー（VSCode の workspaceState）
+- Claude Code のユーザー側メモリ（`~/.claude/projects/...`）。リポジトリの `memory/` と CLAUDE.md・skill は git で共有される
+
+# 環境構築（旧メモ）
 - npmのインストールは(これ)[https://qiita.com/fehde/items/17a2bfff8f5a5767c600]
 - atcoder-cliとonline-judge-toolsは(これ)[https://qiita.com/natsuozawa/items/c97f374900312fc4d8ca]
   - VScodeのターミナルでaccが読み込まれないのはPC再起動出なおる

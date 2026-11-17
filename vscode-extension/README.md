@@ -57,7 +57,8 @@ C++ ファイルで `#include "` と打つと `library/` が、`#include "librar
 
 ## インストール
 
-`~/.vscode/extensions/atcoder-problem-picker` からこのフォルダへシンボリックリンク済み。
+`~/.vscode/extensions/atcoder-problem-picker` からこのフォルダへシンボリックリンク済み
+（mac では `bash scripts/setup_mac.sh` がリンクを張る）。
 VSCode を再起動（またはコマンドパレットで `Developer: Reload Window`）すると有効になる。
 
 編集後は `Developer: Reload Window` で反映される。

@@ -1,9 +1,17 @@
-# .vscode は snippets.code-snippets のみ追跡する
+# .vscode は Windows / mac 共通で使う設定だけ追跡する
 .vscode/*
 !.vscode/snippets.code-snippets
+!.vscode/tasks.json
+!.vscode/settings.json
+!.vscode/extensions.json
 
-# ビルド成果物
+# ビルド成果物（Windows: main.exe / mac: main.out）
 *.exe
+*.out
+
+# OS・Python の生成物
+.DS_Store
+__pycache__/
 
 # タイマーのセッション記録（拡張が出力する一時ファイル）
 honban/.session.json
@@ -14,6 +22,6 @@ submit.cpp
 # プリコンパイル済みヘッダ（scripts/build.py が生成）
 *.gch
 
-# clangd 用のコンパイルフラグ（--target が PC 依存のため追跡しない）
+# clangd 用のコンパイルフラグ（PC 依存のため追跡しない。scripts/setup_clangd.py で生成）
 compile_flags.txt
 template.hpp.gch.cxx

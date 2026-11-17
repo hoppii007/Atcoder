@@ -1,0 +1,92 @@
+{
+  // Windows / macOS 共通。同じラベルのタスクが OS ごとに "windows" / "osx" の中身へ切り替わる
+  // （キーバインドは build_input / build_run を指せば両 OS で動く）。
+  //   Windows: python  / 実行ファイル main.exe（PowerShell）
+  //   macOS:   python3 / 実行ファイル main.out（zsh）
+  // コンパイラは scripts/cxx.py が自動で選ぶ（WinLibs / Homebrew の g++-N）。
+  "version": "2.0.0",
+  "tasks": [
+    {
+      // template.hpp の PCH を必要時に再生成してからビルド（-I でリポジトリ直下を include パスに入れる）
+      "label": "build",
+      "type": "shell",
+      "windows": {
+        "command": "python ${workspaceFolder}/scripts/build.py ${relativeFileDirname}/main.cpp ${relativeFileDirname}/main.exe"
+      },
+      "osx": {
+        "command": "python3 \"${workspaceFolder}/scripts/build.py\" \"${relativeFileDirname}/main.cpp\" \"${relativeFileDirname}/main.out\""
+      },
+      "problemMatcher": ["$gcc"]
+    },
+    {
+      // 提出用 submit.cpp を生成してクリップボードへコピー（g++ チェックは submit で）
+      "label": "expand",
+      "type": "shell",
+      "windows": {
+        "command": "python ${workspaceFolder}/scripts/expand.py ${relativeFileDirname}/main.cpp --clip"
+      },
+      "osx": {
+        "command": "python3 \"${workspaceFolder}/scripts/expand.py\" \"${relativeFileDirname}/main.cpp\" --clip"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "input",
+      "type": "shell",
+      "windows": {
+        "command": "cat ${relativeFileDirname}/in | ${relativeFileDirname}/main.exe"
+      },
+      "osx": {
+        "command": "\"${relativeFileDirname}/main.out\" < \"${relativeFileDirname}/in\""
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "run",
+      "type": "shell",
+      "windows": {
+        "command": "${relativeFileDirname}/main.exe"
+      },
+      "osx": {
+        "command": "\"${relativeFileDirname}/main.out\""
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "build_input",
+      // 展開は入力テストより前に置く（実行時エラーで止まっても submit.cpp は最新になる）
+      "dependsOn": ["build", "expand", "input"],
+      "dependsOrder": "sequence",
+      "problemMatcher": []
+    },
+    {
+      "label": "build_run",
+      "dependsOn": ["build", "run"],
+      "dependsOrder": "sequence",
+      "problemMatcher": []
+    },
+    {
+      // 提出用コード生成: #include "library/..." を展開して submit.cpp を作り、コンパイル確認してクリップボードへコピー
+      "label": "submit",
+      "type": "shell",
+      "windows": {
+        "command": "python ${workspaceFolder}/scripts/expand.py ${relativeFileDirname}/main.cpp --check --clip"
+      },
+      "osx": {
+        "command": "python3 \"${workspaceFolder}/scripts/expand.py\" \"${relativeFileDirname}/main.cpp\" --check --clip"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "sync_snippets",
+      "type": "shell",
+      "windows": {
+        "command": "python ${workspaceFolder}/scripts/sync_snippets.py"
+      },
+      "osx": {
+        "command": "python3 \"${workspaceFolder}/scripts/sync_snippets.py\""
+      },
+      "problemMatcher": []
+    }
+  ]
+}

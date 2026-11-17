@@ -5,10 +5,10 @@ template.hpp のプリコンパイル済みヘッダ（PCH）を必要なとき�
 使い方:
   python scripts/build.py <ソース> <出力 exe> [--cxx <コンパイラ>]
 
-- コンパイラは --cxx 省略時 scripts/cxx.py が決める（CXX 環境変数 → WinLibs の 64bit g++ → PATH の g++）。
+- コンパイラは --cxx 省略時 scripts/cxx.py が決める（CXX 環境変数 → WinLibs / Homebrew の g++ → PATH の g++）。
 
 - template.hpp.gch が無い・template.hpp より古い・別のコンパイラで作られたときだけ PCH を再生成する（約 3 秒）。
-- -static でリンクする（PATH 上の別の MinGW の DLL を読んで起動に失敗するのを防ぐ）。
+- Windows では -static でリンクする（PATH 上の別の MinGW の DLL を読んで起動に失敗するのを防ぐ）。
 - PCH はコンパイルオプションが一致しないと使われないため、PCH 生成とビルドは同じ CXXFLAGS で行う。
   オプションを変えるときは CXXFLAGS だけを書き換えること。
 """
@@ -51,7 +51,9 @@ def main():
     if not ensure_pch(cxx):
         sys.exit(1)
     # -Winvalid-pch: PCH が使われなかったときに警告を出す（オプション不一致などに気づけるように）
-    r = subprocess.run([cxx, *CXXFLAGS, "-Winvalid-pch", "-I", str(ROOT_DIR), args.source, "-o", args.output, "-static"])
+    # -static は Windows のみ（macOS は静的リンク不可で失敗する）
+    link_flags = ["-static"] if sys.platform == "win32" else []
+    r = subprocess.run([cxx, *CXXFLAGS, "-Winvalid-pch", "-I", str(ROOT_DIR), args.source, "-o", args.output, *link_flags])
     sys.exit(r.returncode)
 
 

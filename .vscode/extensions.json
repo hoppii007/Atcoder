@@ -1,0 +1,9 @@
+{
+  // このリポジトリで使う VSCode 拡張（初回に「推奨拡張機能をインストール」が出る）
+  "recommendations": [
+    "llvm-vs-code-extensions.vscode-clangd",
+    "emeraldwalk.runonsave",
+    "anthropic.claude-code",
+    "ms-python.python"
+  ]
+}

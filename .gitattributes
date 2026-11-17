@@ -1,0 +1,2 @@
+# シェルスクリプトは Windows で checkout しても LF のまま（mac で CRLF だと実行できない）
+*.sh text eol=lf
