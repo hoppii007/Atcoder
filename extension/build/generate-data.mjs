@@ -98,14 +98,16 @@ function parse_attempts(text) {
     const stumble_raw = block.match(/^-\s*つまずき分類:\s*(.*)$/m);
     const stumble = stumble_raw ? parse_list(stumble_raw[1]) : [];
 
-    // 考察ノート: **考察ノート** の後、次の **見出し** か ### / ## まで
-    let consideration = null;
-    const ci = block.indexOf("**考察ノート**");
-    if (ci !== -1) {
-      const rest = block.slice(ci + "**考察ノート**".length);
+    // **見出し** の後、次の **見出し** か ### / ## までを取り出す
+    const section = (name) => {
+      const ci = block.indexOf(`**${name}**`);
+      if (ci === -1) return "";
+      const rest = block.slice(ci + name.length + 4);
       const stop = rest.search(/(^\*\*[^\n]+\*\*\s*$)|(^###\s)|(^##\s)/m);
-      consideration = (stop === -1 ? rest : rest.slice(0, stop)).trim();
-    }
+      return (stop === -1 ? rest : rest.slice(0, stop)).replace(/<!--[\s\S]*?-->/g, "").trim();
+    };
+    // ツールチップに出す考察: 新形式は「問題の核」→「自分の考察」、旧形式は「考察ノート」
+    const consideration = section("問題の核") || section("自分の考察") || section("考察ノート");
 
     attempts.push({
       round: marks[i].round,

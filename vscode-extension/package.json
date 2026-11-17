@@ -1,8 +1,8 @@
 {
   "name": "atcoder-problem-picker",
-  "displayName": "AtCoder Problem Picker",
-  "description": "problems/ に未記録の AtCoder 問題からランダムに1問選んで開く",
-  "version": "0.1.0",
+  "displayName": "AtCoder 精進パネル",
+  "description": "問題の選択（ランダム / URL）・解答タイマー・記録を1つのパネルで管理する",
+  "version": "0.2.0",
   "publisher": "local",
   "engines": {
     "vscode": "^1.75.0"
@@ -15,18 +15,32 @@
     "onStartupFinished"
   ],
   "contributes": {
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "atcoderShojin",
+          "title": "精進",
+          "icon": "media/shojin.svg"
+        }
+      ]
+    },
+    "views": {
+      "atcoderShojin": [
+        {
+          "type": "webview",
+          "id": "atcoderShojin.panel",
+          "name": "精進"
+        }
+      ]
+    },
     "commands": [
       {
+        "command": "atcoderShojin.open",
+        "title": "AtCoder: 精進パネルを開く"
+      },
+      {
         "command": "atcoderPicker.pick",
-        "title": "AtCoder: 未挑戦の問題をランダムに開く"
-      },
-      {
-        "command": "atcoderPicker.list",
-        "title": "AtCoder: 未挑戦の候補を一覧から選んで開く"
-      },
-      {
-        "command": "atcoderTimer.record",
-        "title": "AtCoder: 記録する（solved/felt/つまずきを入力）"
+        "title": "AtCoder: 未挑戦の問題をランダムに選んで開始"
       },
       {
         "command": "atcoderTimer.toggle",
@@ -38,22 +52,22 @@
       }
     ],
     "configuration": {
-      "title": "AtCoder Problem Picker",
+      "title": "AtCoder 精進パネル",
       "properties": {
         "atcoderPicker.from": {
           "type": "integer",
           "default": 212,
-          "description": "対象にする開始コンテスト番号（ABC）"
+          "description": "ランダムピックの対象にする開始コンテスト番号（ABC）"
         },
         "atcoderPicker.to": {
           "type": "integer",
           "default": 318,
-          "description": "対象にする終了コンテスト番号（ABC）"
+          "description": "ランダムピックの対象にする終了コンテスト番号（ABC）"
         },
         "atcoderPicker.levels": {
           "type": "string",
           "default": "cde",
-          "description": "対象レベル（例: cde）。problems/ に md が無いものを未挑戦とみなす"
+          "description": "ランダムピックの対象レベル（例: cde）。problems/ に md が無いものを未挑戦とみなす"
         }
       }
     }
