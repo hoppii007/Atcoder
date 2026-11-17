@@ -116,10 +116,10 @@
     "prefix": "sni_bit_bruteforce",
     "body": [
       "//bit全探索",
-      "//要素数$1）",
-      "rep(state,$1){",
-      "    ",
-      "    rep(bitj,1LL<<$1){",
+      "//要素数$1（state: 0〜2^$1-1 の各部分集合, bitj: 各要素の添字 0〜$1-1）",
+      "rep(state,1LL<<$1){",
+      "",
+      "    rep(bitj,$1){",
       "        //1のところ",
       "        if(state&(1LL<<bitj)){",
       "",
@@ -216,9 +216,9 @@
       "//p2 < p1として作ると降順になる",
       "",
       "//sort(all(v), compf);みたいに使ってね",
-      "std::function<bool($1&,$1&)> compf = [&](const $1 &p1,const $1 &p2) {",
+      "bool compf(const $1 &p1,const $1 &p2) {",
       "    return p1 < p2;",
-      "};"
+      "}"
     ],
     "description": "trueだったら第1引数が手前に来る"
   },
