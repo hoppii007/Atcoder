@@ -1,59 +1,67 @@
 #include "template.hpp"  // 先頭に置くこと（プリコンパイル済みヘッダが効く条件）
-#include "library/Math/monoid.cpp"
-#include "library/tree/segment_tree.cpp"
+#include "library/Math/random.cpp"
 
-ll op_min(ll a, ll b){ return min(a, b); }
-ll e_min(){ return inf; }
-using min_monoid = monoid<ll, op_min, e_min>;
+ll greedy(ll n, ll m, vll& a){
+	//bit全探索
+	//要素数n）
+	ll ans = -inf;
+	rep(state,1LL<<n){
+		ll total = 0;
+		ll idx = 0;
+		rep(bitj,n){
+			//1のところ
+			if(state&(1LL<<bitj)){
+				idx++;
+				total += idx*a[bitj];
+			}
+			//0のところ
+			else{
+	
+			}
+		}
+		if(idx == m) chmax(ans, total);
+	}
+	return ans;
+}
 
-ll op_max(ll a, ll b){ return max(a, b); }
-ll e_max(){ return -inf; }
-using max_monoid = monoid<ll, op_max, e_max>;
+ll solve(ll n, ll m, vll& a){
+	vvll dp(n+1, vll(m+1, -inf));
+	rep(i, n) dp[i+1][0] = 0;
+	dp[0][0] = 0;
+	ll ans = -inf;
+	rep(i, n) rep(j, 1, m+1){
+		if(i+1 < j) continue;
+		dp[i+1][j] = max(dp[i][j], dp[i][j-1]+j*a[i]);
+		if(j == m) chmax(ans, dp[i+1][j]);
+	}
+	return ans;
 
-ll op_sum(ll a, ll b){ return a + b; }
-ll e_sum(){ return 0; }
-using sum_monoid = monoid<ll, op_sum, e_sum>;
+}
+
+
 
 int main(){
-	cinll(n, q);
+	cinll(n, m);
 	cinvll(a, n);
-	segtree<min_monoid> min_st(n);
-	segtree<max_monoid> max_st(n);
-	segtree<sum_monoid> sum_st(n);
-	rep(i, n){
-		if(a[i] != -1) {
-			min_st.change(i, a[i]);
-			max_st.change(i, a[i]);
-		}
-		else{
-			sum_st.change(i, 1);
-		}
-	}
-	while(q--){
-		cinll(t, l, r);
-		l--;
-		if(t == 1){
-			if(r == -1){
-				min_st.change(l, inf);
-				max_st.change(l, -inf);
-				sum_st.change(l, 1);
-			}
-			else{
-				min_st.change(l, r);
-				max_st.change(l, r);
-				sum_st.change(l, 0);
-			}
-		}
-		else if(t == 2){
-			if(sum_st.get(l, r) == r-l){
-				cout << "Yes" << endl;
-				continue;
-			}
-			if(min_st.get(l, r) == inf) continue;
-			if(min_st.get(l,r) == max_st.get(l,r)) cout << "Yes" << endl;
-			else cout << "No" << endl;
-		}
-	}
+	cout << solve(n, m, a) << endl;
+
+	// ll q = 10;
+	// while(q--){
+	// 	ll n = randll(1, 2);
+	// 	ll m = randll(1, n+1);
+	// 	vll a(n);
+	// 	rep(i, n) a[i] = randll(-20, 21);
+	// 	cout << "input" << endl;
+	// 	cout << n << " " << m << endl;
+	// 	cout << a << endl;
+	// 	cout << "output" << endl;
+	// 	cout << greedy(n, m, a) << " " << solve(n, m, a) << endl;
+	// 	cout << endl;
+	// }
+
+	
+
+	
 
 	return 0;
 }
