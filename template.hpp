@@ -1,6 +1,7 @@
 // 競プロ用テンプレート。main.cpp の先頭で #include "template.hpp" して使う。
 // scripts/build.py がプリコンパイル済みヘッダ（template.hpp.gch）を自動生成するので、編集してもビルド時に反映される。
 #include<bits/stdc++.h>
+#include <cassert>  // g++ 16 以降は bits/stdc++.h に含まれないため
 #include <numeric>
 //入力系
 #define cinll(...) ll __VA_ARGS__; input(__VA_ARGS__);
