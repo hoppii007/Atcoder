@@ -1,6 +1,14 @@
 #pragma once
-//木に対して、頂点から最も遠い点（複数ある場合はどれか一つ）の{距離、番号}を返す
-//treeLongestDistanceFromRoot(nexts, s)のように使う
+/**
+ * @brief 木の直径
+ *
+ *   treeDiameter(nexts)                   … 木の直径（辺数）  O(N)
+ *   treeLongestDistanceFromRoot(nexts, s) … s から最も遠い頂点の {距離, 頂点番号}  O(N)
+ *
+ * @code
+ * ll d = treeDiameter(nexts);
+ * @endcode
+ */
 pll treeLongestDistanceFromRoot(vvll &nexts, ll now, ll prev=-1){
     ll ret = 0;
     ll reti = now;
@@ -13,7 +21,6 @@ pll treeLongestDistanceFromRoot(vvll &nexts, ll now, ll prev=-1){
     }
     return {ret, reti};
 }
-//直径をもとめる
 ll treeDiameter(vvll &nexts){
     pll p1 = treeLongestDistanceFromRoot(nexts, 0);
     pll p2 = treeLongestDistanceFromRoot(nexts, p1.snd);

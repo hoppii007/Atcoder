@@ -1,10 +1,14 @@
 #pragma once
 /**
- * @brief 素因数分解
- * @param n 素因数分解する正の整数（n >= 1）
- * @return 素因数とその指数の map（例: 12 → {{2,2},{3,1}}）
- * @note 計算量: O(√n)
- * @note n = 1 の場合は空の map を返す
+ * @brief 素因数分解（試し割り）
+ *
+ *   prime_factorize(n) … {素因数: 指数} の map  O(√n)
+ *
+ * @note n >= 1。n = 1 なら空の map
+ *
+ * @code
+ * for(auto [p, e] : prime_factorize(12)) ...  // (2, 2), (3, 1)
+ * @endcode
  */
 map<ll,ll> prime_factorize(ll n){
     ll a = 2;

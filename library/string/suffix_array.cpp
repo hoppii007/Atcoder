@@ -1,19 +1,18 @@
 #pragma once
 /**
- * @brief 接尾辞配列（Suffix Array）をダブリング法で構築する
+ * @brief 接尾辞配列（Suffix Array）と LCP 配列
  *
- * 文字列 s の全接尾辞を辞書順にソートした「開始位置の配列」を返す。
- * 各接尾辞を先頭 2^k 文字での順位(rank)で表し、k を 0,1,2,... と倍にしながら
- * ペア (rank[i], rank[i + 2^k]) で並べ替えることで、文字列比較を整数比較に落とす。
- * 先頭 2^(k+1) 文字 = [前半 2^k 文字][後半 2^k 文字] なので、このペアが順位を完全に決める。
- * 各ラウンドの並べ替えを計数ソート(counting sort)で行うため O(N log N)。
+ *   suffix_array(s)  … sa[i] := 辞書順で i 番目の接尾辞の開始位置（サイズ |s|）  O(N log N)
+ *   lcp_array(s, sa) … lcp[i] := 接尾辞 sa[i] と sa[i+1] の最長共通接頭辞長（サイズ |s|-1）  O(N)
  *
- * 実装上は末尾に番兵(全文字より小さい値)を足した巡回シフトを並べ替え、
- * 先頭(番兵始まりの回転)を捨てることで接尾辞配列を得る（番兵が文字列終端の役割を果たす）。
+ * @note s は文字コード 0, 1 の文字を含まないこと（番兵に使う）
+ * @note 接尾辞 sa[a], sa[b] (a < b) の LCP は min(lcp[a..b-1])
  *
- * @param s 対象文字列。番兵より小さい文字を含まないこと（小文字英字などを想定）。
- * @return sa。sa[i] := 辞書順で i 番目に小さい接尾辞の開始位置（0-indexed, サイズ |s|）。
- * @note 計算量 O(N log N)（N = |s|）
+ * @code
+ * string s = "abracadabra";
+ * vll sa = suffix_array(s);
+ * vll lcp = lcp_array(s, sa);
+ * @endcode
  */
 vll suffix_array(string s){
     s += (char)1;              // 番兵（文字列中の任意の文字より小さいと仮定）
@@ -61,21 +60,6 @@ vll suffix_array(string s){
     return vll(p.begin()+1, p.end());   // 先頭は番兵始まりの回転なので捨てる
 }
 
-/**
- * @brief LCP配列（隣接接尾辞の最長共通接頭辞長）を Kasai 法で構築する
- *
- * lcp[i] := sa[i] の接尾辞と sa[i+1] の接尾辞の最長共通接頭辞(LCP)の長さ（サイズ |s|-1）。
- * 辞書順で1つ前の接尾辞との LCP を、元の位置 i を昇順に走査しながら求める。
- * i を1つ増やすと LCP は高々1しか減らない（先頭1文字ぶんずれるだけ）という性質を使い、
- * h を持ち越すことで全体 O(N) で計算する。
- *
- * 任意の2接尾辞 sa[a], sa[b] (a<b) の LCP は min(lcp[a..b-1]) で得られる（区間min）。
- *
- * @param s  対象文字列
- * @param sa suffix_array(s) の結果
- * @return lcp。lcp[i] := LCP(sa[i], sa[i+1])（サイズ |s|-1）。|s|<=1 のときは空。
- * @note 計算量 O(N)（N = |s|）
- */
 vll lcp_array(const string &s, const vll &sa){
     ll n = s.size();
     if(n <= 1) return vll();

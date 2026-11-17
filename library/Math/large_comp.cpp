@@ -1,23 +1,26 @@
 #pragma once
-// a <= b*cを判定
+/**
+ * @brief オーバーフローしない a と b*c の大小比較（__int128 で計算）
+ *
+ *   lte(a, b, c) … a <= b*c
+ *   lt(a, b, c)  … a <  b*c
+ *   gte(a, b, c) … a >= b*c
+ *   gt(a, b, c)  … a >  b*c
+ *
+ *
+ * @code
+ * if(lte(x, n, m)) ...  // x <= n*m（n*m が 10^36 でも OK）
+ * @endcode
+ */
 bool lte(ll a, ll b, ll c){
-    if(b == 0 || c == 0) return a <= 0;
-    if(a%b == 0) return a/b <= c;
-    return a/b < c;
+    return (__int128)a <= (__int128)b * c;
 }
-// a < b*c
 bool lt(ll a, ll b, ll c){
-    if(b == 0 || c == 0) return a < 0;
-    return a/b < c;
+    return (__int128)a < (__int128)b * c;
 }
-// a >= b*c
 bool gte(ll a, ll b, ll c){
-    if(b == 0 || c == 0) return a >= 0;
-    return a/b >= c;
+    return (__int128)a >= (__int128)b * c;
 }
-// a > b*c
 bool gt(ll a, ll b, ll c){
-    if(b == 0 || c == 0) return a > 0;
-    if(a%b == 0) return a/b > c;
-    return a/b+1>c;
+    return (__int128)a > (__int128)b * c;
 }

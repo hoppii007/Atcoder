@@ -1,61 +1,65 @@
 #pragma once
+#include "library/Math/monoid.cpp"
 /**
  * @brief セグメント木（点更新・区間取得）
  *
- * @tparam M モノイド型（library/Math/monoid.cpp の Monoid を想定）
- * @note 構築 O(N), 更新 O(log N), 取得 O(log N)
+ *   SegmentTree<M> seg(v) … 配列 v から構築  O(N)
+ *   SegmentTree<M> seg(n) … 長さ n（全要素 M::e()）で構築  O(N)
+ *   seg.change(i, x)      … a[i] = x  O(log N)
+ *   seg.get(i)            … a[i]  O(1)
+ *   seg.get(l, r)         … [l, r) の M::merge による集約（l == r なら M::e()）  O(log N)
+ *
+ * @tparam M モノイド Monoid<T, op, e>
+ * @note 区間は半開区間 [l, r)（0-indexed）
  *
  * @code
  * ll op_sum(ll a, ll b){ return a + b; }
- * using Sum = Monoid<ll, op_sum, 0>;
+ * ll e_sum(){ return 0; }
+ * using Sum = Monoid<ll, op_sum, e_sum>;
  *
  * vll a = {1, 2, 3, 4, 5};
  * SegmentTree<Sum> seg(a);
  * seg.change(2, 10);          // a[2] を 10 に
- * ll s = seg.get(1, 3);       // a[1] + a[2] + a[3] = 16
+ * ll s = seg.get(1, 4);       // a[1] + a[2] + a[3] = 16
  * @endcode
  */
 template<typename M>
 class SegmentTree{
     using T = typename M::value_type;
-    int n;
-    vector<T> array;
+    int n, size;
+    vector<T> d;
+
+    void update(int k){ d[k] = M::merge(d[2*k], d[2*k+1]); }
+
 public:
-    SegmentTree(vector<T> &v){
-        int sz = v.size();
-        this->n = 1;
-        while(n < sz) n *= 2;
-        this->array = vector<T>(2*this->n-1, M::e);
-        for(int i=0;i<sz;i++) change(i,v[i]);
+    SegmentTree() : n(0), size(1), d(2, M::e()) {}
+    SegmentTree(int n_) : SegmentTree(vector<T>(n_, M::e())) {}
+    SegmentTree(const vector<T>& v) : n(v.size()) {
+        size = 1;
+        while(size < n) size <<= 1;
+        d.assign(2*size, M::e());
+        for(int i = 0; i < n; i++) d[size + i] = v[i];
+        for(int i = size - 1; i >= 1; i--) update(i);
     }
-    SegmentTree(int a){
-        this->n = 1;
-        while(n < a) n*= 2;
-        this->array = vector<T>(2*this->n-1, M::e);
+
+    void change(int i, T x){
+        i += size;
+        d[i] = x;
+        for(i >>= 1; i >= 1; i >>= 1) update(i);
     }
-    SegmentTree(){}
-    int l_child(int i){ return i*2+1; }
-    int r_child(int i){ return i*2+2; }
-    int get_parent(int i){ return (i%2 == 0) ? (i/2-1):(i/2); }
-    void change(int i,T v){
-        int ind = this->array.size()/2+i;
-        this->array[ind] = v;
-        int parent = get_parent(ind);
-        while(parent != -1){
-            this->array[parent] = M::merge(this->array[l_child(parent)],this->array[r_child(parent)]);
-            parent = get_parent(parent); 
+
+    T get(int i){ return d[size + i]; }
+
+    T get(int l, int r){
+        T sml = M::e(), smr = M::e();
+        l += size;
+        r += size;
+        while(l < r){
+            if(l & 1) sml = M::merge(sml, d[l++]);
+            if(r & 1) smr = M::merge(d[--r], smr);
+            l >>= 1;
+            r >>= 1;
         }
-    }
-    T get(int l,int r,int k=0,int nowL=-1,int nowR=-1){
-        if(k == 0){
-            nowL = 0;
-            nowR = this->array.size()/2;
-        }
-        if(r < nowL || nowR < l) return M::e;
-        if(l <= nowL && nowR <= r) return this->array[k];
-        T vl = get(l,r,l_child(k),nowL,(nowL+nowR)/2);
-        T vr = get(l,r,r_child(k),(nowL+nowR)/2+1,nowR);
-        return M::merge(vl,vr);
+        return M::merge(sml, smr);
     }
 };
-

@@ -1,11 +1,15 @@
 #pragma once
 /**
  * @brief エラトステネスの篩
- * @param n 上限値（n 以下の素数を列挙する）
- * @return n 以下の素数を昇順に格納した vector
- * @note 計算量: O(n log log n)
+ *
+ *   eratos(n) … n 以下の素数を昇順で返す  O(n log log n)
+ *
+ * @code
+ * vll ps = eratos(20);  // 2 3 5 7 11 13 17 19
+ * @endcode
  */
 vll eratos(ll n){
+    if(n < 2) return {};
     vb isPrime(n+1,true);
     isPrime[0] = false;
     isPrime[1] = false;

@@ -1,21 +1,26 @@
 #pragma once
-/// @brief 重み付き有向辺。u から v へ向かうコスト c の辺を表す
+/**
+ * @brief 重み付き有向グラフのサイクルを 1 つ取得（辺列で返す）
+ *
+ *   Edge{u, v, c}           … u → v のコスト c の辺
+ *   find_cycle(nexts, root) … root から到達できるサイクルの辺列（無ければ空）  O(V+E)
+ *
+ * @param nexts 隣接リスト nexts[u] = {cost, v}
+ * @note 返り値は cycle[k].v == cycle[k+1].u、cycle.back().v == cycle[0].u
+ * @note root から到達できないサイクルは見つからない
+ *
+ * @code
+ * vvpll nexts(n);
+ * vector<Edge> cycle = find_cycle(nexts, 0);
+ * for(Edge e: cycle) cout << e.u << " " << e.v << " " << e.c << endl;
+ * @endcode
+ */
 struct Edge{
     ll u, v, c;
     Edge(){}
     Edge(ll tu, ll tv, ll tc): u(tu), v(tv), c(tc){}
 };
 
-/**
- * @brief 重み付き有向グラフから root を起点としてサイクルを 1 つ取得
- * @param nexts 重み付き隣接リスト（nexts[i] は頂点 i から出る辺の {コスト, 行き先} 一覧）
- * @param root 探索の起点となる頂点
- * @return サイクルを構成する辺列。cycle[k].v == cycle[k+1].u でつながり、cycle[0].u -> ... -> cycle.back().v(== cycle[0].u) の順に巡る。サイクルが無ければ空配列
- * @note 計算量: O(V + E)
- * @note root から到達可能なサイクルのうち 1 つだけを返す。グラフが非連結だったり root より手前にサイクルがあると検出できない
- * @note DFS の行きがけ順（fst）と帰りがけ順（snd）を記録し、訪問中（snd 未確定）の頂点へ戻る後退辺をサイクルとして検出する
- * @note 辺は最後に検出した側から push されるため、最後に reverse して巡回順に並べ直している
- */
 vector<Edge> find_cycle(vvpll &nexts, ll root){
     vpll ret(nexts.size(), {-1,-1});
     ll order = 0;

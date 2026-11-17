@@ -1,6 +1,13 @@
 #pragma once
-//木に対して、頂点から最も遠い点（複数ある場合はどれか一つ）の{距離、番号}を返す
-//longestDistanceFromRoot(nexts, s)のように使う
+/**
+ * @brief 木で最も遠い頂点
+ *
+ *   longestDistanceFromRoot(nexts, s) … s から最も遠い頂点の {距離, 頂点番号}（複数あればどれか 1 つ）  O(N)
+ *
+ * @code
+ * auto [d, far] = longestDistanceFromRoot(nexts, 0);
+ * @endcode
+ */
 pll longestDistanceFromRoot(vvll &nexts, ll now, ll prev=-1){
     ll ret = 0;
     ll reti = now;

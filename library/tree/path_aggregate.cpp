@@ -1,22 +1,23 @@
 #pragma once
+#include "library/Math/monoid.cpp"
 /**
- * @brief パス上のモノイド値集約（LCA は内部で利用）
+ * @brief 木のパス上の辺の値の集約（LCA つき）
  *
- * 各辺にモノイド M の値が乗った木で、
- *   - u-v パス上の辺の値の集約を O(log V)
- *   - LCA を O(log V)
- *   - u-v 間の辺数を O(log V)
- * で求める。前処理 O(V log V)。
+ *   PathAggregate<M> pa(root, nexts) … 構築  O(N log N)
+ *   pa.path_val(u, v)                … u-v パス上の辺の値の集約  O(log N)
+ *   pa.lca(u, v)                     … u と v の LCA  O(log N)
+ *   pa.dist(u, v)                    … u-v 間の辺数  O(log N)
+ *   pa.back(u, k)                    … u から k 回親に遡った頂点（根を越えたら -1）  O(log N)
+ *   pa.climb_val(u, k)               … u から k 回遡る間の辺の値の集約  O(log N)
  *
- * @tparam M モノイド型（library/Math/monoid.cpp の Monoid を想定）
- *
- * @note path_val は可換モノイド前提（u→lca と v→lca を別々に登って合成するため、
- *       u→lca→v の方向順序を保たない）。
- *       非可換モノイドで方向を区別したい場合は別途反転テーブルが必要。
+ * @tparam M     モノイド（library/Math/monoid.cpp）
+ * @param  nexts nexts[u] = {{辺の値, 隣接頂点}, ...}（無向木として両方向に登録）
+ * @note path_val は可換モノイド前提（パスの向きの順序を保たない）
  *
  * @code
  * ll op_sum(ll a, ll b){ return a + b; }
- * using Sum = Monoid<ll, op_sum, 0>;
+ * ll e_sum(){ return 0; }
+ * using Sum = Monoid<ll, op_sum, e_sum>;
  *
  * // 辺 (u, v, w) を双方向に登録
  * vector<vector<pll>> g(n);   // {辺の値, 隣接頂点}
@@ -33,28 +34,17 @@ struct PathAggregate {
     using T = typename M::value_type;
     static constexpr ll LOG = 60;
 
-    /** @brief 根の頂点番号 */
     ll root;
-    /** @brief parents[i] := i の親（root のときは -1） */
     vll parents;
-    /** @brief parent_val[i] := i から親への辺の値（root のときは単位元） */
     vector<T> parent_val;
-    /** @brief dist_to_root[i] := root から i までの辺数（未訪問は -1） */
     vll dist_to_root;
-    /** @brief back_dub[i][j] := i から 2^j 回親方向に遡った頂点（範囲外は -1） */
     vvll back_dub;
-    /** @brief val_dub[i][j] := i から 2^j 回遡る間の辺の値の M::merge による畳み込み */
     vector<vector<T>> val_dub;
 
-    /**
-     * @brief コンストラクタ
-     * @param r 根の頂点番号
-     * @param nexts nexts[i] := i に隣接する {辺の値, 隣接頂点} のリスト（無向木として渡す）
-     */
     PathAggregate(ll r, vector<vector<pair<T,ll>>>& nexts): root(r){
         ll n = nexts.size();
         parents.assign(n, -1);
-        parent_val.assign(n, M::e);
+        parent_val.assign(n, M::e());
         dist_to_root.assign(n, -1);
 
         // 1パス DFS で parents / parent_val / dist_to_root を埋める
@@ -66,11 +56,11 @@ struct PathAggregate {
                 dfs(next, now, val, d+1);
             }
         };
-        dfs(root, -1, M::e, 0);
+        dfs(root, -1, M::e(), 0);
 
         // ダブリングテーブル構築
         back_dub.assign(n, vll(LOG+1, -1));
-        val_dub.assign(n, vector<T>(LOG+1, M::e));
+        val_dub.assign(n, vector<T>(LOG+1, M::e()));
         rep(i, n){
             back_dub[i][0] = parents[i];
             val_dub[i][0] = parent_val[i];
@@ -86,10 +76,6 @@ struct PathAggregate {
         }
     }
 
-    /**
-     * @brief u から steps 回親方向に遡った頂点を返す
-     * @return 遡った先の頂点。root を越えた場合は -1
-     */
     ll back(ll u, ll steps){
         rep(j, LOG+1) if(steps & (1LL << j)){
             u = back_dub[u][j];
@@ -98,12 +84,8 @@ struct PathAggregate {
         return u;
     }
 
-    /**
-     * @brief u から steps 回親方向に遡る間の辺の値の畳み込みを返す
-     * @note steps == 0 のときは単位元
-     */
     T climb_val(ll u, ll steps){
-        T ret = M::e;
+        T ret = M::e();
         rep(j, LOG+1) if(steps & (1LL << j)){
             ret = M::merge(ret, val_dub[u][j]);
             u = back_dub[u][j];
@@ -112,7 +94,6 @@ struct PathAggregate {
         return ret;
     }
 
-    /** @brief u と v の最近共通祖先（LCA） */
     ll lca(ll u, ll v){
         // 深さを揃える
         if(dist_to_root[u] < dist_to_root[v]) v = back(v, dist_to_root[v] - dist_to_root[u]);
@@ -127,9 +108,6 @@ struct PathAggregate {
         return parents[u];
     }
 
-    /**
-     * @brief u-v パス上の辺の値の畳み込み（可換モノイド前提）
-     */
     T path_val(ll u, ll v){
         ll l = lca(u, v);
         return M::merge(
@@ -138,7 +116,6 @@ struct PathAggregate {
         );
     }
 
-    /** @brief u-v 間の辺数 */
     ll dist(ll u, ll v){
         ll l = lca(u, v);
         return dist_to_root[u] + dist_to_root[v] - 2*dist_to_root[l];

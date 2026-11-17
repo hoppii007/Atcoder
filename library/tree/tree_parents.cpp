@@ -1,7 +1,13 @@
 #pragma once
-//木の中で、rootを指定して、各頂点のparentsを設定する
-//親の親は自分自身にしておく
-//O(N)
+/**
+ * @brief 根付き木の親
+ *
+ *   tree_parents(root, nexts) … p[v] := v の親（root は -1、到達不能は inf）  O(N)
+ *
+ * @code
+ * vll p = tree_parents(0, nexts);
+ * @endcode
+ */
 vll tree_parents(ll root, vvll &nexts){
     vll ret(nexts.size(), inf);
     std::function<void(ll,ll)> sub_dfs = [&](ll now, ll parent){

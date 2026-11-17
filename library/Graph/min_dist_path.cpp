@@ -1,8 +1,17 @@
 #pragma once
-// sからgまでの、最短経路を一つ求め、返す
 #include "library/Graph/dijkstra.cpp"
-// 辿り着けない場合、空配列を返す
-// O(V+E + (V+E)logV)
+/**
+ * @brief s から g への最短経路を 1 つ復元
+ *
+ *   min_dist_path(nexts, s, g) … 最短経路の頂点列 s, …, g（到達不能なら空）  O((V+E) log V)
+ *
+ * @param nexts 隣接リスト nexts[u] = {cost, v}（非負辺）
+ *
+ * @code
+ * vvpll nexts(n);
+ * vll path = min_dist_path(nexts, 0, n-1);
+ * @endcode
+ */
 vll min_dist_path(vvpll &nexts, ll s, ll g){
     vll ret(1, s);
     vvpll inexts(nexts.size());

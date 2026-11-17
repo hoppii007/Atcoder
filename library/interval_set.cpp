@@ -1,14 +1,28 @@
 #pragma once
-// 区間をsetで管理するテク(半開区間)
-// 区間の追加・削除クエリがO(log N)
-// かぶっている区間は勝手に削除したり統合されたりする
-// ・追加・削除クエリがQ回あって、毎回生まれる区間の個数が有限個しかないなら、
-// 　削除されたり統合されたりする回数も累積でO(Q)回のため、全体の計算量はO(Q*logQ + Q)となる
+/**
+ * @brief 区間の集合（半開区間 [l, r) を set で管理し、重なり・隣接は自動で統合）
+ *
+ *   IntervalSet is                … 空集合で初期化
+ *   is.insert(l, r)               … [l, r) を追加し、新たに覆われた長さを返す  ならし O(log N)
+ *   is.erase(l, r)                … [l, r) を削除し、削除された長さを返す      ならし O(log N)
+ *   is.include(x)                 … x がどれかの区間に含まれるか  O(log N)
+ *   is.have_intersection({l, r})  … [l, r) と重なる区間があるか   O(log N)
+ *   is.intersection(l, r)         … [l, r) と重なる部分を [l, r) で切り取って列挙
+ *   is.lb(x)                      … x を含む区間、無ければ x より右の最初の区間のイテレータ
+ *   is.sets                       … 区間 {l, r} の set
+ *
+ * @code
+ * IntervalSet is;
+ * is.insert(1, 5);            // 4
+ * is.insert(3, 8);            // 3   （[1, 8) に統合）
+ * is.erase(2, 4);             // 2   （[1, 2), [4, 8)）
+ * bool b = is.include(3);     // false
+ * vpll v = is.intersection(0, 5);  // {{1, 2}, {4, 5}}
+ * @endcode
+ */
 struct IntervalSet{
-    // 最初は空区間が入っている
     set<pll> sets = {};
 
-    // xが入っている区間以降で最初の区間のイテレータを返す
     set<pll>::iterator lb(ll x){
         if(sets.size() == 0) return sets.end();
 
@@ -25,7 +39,6 @@ struct IntervalSet{
         return ret;
     }
 
-    // 新たにinsertされた合計の長さを返す
     ll insert(ll l, ll r){
         // 影響の可能性がある最初の区間
         auto itl = lb(l);
@@ -65,7 +78,6 @@ struct IntervalSet{
         return ret;
     }
 
-    // 削除した区間の長さの合計を返す
     ll erase(ll l, ll r){
         auto itl = lb(l);
         
@@ -99,7 +111,6 @@ struct IntervalSet{
         return ret;
     }
 
-    // 指定した区間と被りがあるか？
     bool have_intersection(pll p){
         auto it = lb(p.fst);
         if(it == sets.end()) return false;
@@ -108,12 +119,10 @@ struct IntervalSet{
         return false;
     }
 
-    // したいした要素が区間たちの中に入っているか？
     bool include(ll x){
         return have_intersection({x, x+1});
     }
 
-    // 被ってる区間を全て返す
     vpll intersection(ll l, ll r){
         auto itl = lb(l);
         

@@ -1,8 +1,18 @@
 #pragma once
-//O(E+V)でsからの最短経路がもとまる
-//変のコストが0か1しかない場合は使える
-//nextsには{cost,index}にしといてね
-//始点が複数あって全部の中から最短が欲しい時は、ちょっと変更して最初から全部入れるようにしたほうがいい（何回も呼ばないほうがいい）
+/**
+ * @brief 01-BFS（辺コストが 0 か 1 の最短距離）
+ *
+ *   bfs01(nexts, starts) … starts からの最短距離（到達不能は inf）  O(V+E)
+ *
+ * @param nexts 隣接リスト nexts[u] = {cost, v}（cost は 0 か 1）
+ * @note 多始点は starts にまとめて 1 回で呼ぶ
+ *
+ * @code
+ * vvpll nexts(n);
+ * nexts[u].pb({c, v});
+ * vll dist = bfs01(nexts, {0});
+ * @endcode
+ */
 vll bfs01(vector<vpll> &nexts, vll starts){
     vll bfs01s(nexts.size(), inf);
     deque<pll> q;

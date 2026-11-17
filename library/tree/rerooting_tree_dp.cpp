@@ -1,64 +1,48 @@
 #pragma once
 /**
- * @brief 全方位木DP（Rerooting Tree DP）
+ * @brief 全方位木DP（全頂点を根としたときの木DP）
  *
- * 木の各頂点を根としたときの木DP結果を、全頂点について合計 O(N) で求める。
- * 各頂点から愚直に DFS すると O(N^2) になるが、一度だけ DFS した結果を
- * 左右からの累積で再利用することで O(N) で全頂点分の答えを得られる。
+ *   RerootingTreeDP<T> rd(nexts, values, aggrigate, marge_child, e) … 構築  O(N log N)
+ *   rd.rootDP[v]     … v を根としたときの木全体の値
+ *   rd.dp[v][i]      … v から見て nexts[v][i] 側の部分木の値
+ *   rd.dpmap[{u, v}] … u から見て v 側の部分木の値
  *
- * @tparam T DPで扱う値の型
+ * @param aggrigate   T aggrigate(T 頂点の値, T 子の集約)：部分木の値を作る
+ * @param marge_child T marge_child(T acc, T x)：子の値を集約（結合則が必要。可換でなくてよい）
+ * @param e           marge_child の単位元
+ * @note nexts は無向木の隣接リスト（0-indexed、連結であること）
  *
- * コンストラクタに渡す関数:
- *   - aggrigate(own_value, children_combined) : 自分の値と子供たちの集計結果から、自分の部分木の値を作る
- *   - marge_child(acc, x)                     : 子供方向の部分木の結果を順次マージ（単位元 e から始める）
- *   - e                                        : marge_child の単位元
+ * @code
+ * // 各頂点から最も遠い頂点までの距離
+ * ll agg(ll own, ll c){ return c + 1; }
+ * ll mrg(ll a, ll b){ return max(a, b); }
  *
- * @note marge_child は結合則を満たす必要がある（左右からの累積で組むため）。
- *       可換性は不要だが、左から acc に右の x をマージする向きで呼ぶ点に注意。
- *
- * メソッド:
- *   rootDP[v]    - 頂点 v を根としたときの木全体のDP結果
- *   dp[v][i]     - 頂点 v から nexts[v][i] 方向に伸びる部分木のDP結果（v を含まない側）
- *   dpmap[{u,v}] - 辺 u->v 方向の部分木のDP結果（dp と同内容を辺ペアで引けるようにしたもの）
+ * RerootingTreeDP<ll> rd(nexts, vll(n, 0), agg, mrg, 0);
+ * ll ecc = rd.rootDP[v] - 1;
+ * @endcode
  */
 template <typename T>
 struct RerootingTreeDP{
 public:
-    /** @brief 頂点数 */
     ll n;
 
-    /** @brief dp[v][i] := 頂点 v から見て nexts[v][i] 方向に伸びる部分木のDP結果 */
     vector<vector<T>> dp;
 
-    /** @brief dpmap[{u,v}] := 辺 u->v 方向（v を含む側）の部分木のDP結果 */
     map<pll, T> dpmap;
 
-    /** @brief rootDP[v] := 頂点 v を根としたときの木全体のDP結果 */
     vector<T> rootDP;
 
-    /** @brief 木の隣接リスト */
     vvll nexts;
 
-    /** @brief 各頂点が持つ値 */
     vector<T> values;
 
-    /** @brief edge_idx[i][j] := 頂点 i から頂点 j に伸びる辺は nexts[i] の何番目か */
     vector<unordered_map<ll,ll>> edge_idx;
 
     T (*marge_child)(T,T);
     T (*aggrigate)(T,T);
 
-    /** @brief marge_child の単位元 */
     T e;
 
-    /**
-     * @brief 全方位木DPを構築
-     * @param _nexts       木の隣接リスト
-     * @param _values      各頂点の値
-     * @param _aggrigate   (自分の値, 子供たちの集計) -> 自分の部分木の値
-     * @param _marge_child (累積, 次の子供) -> 累積（単位元 e から始める）
-     * @param _e           marge_child の単位元
-     */
     RerootingTreeDP(const vvll& _nexts, const vector<T>& _values, T (*_aggrigate)(T,T), T(*_marge_child)(T,T), T _e): nexts(_nexts), values(_values), aggrigate(_aggrigate), marge_child(_marge_child), e(_e){
         n = nexts.size();
 
@@ -79,16 +63,8 @@ public:
         rerootingBfs();
     }
 
-    /** @brief デフォルトコンストラクタ（後から代入する用） */
     RerootingTreeDP(){}
 
-    /**
-     * @brief 通常の木DPで dp[parent][i] を求める（再帰）
-     * @param parent 親頂点
-     * @param i      nexts[parent] における今見ている子のインデックス
-     *
-     * 子供方向を先に再帰で計算してから、自分の部分木の値を集計する。
-     */
     void setNodeDfs(ll parent, ll i){
         ll now = nexts[parent][i];
         T childs_value = e;
@@ -102,14 +78,6 @@ public:
         return;
     }
 
-    /**
-     * @brief 根からBFSで逆向きの dp を求めつつ、rootDP も決定する
-     *
-     * 頂点 now について「子供方向の dp[now][*]」が既に求まっている状態で進む。
-     * 左右からの累積（left と margeR）を使うことで、
-     * 「now の i 番目の隣接頂点を除いた残り全部をマージした値」を O(1) で取り出せ、
-     * dp[next][edge_idx[next][now]]（now 側を含む向きの dp）を deg(now) 個まとめて埋められる。
-     */
     void rerootingBfs(){
 
         queue<ll> q;

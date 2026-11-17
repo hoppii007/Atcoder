@@ -1,6 +1,16 @@
 #pragma once
-//O(max(a) + a.size())
-//0,1,2,...の中で、aに含まれない最小
+/**
+ * @brief mex（0, 1, 2, ... のうち a に含まれない最小の値）
+ *
+ *   mex(a) … a の mex  O(max(a) + |a|)
+ *
+ * @note 負の要素は無視される。max(a) が大きいとメモリを食う
+ *
+ * @code
+ * vll a = {0, 1, 3};
+ * ll m = mex(a);  // 2
+ * @endcode
+ */
 ll mex(vll& a){
     if(a.size() == 0) return 0;
     vb f(max(0LL, *max_element(all(a))+1),false);

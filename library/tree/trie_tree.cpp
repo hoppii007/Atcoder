@@ -1,41 +1,60 @@
 #pragma once
-//文字列の検索がmax(s_i.size())で可能
-//共通接頭辞の数を数えたりできる
+#include <cassert>
+/**
+ * @brief Trie 木（単語の個数・接頭辞の個数を数える）
+ *
+ *   TrieTree tr                  … 空の Trie
+ *   tr.insert(w)                 … 単語 w を追加  O(|w|)
+ *   tr.size()                    … 追加した単語の総数  O(1)
+ *   tr.countWord(w)              … w と一致する単語の個数  O(|w|)
+ *   tr.countWordFuture(w)        … w を接頭辞にもつ単語の個数（w 自身を含む）  O(|w|)
+ *   tr.countWordFuture(w, false) … 同上（w 自身を除く）
+ *   tr.countPrefix(w)            … w の接頭辞（w 自身を含む）になっている単語の個数  O(|w|)
+ *   tr.countPrefix(w, false)     … 同上（同じ単語の重複は 1 個と数える）
+ *
+ * @note 文字は char_set（既定は英小文字）に含まれること（含まれない文字は assert で停止）。英大文字なら char_set を差し替える
+ *
+ * @code
+ * TrieTree tr;
+ * tr.insert("at");
+ * tr.insert("atcoder");
+ * ll a = tr.countWordFuture("at");     // 2
+ * ll b = tr.countPrefix("atcoder");    // 2
+ * @endcode
+ */
 class TrieTree{
 public:
-    ////////////////////////////////
-    // 大文字小文字とかの区別はここ //
-    ////////////////////////////////
-    //mutable型じゃないやつ（stringとか）をconstで初期化しようと思ったらinlineがいるらしい
     static inline const string char_set = "abcdefghijklmnopqrstuvwxyz";
     //static inline const string char_set = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 
-    //根っこの文字IDは-1にしとく（そのほかはchar_setのindex）
     static const ll root = -1;
 
-    //Trie木の各頂点
     class Node {
     public:
-        vll nextIdx = vll(char_set.size(), -1);      //nextIdx[i] := idがiの文字に行くときのNodeのインデックス（存在しない場合は-1）
-        ll charId = -1;           //今のnodeにある文字ID（'a'なら0みたいな）
-        ll wordCountFuture = 0;   //この下にいくつ単語があるか(自分も含む)
-        ll wordCount = 0;    //ここで止まる単語がいくつあるか
+        vll nextIdx = vll(char_set.size(), -1);
+        ll charId = -1;
+        ll wordCountFuture = 0;
+        ll wordCount = 0;
 
         Node(ll c){ charId = c; }
         Node(){}
     };
     
     
-    vector<Node> nodes;     // 頂点集合
-    map<char,ll> charToId;  // 各文字をIDに変換する
+    vector<Node> nodes;
+    map<char,ll> charToId;
 
-    //rootの追加と、charToIdの設定
     TrieTree(){
         nodes.push_back(Node(root));
         rep(i,char_set.size()) charToId[char_set[i]] = i;
     }
+
+    ll char_id(char c){
+        auto it = charToId.find(c);
+        assert(it != charToId.end());  // char_set に無い文字
+        return it->second;
+    }
     
-    //単語の追加
     void insert(const string &word){
         //rootは必ず0番目になる
         ll index = 0;
@@ -44,7 +63,7 @@ public:
         nodes[index].wordCountFuture++;
 
         rep(i,word.size()){
-            ll cid = charToId[word[i]];
+            ll cid = char_id(word[i]);
             //今のindexから文字cidに行くパスがなければ追加する
             if(nodes[index].nextIdx[cid] == -1){
                 nodes[index].nextIdx[cid] = nodes.size();
@@ -61,27 +80,24 @@ public:
         nodes[index].wordCount++;
     }
 
-    //全部で単語がいくつあるか？
     ll size(){
         return nodes[0].wordCountFuture;
     }
 
-    //この単語がいくつあるか？
     ll countWord(const string &word){
         ll index = 0;
         rep(i,word.size()){
-            ll cid = charToId[word[i]];
+            ll cid = char_id(word[i]);
             if(nodes[index].nextIdx[cid] == -1) return 0;
             index = nodes[index].nextIdx[cid];
         }
         return nodes[index].wordCount;
     }
 
-    //これをprefixにもつ単語がいくつあるか？（自分含めて）
     ll countWordFuture(const string &word, bool includeMe=true){
         ll index = 0;
         rep(i,word.size()){
-            ll cid = charToId[word[i]];
+            ll cid = char_id(word[i]);
             if(nodes[index].nextIdx[cid] == -1) return 0;
             index = nodes[index].nextIdx[cid];
         }
@@ -89,13 +105,11 @@ public:
         else return nodes[index].wordCountFuture - nodes[index].wordCount;
     }
 
-    //この文字列の接頭辞がいくつあるか？（自分含め）
-    //atcoderに対してatやatcなどがいくつあるか？（デフォルトは重複も数える）
     ll countPrefix(const string &word, bool isCountDuplication=true) {
         ll index = 0;
         ll ret = 0;
         rep(i,word.size()){
-            ll cid = charToId[word[i]];
+            ll cid = char_id(word[i]);
             if(nodes[index].nextIdx[cid] == -1) return ret;
             index = nodes[index].nextIdx[cid];
             if(isCountDuplication) ret += nodes[index].wordCount;

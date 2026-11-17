@@ -3,23 +3,32 @@
 #include "library/tree/tree_depth.cpp"
 #include "library/tree/tree_parents.cpp"
 
-//各頂点は0 ~ N-1の番号で管理
-//共通祖先をO(Log V)で出すやつ
-//前計算はO(V Log V)
-//nexts : 有向グラフにしておく（親にも子にも行けるから実質無向グラフ）
+/**
+ * @brief LCA（最近共通祖先）
+ *
+ *   LcaTree lt(root, nexts) … 構築  O(N log N)
+ *   lt.lca(u, v)            … u と v の LCA  O(log N)
+ *   lt.dist(u, v)           … u-v 間の辺数  O(log N)
+ *   lt.back(u, k)           … u から k 回親に遡った頂点（根を越えたら root）  O(log N)
+ *   lt.parents[v]           … v の親（根は -1）
+ *   lt.distToRoot[v]        … 根からの深さ
+ *
+ * @note 頂点は 0-indexed。nexts は無向木の隣接リスト（両方向に辺を張る）
+ *
+ * @code
+ * LcaTree lt(0, nexts);
+ * ll w = lt.lca(u, v);
+ * ll d = lt.dist(u, v);
+ * @endcode
+ */
 struct LcaTree {
 public:
-    //親
     ll root;
 
-    //parents[i] : iの親を示す（親は必ず一人だからvllでいい）
-    //親の親は自分自身にする
     vll parents;
 
-    //根からの距離を入れる
     vll distToRoot;
 
-    //iから2^j回遡ったところ
     vvll backDub;
 
     LcaTree(ll r, vvll &nexts){
@@ -34,7 +43,6 @@ public:
         backDub = Doubling(parents).dub;
     }
 
-    //頂点uからn回遡りたい
     ll back(ll u, ll n){
         ll t = 0;
         while((1LL << t) <= n){
@@ -65,7 +73,6 @@ public:
         //にぶんたんでやる方法もある
     }
 
-    //2点間の距離
     ll dist(ll u, ll v){
         ll l = this->lca(u,v);
         return distToRoot[u] + distToRoot[v] - 2*distToRoot[l];

@@ -1,6 +1,16 @@
 #pragma once
-//四つの頂点の情報をもらい、正方形かどうかを判別する
-//overlapIsOutがtrueなら、ぴったりなってる時ダメにする
+/**
+ * @brief 4点が正方形をなすかの判定
+ *
+ *   is_square(a, b, c, d)        … 4頂点（順不同）が正方形なら true  O(1)
+ *   is_square(a, b, c, d, false) … 4点が同一点（辺の長さ 0）でも true にする
+ *
+ * @note 傾いた正方形も可。座標差の2乗が ll に収まること
+ *
+ * @code
+ * bool b = is_square({0, 1}, {1, 0}, {2, 1}, {1, 2});  // true
+ * @endcode
+ */
 bool is_square(pll a,pll b,pll c,pll d, bool overlapIsOut = true){
     vpll ps = {a,b,c,d};
     sort(all(ps));
@@ -9,7 +19,7 @@ bool is_square(pll a,pll b,pll c,pll d, bool overlapIsOut = true){
     ll dx = ps[3].first-ps[0].first;
     ll dy = ps[3].second-ps[0].second;
     ll len = dx*dx + dy*dy;
-    if(overlapIsOut && len == 0) return false; 
+    if(overlapIsOut && len == 0) return false;
     rep(i,ps.size()){
         dx = ps[(i+1)%4].first - ps[i].first;
         dy = ps[(i+1)%4].second - ps[i].second;

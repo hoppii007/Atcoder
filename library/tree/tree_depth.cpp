@@ -1,6 +1,13 @@
 #pragma once
-//木の中で、rootからの距離を入れる
-//O(N)
+/**
+ * @brief 根からの深さ
+ *
+ *   tree_depth(root, nexts) … d[v] := root から v までの辺数（到達不能は inf）  O(N)
+ *
+ * @code
+ * vll d = tree_depth(0, nexts);
+ * @endcode
+ */
 vll tree_depth(ll root, vvll &nexts){
     vll ret(nexts.size(), inf);
     std::function<void(ll,ll)> sub_dfs = [&](ll now, ll d){

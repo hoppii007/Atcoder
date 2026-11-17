@@ -1,10 +1,18 @@
 #pragma once
-//O((E+V)logV)でsからの最短経路がもとまる
-//負の辺があるとダメ
-//nextsには{cost,index}にしといてね
-//始点が複数あって全部の中から最短が欲しい時は、ちょっと変更して最初から全部入れるようにしたほうがいい（dijkstraは何回も呼ばないほうがいい）
-//辺のコストが1しかないならbfsでOK
-//辺のコストが0か1しかないならbfs01でOK
+/**
+ * @brief ダイクストラ（非負辺の単一始点最短距離）
+ *
+ *   dijkstra(nexts, starts) … starts からの最短距離（到達不能は inf）  O((V+E) log V)
+ *
+ * @param nexts 隣接リスト nexts[u] = {cost, v}
+ * @note 負の辺は不可。多始点は starts にまとめて 1 回で呼ぶ
+ *
+ * @code
+ * vvpll nexts(n);
+ * nexts[u].pb({c, v});
+ * vll dist = dijkstra(nexts, {0});
+ * @endcode
+ */
 vll dijkstra(vector<vpll> &nexts, vll starts){
     struct dijk_comp{
         bool operator()(const pll &p1,const pll &p2) const{

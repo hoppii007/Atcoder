@@ -1,7 +1,26 @@
 #pragma once
-//Tは乗算単位元と加算単位元が必要
-//掛け算と足し算も必要( += とか *= はなくてもOK)
-//^0は計算できない
+#include <cassert>
+/**
+ * @brief 行列（積・スカラー倍・累乗）
+ *
+ *   Matrix<T> m(h, w)   … h×w の零行列（要素は T() で初期化）
+ *   Matrix<T> m(g)      … vector<vector<T>> から構築
+ *   m.g[i][j], m.h, m.w … 要素 / 行数 / 列数
+ *   a * b, a *= b       … 行列積（a.w == b.h）  O(h·w·k)
+ *   a * k, k * a        … スカラー倍（k は ll）
+ *   a ^ k, a ^= k       … 累乗（正方行列、k >= 0。k = 0 は単位行列）  O(n^3 log k)
+ *   m.show()            … 標準出力に表示
+ *
+ * @tparam T 要素型（+ と * が必要。T() が 0、T(1) が 1 になること。modll など）
+ * @note サイズ不一致の積・非正方の累乗は assert で落ちる
+ *
+ * @code
+ * // フィボナッチ（mod）
+ * Matrix<modll> m({{1, 1}, {1, 0}});
+ * Matrix<modll> p = m ^ n;
+ * modll fib_n = p.g[0][1];
+ * @endcode
+ */
 template<typename T>
 class Matrix{
 public:
@@ -31,7 +50,7 @@ public:
         }
     }
     friend Matrix<T> operator*(const Matrix<T> &a, const Matrix<T> &b){
-        if(a.w != b.h) return Matrix<T>();
+        assert(a.w == b.h);
         Matrix<T> ret = Matrix<T>(a.h,b.w);
         rep(i,a.h) rep(j,b.w) rep(k,a.w) ret.g[i][j] = ret.g[i][j]+a.g[i][k]*b.g[k][j];
         return ret;
@@ -47,7 +66,12 @@ public:
         return ret;
     }
     friend Matrix<T> operator^(const Matrix<T> &a, const ll &b){
-        if(a.h != a.w) return Matrix<T>();
+        assert(a.h == a.w && b >= 0);
+        if(b == 0){
+            Matrix<T> id(a.h, a.w);
+            rep(i, a.h) id.g[i][i] = T(1);
+            return id;
+        }
         if(b == 1) return a;
         if(b %2 == 0){
             return (a*a)^(b/2);

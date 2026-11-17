@@ -1,9 +1,18 @@
 #pragma once
-//単一始点から、全頂点までの最短距離がわかる
-//nextsは{cost, idx}
-//O(|V|*|E|)
-//負の閉路があるか？の判定も可能
-//まだ試してないから怖いっす...
+/**
+ * @brief ベルマンフォード（負辺ありの単一始点最短距離）
+ *
+ *   bellman_ford(nexts, starts) … starts からの最短距離（到達不能は inf）  O(VE)
+ *
+ * @param nexts 隣接リスト nexts[u] = {cost, v}
+ * @note starts から負の閉路に到達できるときは値が不正確（検出は関数末尾の cnt == V で判定）
+ *
+ * @code
+ * vvpll nexts(n);
+ * nexts[u].pb({c, v});
+ * vll dist = bellman_ford(nexts, {0});
+ * @endcode
+ */
 vll bellman_ford(vvpll &nexts, vll starts){
     vll ret(nexts.size(), inf);
     for(ll s: starts) ret[s] = 0;
@@ -11,6 +20,7 @@ vll bellman_ford(vvpll &nexts, vll starts){
     while(cnt < nexts.size()) {
         bool isEnd = true;
         rep(i,nexts.size()){
+            if(ret[i] == inf) continue;
             for(pll next: nexts[i]){
                 if(ret[next.snd] > ret[i]+next.fst){
                     isEnd = false;
@@ -18,6 +28,8 @@ vll bellman_ford(vvpll &nexts, vll starts){
                 }
             }
         }
+        if(isEnd) break;
+        cnt++;
     }
     //ここでcnt == nexts.size()となっていれば負の閉路が存在する
     return ret;

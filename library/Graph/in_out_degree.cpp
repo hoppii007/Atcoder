@@ -1,9 +1,14 @@
 #pragma once
 /**
- * @brief 入次数配列
- * @param nexts 隣接リスト（nexts[i] は頂点 i から伸びる辺の行き先一覧）
- * @return 各頂点の入次数を格納した配列（ret[i] = 頂点 i に入る辺の本数）
- * @note 計算量: O(V + E)
+ * @brief 入次数・出次数の配列
+ *
+ *   in_degrees(nexts)  … ret[i] = 頂点 i に入る辺の本数  O(V+E)
+ *   out_degrees(nexts) … ret[i] = 頂点 i から出る辺の本数  O(V)
+ *
+ * @code
+ * vvll nexts(n);
+ * vll in = in_degrees(nexts), out = out_degrees(nexts);
+ * @endcode
  */
 vll in_degrees(vvll& nexts){
     ll n = nexts.size();
@@ -12,12 +17,6 @@ vll in_degrees(vvll& nexts){
     return ret;
 }
 
-/**
- * @brief 出次数配列
- * @param nexts 隣接リスト（nexts[i] は頂点 i から伸びる辺の行き先一覧）
- * @return 各頂点の出次数を格納した配列（ret[i] = 頂点 i から出る辺の本数）
- * @note 計算量: O(V)
- */
 vll out_degrees(vvll& nexts){
     ll n = nexts.size();
     vll ret(n, 0);

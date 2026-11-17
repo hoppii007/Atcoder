@@ -2,14 +2,10 @@
 /**
  * @brief 強連結成分分解（Kosaraju 法）
  *
- * 有向グラフを強連結成分（SCC）に分解し、各頂点に SCC ID を振った配列を返す。
- * ID はトポロジカル順で 0 から振られる（同じ SCC 内の頂点は同じ ID、
- * SCC u → SCC v に辺があるなら id(u) < id(v)）。
+ *   scc(nexts) … ids[v] := v が属する SCC の番号（0 始まり）  O(V + E)
  *
- * 計算量: O(V + E)
- *
- * @param nexts nexts[i] := 頂点 i から有向辺で行ける頂点のリスト
- * @return ret[i] := 頂点 i が属する SCC の ID（0-indexed、トポロジカル順）
+ * @param nexts 有向グラフの隣接リスト
+ * @note 番号はトポロジカル順（SCC a → SCC b に辺があれば id(a) < id(b)）
  *
  * @code
  * vvll nexts(n);

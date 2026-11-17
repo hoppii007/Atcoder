@@ -1,12 +1,15 @@
 #pragma once
-//ax^2+bx+c=0を満たす整数解を返す
-//整数解がなければ空配列が帰ってくる
-//重解は長さ1で帰ってくる
-//0 < |a| <= 1e9
-//|b| <= 1e9
-//|c| <= 1e18
-//|解| <= 1e9
-//O(log 1e9)
+/**
+ * @brief 2 次方程式 ax^2 + bx + c = 0 の整数解
+ *
+ *   quadratic_equation(a, b, c) … 整数解を昇順で返す（なければ空、重解は 1 個）  O(log 10^9)
+ *
+ * @note 0 < |a| <= 10^9, |b| <= 10^9, |c| <= 10^18, |解| <= 10^9 の範囲で使う
+ *
+ * @code
+ * vll xs = quadratic_equation(1, -5, 6);  // {2, 3}
+ * @endcode
+ */
 vll quadratic_equation(ll a, ll b, ll c){
     std::function<bool(ll)> isZero = [&](ll x){
         if((-b*x-c)%a != 0) return false;

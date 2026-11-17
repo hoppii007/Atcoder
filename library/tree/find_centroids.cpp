@@ -1,11 +1,17 @@
 #pragma once
-//木の重心を求めるやつ
-//木DPで全部の部分木の大きさを求めるやり方
-//n : 木の頂点数
-//centroids : 最初は空にしといて、重心の候補が入る
-//size_of_subtree : 各頂点を根としたときの部分ぎの大きさ。最初は全部0にしとく
-//nexts : 次に行ける場所全部
-//これを呼び出すときに渡したvが根となる。
+/**
+ * @brief 木の重心
+ *
+ *   findCentroids(n, centroids, size_of_subtree, nexts, v) … 重心を centroids に追加  O(N)
+ *
+ * @param centroids       空で渡す。重心（1 個か 2 個）が入る
+ * @param size_of_subtree サイズ n で渡す。v を根としたときの各頂点の部分木サイズが入る
+ *
+ * @code
+ * vll centroids, sz(n);
+ * findCentroids(n, centroids, sz, nexts, 0);
+ * @endcode
+ */
 void findCentroids(const ll &n, vll &centroids, vll &size_of_subtree, vvll &nexts, ll v, ll parent = -1){
 	//まずは自分をカウント
 	size_of_subtree[v] = 1;
@@ -27,7 +33,3 @@ void findCentroids(const ll &n, vll &centroids, vll &size_of_subtree, vvll &next
 
 	if(is_centroid == true) centroids.push_back(v);
 }
-
-
-//木の重心を求めるやつ
-//存在証明に近いやつ（更新が終わったら重心になってるの証明ガチ天才）

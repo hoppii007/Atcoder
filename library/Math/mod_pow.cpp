@@ -1,13 +1,18 @@
 #pragma once
 /**
- * @brief a^b mod p を計算する
- * @param a 底
- * @param b 指数（b >= 0）
- * @return a^b を mod で割った余り
- * @note 計算量: O(log b)
- * @note グローバル変数 mod を法として用いる
+ * @brief 繰り返し二乗法による a^b mod
+ *
+ *   mpow(a, b) … a^b mod (グローバルの mod)  O(log b)
+ *
+ * @note b >= 0。a は負や mod 以上でもよい
+ *
+ * @code
+ * ll x = mpow(2, 10);  // 1024
+ * @endcode
  */
 ll mpow(ll a, ll b){
+    a %= mod;
+    if(a < 0) a += mod;
     if(b == 0) return 1;
     if(b == 1) return a % mod;
     if(b % 2 == 0) return mpow((a*a) % mod, b/2);

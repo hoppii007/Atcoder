@@ -1,6 +1,15 @@
 #pragma once
-//n以下の回文列挙（O(√N)）
-//n <= 10^12
+/**
+ * @brief 回文数の列挙
+ *
+ *   enumerate_palindromes(n) … 0 以上 n 以下の回文数を昇順で返す  O(√n log n)
+ *
+ * @note n <= 10^12
+ *
+ * @code
+ * vll p = enumerate_palindromes(30);  // 0 1 ... 9 11 22
+ * @endcode
+ */
 vll enumerate_palindromes(ll n){
     set<ll> se;
     string s = to_string(n);

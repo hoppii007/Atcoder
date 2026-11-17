@@ -1,14 +1,18 @@
 #pragma once
 #include "library/Math/fraction.cpp"
 
-// Stern-Brocot木
-// ・有理数を小さい順に並べられる
-// (0 ~ 1)の有理数を小さい順に並べるのはファレイ数列（Stern-Brocot木の部分木になる
-
-//分子分母がn以下でlx/ly <= d <= rx/ryとなるx,yを求める
-//{lx,ly,rx,ry}が帰ってくる
-//頂点はla/lbからra/rb)の区間
-//単純な二分探索だと最悪O(N)になるので、指数探索を使って効率化する
+/**
+ * @brief Stern-Brocot 木で d を挟む最良近似分数
+ *
+ *   SternBrocotTree(d, n) … {la, lb, ra, rb}（分子・分母が n 以下で la/lb <= d <= ra/rb となる最も近い 2 分数）
+ *
+ * @note 0 <= d <= 1 が前提（0/1 と 1/1 から探索する）
+ * @note 0 < d < 1 で d 自体が分子・分母 n 以下で表せるなら la/lb = ra/rb = d
+ *
+ * @code
+ * vll r = SternBrocotTree(Frac(2, 7), 5);  // {1, 4, 1, 3}：1/4 <= 2/7 <= 1/3
+ * @endcode
+ */
 vll SternBrocotTree(Frac d, ll n){
     ll la,lb;
     ll ra,rb;

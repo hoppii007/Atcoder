@@ -1,22 +1,29 @@
 #pragma once
 /**
  * @brief Union-Find（素集合データ構造）
- * @note 各操作 ほぼ O(1)（経路圧縮あり）
  *
- * メソッド:
- *   root(x)       - xが属すグループの根を返す
- *   unite(x, y)   - xとyのグループを合併
- *   is_same(x, y) - x, yが同じグループか判定
- *   size(x)       - xが属すグループの要素数
- *   size()        - グループの種類数
- *   get_nodes(x)  - xが属すグループの要素配列の参照（vll& a = のように、参照型で受け取る）
+ *   UnionFind uf(n)  … 要素 0..n-1 で初期化
+ *   uf.root(x)       … x のグループの根  ほぼ O(1)
+ *   uf.unite(x, y)   … x と y のグループを併合  ならし O(log N)
+ *   uf.is_same(x, y) … x と y が同じグループか  ほぼ O(1)
+ *   uf.size(x)       … x のグループの要素数  ほぼ O(1)
+ *   uf.size()        … グループ数  O(1)
+ *   uf.get_nodes(x)  … x のグループの要素一覧（const vll& で受ける）
+ *
+ * @note get_nodes で受けた参照の中身は以降の unite で変わりうる
+ *
+ * @code
+ * UnionFind uf(n);
+ * uf.unite(0, 1);
+ * bool same = uf.is_same(0, 1);  // true
+ * const vll& g = uf.get_nodes(0);
+ * @endcode
  */
 struct UnionFind {
 public:
 	vll par;
 	vll count_size;
 	ll count_group;
-	// その頂点を親としたグループの頂点一覧
 	vvll nodes;
 
 	UnionFind(int n) : par(n), count_size(n), count_group(n), nodes(n) {
@@ -51,7 +58,7 @@ public:
 		// rl を rg に結合
 		par[rl] = rg;
 		count_size[rg] += count_size[rl];
-		for(int t: nodes[rl]){
+		for(ll t: nodes[rl]){
 			nodes[rg].pb(t);
 		}
 		nodes[rl].clear();

@@ -1,20 +1,21 @@
 #pragma once
 #include "library/Math/random.cpp"
 /**
- * @brief Zobrist Hashing
+ * @brief Zobrist Hashing（集合のハッシュ値を XOR で差分更新）
  *
- * 集合（多重度を考慮しない）に対するハッシュ値を高速に計算する手法。
- * 各要素にランダムな値を割り振り、集合の要素に対するXOR総和をハッシュ値とする。
- * 要素の追加・削除はXORで打ち消せるため、差分更新が O(1) で可能。
+ *   zobrist_hashing_table(s)  … s の各要素値 → ランダム値 の map  O(N log N)
  *
- * @note 異なる集合が同じハッシュ値を持つ確率は 2^(-bit数) 程度（ここでは 2^-59）
- * @note 多重集合に対応させたい場合は、各出現回数ごとに別のランダム値を割り振る等の工夫が必要
- */
-
-/**
- * @brief 各要素に対応するランダム値のテーブルを構築する
- * @param s 対象となる要素列（重複は1つにまとめられる）
- * @return map<ll,ll> 要素値 -> ランダム値 のテーブル
+ * 集合のハッシュ = 含まれる要素のランダム値の XOR。追加・削除は同じ値を XOR するだけ。
+ *
+ * @note 多重度は区別しない（集合として比較）。衝突確率は 1 組あたり約 2^-59
+ *
+ * @code
+ * vll s = {3, 1, 4};
+ * map<ll,ll> z = zobrist_hashing_table(s);
+ * ll h = 0;
+ * h ^= z[3]; h ^= z[1];   // {1, 3} のハッシュ
+ * h ^= z[3];              // 3 を削除 → {1} のハッシュ
+ * @endcode
  */
 map<ll,ll> zobrist_hashing_table(vll& s){
     map<ll,ll> ret;

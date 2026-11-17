@@ -1,7 +1,17 @@
 #pragma once
-//xをn進数に変換
-//右から読む感じ　6を2進数表記で　0 1 1
+/**
+ * @brief n 進数変換（下の桁から順に並ぶ）
+ *
+ *   toNsinsu(x, n) … x の n 進表記の各桁。ret[i] が n^i の位
+ *
+ * @note x >= 0, n >= 2。x = 0 なら {0}
+ *
+ * @code
+ * vll d = toNsinsu(6, 2);  // {0, 1, 1}
+ * @endcode
+ */
 vll toNsinsu(ll x, ll n) {
+	if (x == 0) return {0};
 	ll cnt = 0;
 	ll xx = x;
 	while (xx > 0) {

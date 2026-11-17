@@ -1,12 +1,18 @@
 #pragma once
 /**
- * @brief a を b で割った値の切り上げを返す
- * @param a 被除数
- * @param b 除数（正の整数）
- * @return ⌈a / b⌉
- * @note 計算量: O(1)
- * @note 例: ceil(7, 3) = 3, ceil(6, 3) = 2
+ * @brief 整数の切り上げ除算
+ *
+ *   ceil(a, b) … ⌈a / b⌉  O(1)
+ *
+ * @note b != 0。a, b の符号は任意
+ *
+ * @code
+ * ll x = ceil(7, 3);   // 3
+ * ll y = ceil(6, 3);   // 2
+ * ll z = ceil(-7, 3);  // -2
+ * @endcode
  */
 ll ceil(ll a, ll b){
-    return a / b + (a%b != 0 ? 1 : 0);
+    if(b < 0) a = -a, b = -b;
+    return a / b + (a%b > 0 ? 1 : 0);
 }

@@ -1,6 +1,22 @@
 #pragma once
-// 各頂点に対して、その頂点より左(or右)の区間の中で一番小さいところに辺を張る二分木
-// 構築はO(N)
+/**
+ * @brief Cartesian Tree（配列から作る最小値ヒープの二分木）
+ *
+ *   CartesianTree ct(a) … 構築  O(N)
+ *   ct.root             … 根（a の最小値の位置）
+ *   ct.left[i]          … i の左の子（無ければ -inf）
+ *   ct.right[i]         … i の右の子（無ければ -inf）
+ *   ct.parent[i]        … i の親（根は -inf）
+ *
+ * @note 各部分木は a の連続区間。等しい値は左側が祖先になる
+ * @note 最大値ヒープにするにはコンストラクタ内の比較 > を < に変える
+ *
+ * @code
+ * vll a = {3, 1, 4, 1, 5};
+ * CartesianTree ct(a);
+ * ll r = ct.root;  // 1
+ * @endcode
+ */
 struct CartesianTree{
     vll v;
     vll left, right, parent;

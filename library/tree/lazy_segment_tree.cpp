@@ -1,225 +1,125 @@
 #pragma once
-//区間更新、区間クエリはこいつにおまかせ！
-///////注意/////////
-//・T,opT,idTがモノイドになっている
-//・O,opO,idOがモノイドになっている
-//・f(o,(opT(t1,t2))) = opT(f(o,t1),f(o,t2))
-//・f(opO(o1,o2),t) = f(o1,f(op2,t))
-//・f(idO,t) = t
-////////////////////
-//コンストラクタ　関数ポインタの部分は普通に関数名書くだけでOK
-//LazySegmentTree<T,O>(T配列、T演算、T単位元、O演算、O単位元、更新作用(OxT -> T))
-//LazySegmentTree<T,O>(T配列の数、T演算、T単位元、O演算、O単位元、更新作用(OxT -> T))
-//関数
-//change(int,int,O) : 閉区間を作用素oで更新
-//get(int,int)閉区間
-// 注意事項
-// ・opT(o1, o2)はo2が先に追加されて、左に積まれていく
-template<typename T,typename O>
+#include "library/Math/monoid.cpp"
+/**
+ * @brief 遅延セグメント木（区間作用・区間取得）
+ *
+ *   LazySegmentTree<MS, MF, mapping> lst(v) … 配列 v から構築  O(N)
+ *   LazySegmentTree<MS, MF, mapping> lst(n) … 長さ n（全要素 MS::e()）で構築
+ *   lst.change(l, r, f)                  … [l, r) の各 x を mapping(f, x) に  O(log N)
+ *   lst.get(l, r)                        … [l, r) の MS::merge による集約（l == r なら MS::e()）  O(log N)
+ *   lst.find_first_condition(l, r, cond) … [l, r) で cond(a[i]) が true の最小の i（無ければ -1）  O(log N)
+ *
+ * @tparam MS      要素のモノイド Monoid<S, op, e>
+ * @tparam MF      作用のモノイド Monoid<F, composition, id>。composition(f_new, f_old) は「f_old の後に f_new」
+ * @tparam mapping S mapping(F f, S x)：作用 f を要素 x に適用した値
+ * @note 区間はすべて半開区間 [l, r)（0-indexed）
+ * @note cond は「区間内のどれかの要素で true なら、その区間の集約値でも true」となること（例: min < 0）
+ *
+ * @code
+ * // 区間加算・区間和（要素 = {和, 区間長}）
+ * using S = pair<ll, ll>;
+ * S op_s(S a, S b){ return {a.fst + b.fst, a.snd + b.snd}; }
+ * S e_s(){ return {0, 0}; }
+ * ll op_f(ll f_new, ll f_old){ return f_new + f_old; }
+ * ll e_f(){ return 0; }
+ * S mapping(ll f, S x){ return {x.fst + f * x.snd, x.snd}; }
+ * using Lst = LazySegmentTree<Monoid<S, op_s, e_s>, Monoid<ll, op_f, e_f>, mapping>;
+ *
+ * Lst lst(vector<S>(n, {0, 1}));
+ * lst.change(l, r, x);       // [l, r) に x を加算
+ * ll s = lst.get(l, r).fst;  // [l, r) の和
+ *
+ * // 区間代入にする場合（inf を「作用なし」とする）
+ * ll op_f(ll f_new, ll f_old){ return f_new == inf ? f_old : f_new; }
+ * ll e_f(){ return inf; }
+ * S mapping(ll f, S x){ return f == inf ? x : S{f * x.snd, x.snd}; }
+ * @endcode
+ */
+template<typename MS, typename MF, typename MS::value_type (*mapping)(typename MF::value_type, typename MS::value_type)>
 class LazySegmentTree{
-public:
-    //要素のモノイド
-    T idT;
-    T (*opT)(T,T);
-    vector<T> arrayT;
-    //作用素のモノイド（この値について作用が一つ求まる）
-    O idO;
-    O (*opO)(O,O);
-    vector<O> arrayO;
-    //作用素から作用を作り、それをtに適用する
-    T (*f)(O,T);
-    
-public:
-    int l_child(int i){ return i*2+1; }
-    int r_child(int i){ return i*2+2; }
-    int get_parent(int i){ return (i%2 == 0) ? (i/2-1):(i/2); }
-    LazySegmentTree(vector<T> &v, T (*opt)(T,T),T idt, O (*opo)(O,O), O ido, T (*tf)(O,T)){
-        int sz = v.size();
-        int n = 1;
-        while(n < sz) n *= 2;
-        this->idT = idt;
-        this->opT = opt;
-        this->idO = ido;
-        this->opO = opo;
-        this->arrayT = vector<T>(2*n-1,this->idT);
-        this->arrayO = vector<O>(2*n-1,this->idO);
-        this->f = tf;
-        for(int i=0;i<sz;i++) this->arrayT[this->arrayT.size()/2+i] = v[i];
-        for(int i=this->arrayT.size()/2-1;i>=0;i--){
-            this->arrayT[i] = opT(this->arrayT[l_child(i)],this->arrayT[r_child(i)]);
+    using S = typename MS::value_type;
+    using F = typename MF::value_type;
+    int n, size, log;
+    vector<S> d;
+    vector<F> lz;
+
+    void update(int k){ d[k] = MS::merge(d[2*k], d[2*k+1]); }
+    void all_apply(int k, const F& f){
+        d[k] = mapping(f, d[k]);
+        if(k < size) lz[k] = MF::merge(f, lz[k]);
+    }
+    void push(int k){
+        all_apply(2*k, lz[k]);
+        all_apply(2*k+1, lz[k]);
+        lz[k] = MF::e();
+    }
+    // 半開区間 [l, r) を含むノードの遅延を、根から葉の方向へ流す
+    void push_range(int l, int r){
+        for(int i = log; i >= 1; i--){
+            if(((l >> i) << i) != l) push(l >> i);
+            if(((r >> i) << i) != r) push((r - 1) >> i);
         }
     }
-    LazySegmentTree(int a, T (*opt)(T,T),T idt, O (*opo)(O,O), O ido, T (*tf)(O,T)){
-        int n = 1;
-        while(n < a) n*= 2;
-        this->idT = idt;
-        this->opT = opt;
-        this->idO = ido;
-        this->opO = opo;
-        this->arrayT = vector<T>(2*n-1,this->idT);
-        this->arrayO = vector<O>(2*n-1,this->idO);
-        this->f = tf;
-    }
-    LazySegmentTree(){}
-    void o_update(int k,O o){
-        this->arrayT[k] = f(o,this->arrayT[k]);
-        this->arrayO[k] = opO(o,this->arrayO[k]);
-        //葉なら更新履歴をリセットする
-        if(l_child(k) >= this->arrayT.size()) this->arrayO[k] = idO;
-    }
-    //[l,r] : 更新したい閉区間
-    //o : 更新に使いたい作用素（[l,r]のすべてのtをf(o,t)にしたい）
-    //k : 自分のインデックス
-    //[nowL,nowR] : 自分がカバーしている閉区間
-    void change(int l,int r,O o,int k=0,int nowL=-1,int nowR=-1){
-        //親は最初から最後までカバー
-        if(k == 0){
-            nowL = 0;
-            nowR = this->arrayT.size()/2;
-        }
-        //自分のカバー範囲と変更範囲が全く変わらないときは何もしない
-        if(r < nowL || nowR < l){ return; }
-        //自分のカバー範囲内全部を更新するとき
-        if(l <= nowL && nowR <= r){
-            //完全にかぶる場合、値と変更履歴を更新しておく
-            o_update(k,o);
-            return;
-        }
-        //自分の中のカバー範囲の1部が被ってるとき
-        //自分の更新履歴を下に引き継ぐ
-        int lc = l_child(k);
-        int rc = r_child(k);
-        //葉じゃないときは今溜まってる更新履歴を下に伝播
-        if(lc < this->arrayT.size()){
-            o_update(lc,this->arrayO[k]);
-            o_update(rc,this->arrayO[k]);
-            this->arrayO[k] = idO;
-        }
-        change(l,r,o,lc,nowL,(nowL+nowR)/2);
-        change(l,r,o,rc,(nowL+nowR)/2+1,nowR);
-        //自分の値を更新
-        this->arrayT[k] = opT(arrayT[lc],arrayT[rc]);
-        return;
-    }
-    //o : 親までの更新履歴
-    T get(int l,int r,int k=0,int nowL=-1,int nowR=-1){
-        //親は最初から最後までカバー
-        if(k == 0){
-            nowL = 0;
-            nowR = this->arrayT.size()/2;
-        }
-        //カバー範囲が全く被らないときは単位元を返す
-        if(r < nowL || nowR < l) return this->idT;
-        //完全にかぶっているとき（葉の時は必ずここに来る）
-        if(l <= nowL && nowR <= r){
-            //葉なら更新は終わってるはずだから返すだけ
-            if(l_child(k) >= this->arrayT.size()){
-                return this->arrayT[k];
-            }
-            //葉じゃなくても更新が終わってるなら返す
-            if(this->arrayO[k] == idO){
-                return this->arrayT[k];
-            }
-            //葉じゃなくて更新も終わってないなら更新して一個下にだけ流して返す
-            o_update(l_child(k),this->arrayO[k]);
-            o_update(r_child(k),this->arrayO[k]);
-            this->arrayO[k] = idO;
-            return this->arrayT[k];
-        }
-        //更新履歴を下に流す
-        int lc = l_child(k);
-        int rc = r_child(k);
-        //葉じゃないときは更新履歴を下に伝播
-        if(lc < this->arrayT.size()){
-            o_update(lc,this->arrayO[k]);
-            o_update(rc,this->arrayO[k]);
-            this->arrayO[k] = idO;
-        }
-        T vl = get(l,r,lc,nowL,(nowL+nowR)/2);
-        T vr = get(l,r,rc,(nowL+nowR)/2+1,nowR);
-        this->arrayO[k] = idO;
-        this->arrayT[k] = opT(arrayT[lc],arrayT[rc]);
-        return opT(vl,vr);
-    }
-    // [l,r] 区間で、最も左にある condition = trueの部分を返す
-    // conditionは（集計結果に）単調性があること（false,false,...,false,true,true,...,true）
-    // 例えば、minを記録しておいてマイナスがあるかどうかのチェックみたいな
-    // 見つからなければ -1 を返す。
     template<class Cond>
-    int find_first_condition(int l,int r,Cond condition_f, int k=0,int nowL=-1,int nowR=-1){
-        if(k == 0){
-            nowL = 0;
-            nowR = (int)this->arrayT.size()/2;
-        }
-        if(r < nowL || nowR < l) return -1; // 範囲外
-        if(condition_f(this->arrayT[k]) == false) return -1; // このノード内にtrueがない
-        if(nowL == nowR){
-            // 葉で、かつ m < 0 ならここ
-            return nowL;
-        }
-        int lc = l_child(k);
-        int rc = r_child(k);
-        // 子に遅延伝播してから探索（必要）
-        if(lc < (int)this->arrayT.size()){
-            o_update(lc,this->arrayO[k]);
-            o_update(rc,this->arrayO[k]);
-            this->arrayO[k] = idO;
-        }
-        int mid = (nowL+nowR)/2;
-        int res = find_first_condition(l,r,condition_f,lc,nowL,mid);
+    int find_dfs(int k, int nl, int nr, int l, int r, Cond& cond){
+        if(nr <= l || r <= nl || !cond(d[k])) return -1;
+        if(k >= size) return k - size;
+        push(k);
+        int mid = (nl + nr) / 2;
+        int res = find_dfs(2*k, nl, mid, l, r, cond);
         if(res != -1) return res;
-        return find_first_condition(l,r,condition_f,rc,mid+1,nowR);
+        return find_dfs(2*k+1, mid, nr, l, r, cond);
     }
-    void showTree(){
-        int n = 1;
-        int j=0;
-        while(n+j < this->arrayT.size()){
-            while(j < n){
-                cout<<"("<<this->arrayT[n+j-1].first<<","<<this->arrayT[n+j-1].second<<")"<<"/"<<this->arrayO[n+j-1]<<" ";
-                j++;
-            }
-            cout<<endl;
-            n *= 2;
-            j = 0;
+
+public:
+    LazySegmentTree(int n_) : LazySegmentTree(vector<S>(n_, MS::e())) {}
+    LazySegmentTree(const vector<S>& v) : n(v.size()) {
+        size = 1;
+        log = 0;
+        while(size < n){ size <<= 1; log++; }
+        d.assign(2*size, MS::e());
+        lz.assign(size, MF::e());
+        for(int i = 0; i < n; i++) d[size + i] = v[i];
+        for(int i = size - 1; i >= 1; i--) update(i);
+    }
+
+    void change(int l, int r, F f){
+        if(l >= r) return;
+        l += size;
+        r += size;
+        push_range(l, r);
+        int l2 = l, r2 = r;
+        while(l < r){
+            if(l & 1) all_apply(l++, f);
+            if(r & 1) all_apply(--r, f);
+            l >>= 1;
+            r >>= 1;
         }
+        l = l2;
+        r = r2;
+        for(int i = 1; i <= log; i++){
+            if(((l >> i) << i) != l) update(l >> i);
+            if(((r >> i) << i) != r) update((r - 1) >> i);
+        }
+    }
+
+    S get(int l, int r){
+        if(l >= r) return MS::e();
+        l += size;
+        r += size;
+        push_range(l, r);
+        S sml = MS::e(), smr = MS::e();
+        while(l < r){
+            if(l & 1) sml = MS::merge(sml, d[l++]);
+            if(r & 1) smr = MS::merge(d[--r], smr);
+            l >>= 1;
+            r >>= 1;
+        }
+        return MS::merge(sml, smr);
+    }
+
+    template<class Cond>
+    int find_first_condition(int l, int r, Cond cond){
+        return find_dfs(1, 0, size, l, r, cond);
     }
 };
-
-/* 使用例
-// 区間加算、区間和取得
-// ・TとOの積が*で定義されてないとダメ
-// ・vector<T>のvを用意しておく
-using T = ll;
-using O = ll;
-const T id_t = 0;
-const O id_o = 0;
-vector<pair<T,ll>> before(v.size());
-rep(i, v.size()) before[i] = {v[i], 1};
-LazySegmentTree<pair<T,ll>, O> lst(
-    before,
-    [](pair<T, ll> a, pair<T, ll> b){ return pair<T,ll>{a.fst+b.fst, a.snd+b.snd}; },
-    {id_t, 0},
-    [](O o_new, O o_old){ return o_new + o_old; },
-    id_o,
-    [](O o, pair<T,ll> t){ return pair<T,ll>{t.fst+o*t.snd, t.snd}; }
-);
-
-
-// 区間変更、区間和取得
-// ・TとOの積が*で定義されてないとダメ
-// ・vector<T>のvを用意しておく
-using T = ll;
-using O = ll;
-const T id_t = 0;
-const O id_o = inf; // 現れないやつにしておく
-vector<pair<T,ll>> before(v.size());
-rep(i, v.size()) before[i] = {v[i], 1};
-LazySegmentTree<pair<T,ll>, O> lst(
-    before,
-    [](pair<T, ll> a, pair<T, ll> b){ return pair<T,ll>{a.fst+b.fst, a.snd+b.snd}; },
-    {id_t, 0},
-    [](O o_new, O o_old){ return (o_new==id_o)?o_old:o_new; },
-    id_o,
-    [](O o, pair<T,ll> t){ return (o==id_o)?t:pair<T,ll>{o*t.snd, t.snd}; }
-);
-*/

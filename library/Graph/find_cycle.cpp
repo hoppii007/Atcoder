@@ -1,12 +1,16 @@
 #pragma once
 /**
- * @brief 有向グラフから root を起点としてサイクルを 1 つ取得
- * @param nexts 隣接リスト（nexts[i] は頂点 i から伸びる辺の行き先一覧）
- * @param root 探索の起点となる頂点
- * @return サイクルを構成する頂点列。cycle[0] -> cycle[1] -> ... -> cycle.back() -> cycle[0] の順に巡る。サイクルが無ければ空配列
- * @note 計算量: O(V + E)
- * @note root から到達可能なサイクルのうち 1 つだけを返す。グラフが非連結だったり root より手前にサイクルがあると検出できない
- * @note DFS の行きがけ順（fst）と帰りがけ順（snd）を記録し、訪問中（snd 未確定）の頂点へ戻る後退辺をサイクルとして検出する
+ * @brief 有向グラフのサイクルを 1 つ取得
+ *
+ *   find_cycle(nexts, root) … root から到達できるサイクルの頂点列（無ければ空）  O(V+E)
+ *
+ * @note 返り値は cycle[0] → cycle[1] → … → cycle.back() → cycle[0] の順
+ * @note root から到達できないサイクルは見つからない
+ *
+ * @code
+ * vvll nexts(n);
+ * vll cycle = find_cycle(nexts, 0);
+ * @endcode
  */
 vll find_cycle(vvll &nexts, ll root){
     vpll ret(nexts.size(), {-1,-1});

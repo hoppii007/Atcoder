@@ -1,10 +1,15 @@
 #pragma once
+#include "library/Math/lcm.cpp"
 /**
- * @brief 配列 v の全要素の最小公倍数を求める
- * @param v 正整数の配列
- * @return lcm(v[0], v[1], ..., v[n-1])
- * @note 計算量: O(n log max(v))
- * @note 途中の lcm が ll の範囲を超えるとオーバーフローする
+ * @brief 配列全体の最小公倍数
+ *
+ *   lcms(v) … lcm(v[0], ..., v[n-1])  O(n log max(v))
+ *
+ * @note v は空でないこと。途中の lcm が ll を超えるとオーバーフローする
+ *
+ * @code
+ * ll l = lcms({4, 6, 10});  // 60
+ * @endcode
  */
 ll lcms(vll v){
     ll ret = v[0];

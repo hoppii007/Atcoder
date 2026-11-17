@@ -1,11 +1,21 @@
 #pragma once
-//O((E+V)logV)でsからの最短経路がもとまる
-
-//負の辺があるとダメ
-//nextsには{cost,index}にしといてね
-//始点が複数あって全部の中から最短が欲しい時は、ちょっと変更して最初から全部入れるようにしたほうがいい（dijkstraは何回も呼ばないほうがいい）
-//辺のコストが1しかないならbfsでOK
-//辺のコストが0か1しかないならbfs01でOK
+/**
+ * @brief 拡張ダイクストラ（頂点を構造体 Node で表す版）
+ *
+ *   Node{energy, l, i, j}           … 頂点（問題に合わせてメンバを書き換えて使う）
+ *   ext_dijkstra(nexts, starts)     … starts からの最短距離 map<Node, ll>（到達不能は inf）  O((V+E) log V)
+ *
+ * @param nexts 隣接リスト nexts[u] = {{cost, v}, ...}（map<Node, vector<pair<ll,Node>>>）
+ * @note 負の辺は不可。nexts のキーに無く到達もしない頂点は返り値に含まれない（dist.count で確認）
+ *
+ * @code
+ * map<Node, vector<pair<ll,Node>>> nexts;
+ * Node a{0, 0, 0, 0}, b{0, 0, 0, 1};
+ * nexts[a].pb({1, b});
+ * map<Node,ll> dist = ext_dijkstra(nexts, {a});
+ * ll d = dist.count(b) ? dist[b] : inf;
+ * @endcode
+ */
 struct Node {
     ll energy;
     ll l;
@@ -35,7 +45,8 @@ map<Node,ll> ext_dijkstra(map<Node, vector<pair<ll,Node>>> &nexts, vector<Node> 
         if(now.first > dijk[now.second]) continue;
         for(pair<ll,Node> next: nexts[now.second]){
             ll ncost = next.first + now.first;
-            if(dijk[next.second] > ncost){
+            auto it = dijk.find(next.second);
+            if(it == dijk.end() || it->second > ncost){
                 dijk[next.second] = ncost;
                 q.push({ncost, next.second});
             }

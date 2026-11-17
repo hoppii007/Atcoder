@@ -1,11 +1,14 @@
 #pragma once
 /**
- * @brief 文字列を指定した区切り文字で分割する
- * @param s 分割対象の文字列
- * @param c 区切り文字
- * @return 分割された文字列の配列。連続する区切り文字や先頭が区切り文字の場合は空文字列が要素として含まれる。末尾が区切り文字の場合は空文字列を追加しない
- * @note 計算量: O(|s|)
- * @example split("a,b,,c", ',') -> {"a", "b", "", "c"}
+ * @brief 文字列の分割（区切り文字 1 文字）
+ *
+ *   split(s, c) … s を c で区切った vs  O(|s|)
+ *
+ * @note 空の要素も残す（"a,,b," → {"a", "", "b", ""}、"" → {""}）
+ *
+ * @code
+ * vs v = split("a,b,,c", ',');  // {"a", "b", "", "c"}
+ * @endcode
  */
 vs split(string s, char c){
     vs ret;

@@ -1,12 +1,17 @@
 #pragma once
-//DAG（るーぷをふくんじゃだめ）に対してトポロジカルソートし、根っこが一番左にくるようにする
-//ループとかあったらバグるからマジやめてね
+/**
+ * @brief トポロジカルソート
+ *
+ *   topological_sort(nexts) … 辺 u → v で u が v より前に来る頂点列  O(V+E)
+ *
+ * @note DAG 専用。閉路があると返り値の長さが V 未満になる
+ *
+ * @code
+ * vvll nexts(n);
+ * vll order = topological_sort(nexts);
+ * @endcode
+ */
 vll topological_sort(vvll &nexts){
-    vvb canUse(nexts.size());
-    rep(i,nexts.size()){
-        rep(j,nexts[i].size()) canUse[i].push_back(true);
-    }
-
     vll in(nexts.size());
     rep(i,nexts.size()) for(ll next: nexts[i]) in[next]++;
 

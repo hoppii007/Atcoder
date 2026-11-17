@@ -1,10 +1,18 @@
 #pragma once
 #include "library/tree/union_find.cpp"
 /**
- * @brief 重み付き隣接リストを連結成分ごとに分割する（split_connected_graph の重み付き版）
- * @param nexts 重み付き隣接リスト（nexts[i] は頂点 i から出る辺の {コスト, 行き先} 一覧）。辺の向きは無視して連結性を判定する
- * @return 成分ごとの重み付き隣接リストの配列。頂点は成分内で 0-indexed に振り直され、各辺のコストはそのまま引き継がれる
- * @note 頂点番号の振り直し規則・成分の並び順・計算量は重みなし版と同じ
+ * @brief 連結成分ごとに重み付き隣接リストを分割
+ *
+ *   split_connected_graph(nexts) … ret[c] = c 番目の成分の隣接リスト {cost, v}  O(V α(V) + E)
+ *
+ * @param nexts 隣接リスト nexts[u] = {cost, v}
+ * @note 成分内の頂点番号は元の番号の昇順に 0, 1, 2, … と振り直す
+ * @note 成分の順は各成分の最小頂点番号の昇順。連結性は辺の向きを無視して判定
+ *
+ * @code
+ * vvpll nexts(n);
+ * vector<vvpll> comps = split_connected_graph(nexts);
+ * @endcode
  */
 vector<vvpll> split_connected_graph(vvpll& nexts){
     ll n = nexts.size();
