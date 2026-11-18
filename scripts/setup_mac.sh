@@ -13,7 +13,9 @@ ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 cd "$ROOT"
 
 echo "== 1. GNU g++ =="
-if ! ls /opt/homebrew/bin/g++-* /usr/local/bin/g++-* >/dev/null 2>&1; then
+# Apple Silicon は /opt/homebrew、Intel は /usr/local。どちらか一方に g++-N があれば良い
+# （ls に両方渡すと、片方のディレクトリが無いだけで失敗扱いになるので compgen で個別に見る）
+if ! compgen -G "/opt/homebrew/bin/g++-*" >/dev/null && ! compgen -G "/usr/local/bin/g++-*" >/dev/null; then
   if command -v brew >/dev/null 2>&1; then
     brew install gcc
   else

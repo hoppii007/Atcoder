@@ -5,12 +5,12 @@
 OS ごとに切り替わる。コンパイラは `scripts/cxx.py` が自動で選ぶ（Windows: WinLibs の g++ / mac: Homebrew の `g++-N`）。
 
 ## mac
-詳しい手順・確認方法・トラブルシュートは [SETUP_MAC.md](SETUP_MAC.md)。
 ```sh
 git clone <このリポジトリ> && cd Atcoder
 bash scripts/setup_mac.sh   # g++ 確認・精進パネル拡張のリンク・clangd 設定・ビルド確認
 ```
 最後に表示されるキーバインドを `keybindings.json` に追加し、VSCode を再起動する。
+`brew upgrade gcc` した後は `python3 scripts/setup_clangd.py` を再実行する（`compile_flags.txt` が版番号つきのパスを持つため）。
 
 ## Windows
 - `winget install BrechtSanders.WinLibs.POSIX.UCRT`（g++）
@@ -20,7 +20,7 @@ bash scripts/setup_mac.sh   # g++ 確認・精進パネル拡張のリンク・c
 ## マシン間で引き継がれないもの
 - `honban/.session.json`（レビュー待ちの記録）… 記録した PC でレビューまで済ませてから移る
 - 精進パネルの進行中の問題・タイマー（VSCode の workspaceState）
-- Claude Code のユーザー側メモリ（`~/.claude/projects/...`）。リポジトリの `memory/` と CLAUDE.md・skill は git で共有される
+- Claude Code のユーザー側メモリ（`~/.claude/projects/...`）。PC をまたいで効かせたいルールは CLAUDE.md か skill に書く（こちらは git で共有される）
 
 # 環境構築（旧メモ）
 - npmのインストールは(これ)[https://qiita.com/fehde/items/17a2bfff8f5a5767c600]
