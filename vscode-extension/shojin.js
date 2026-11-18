@@ -6,7 +6,7 @@
 //   finishing … difficulty（AtCoder Problems から自動取得）・solved・時間を確認して記録
 //
 // 記録すると honban/.session.json に書き出す。Claude に「レビューして」と言うと、
-// honban-review skill がこれを読み、思考ログを本人と振り返って「自分の考察」を決めてから
+// honban-review skill がこれを読み、思考ログを分析・レビューして
 // problems/ のノートに記録する（記録は客観的事実だけ。felt は持たない）。
 const vscode = require("vscode");
 const fs = require("fs");
@@ -210,7 +210,7 @@ async function record(msg) {
     difficulty: Number.isFinite(diff) ? diff : null,
     solved: msg.solved,
     time_spent_min: Number.isFinite(minutes) ? minutes : null,
-    // 思考ログ（時刻付きの原文）。ノートの「自分の考察」はレビュー時にこれを見ながら本人と決める
+    // 思考ログ（時刻付きの原文）。ノートに原文で残り、レビュー時に Claude が分析する
     thought_log: cur.log.map((e) => ({ elapsed: fmt_elapsed(e.ms), text: e.text })),
   };
   const pending = read_pending(root);
@@ -409,7 +409,7 @@ function render_html(webview) {
     <button class="secondary" id="btn-toggle">一時停止</button>
   </div>
   <label class="field" for="s-input">思考ログ</label>
-  <div class="muted">考えたことをその都度書いて追加（Ctrl+Enter）。経過時間つきで残ります。ノートに載せる「自分の考察」は、解いた後に Claude とこのログを見ながら決めます。</div>
+  <div class="muted">考えたことをその都度書いて追加（Ctrl+Enter）。経過時間つきで残ります。ログはそのままノートに残り、解いた後に Claude が分析します。</div>
   <div class="log" id="s-log"></div>
   <textarea class="input" id="s-input" placeholder="いま考えていること"></textarea>
   <div class="row" style="margin-top:4px"><button class="secondary" id="s-add">追加</button></div>
