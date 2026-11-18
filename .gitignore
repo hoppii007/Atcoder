@@ -15,6 +15,8 @@ __pycache__/
 
 # タイマーのセッション記録（拡張が出力する一時ファイル）
 honban/.session.json
+# コードの推移のスナップショット（拡張が出力。レビュー後に消える）
+honban/.history/
 
 # 提出用に展開したコード（scripts/expand.py の出力）
 submit.cpp

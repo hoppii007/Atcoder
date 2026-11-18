@@ -20,6 +20,10 @@ AtCoder の精進フロー（問題を選ぶ → 解く → 記録する）を�
    - 解いている間は Claude に答えを求めない前提。ログは原文のままノートに残り、レビュー時に
      Claude がこれを分析する
    - リロードしても進行中の問題・タイマー・考察は消えない（`workspaceState` に保存）
+   - **コードの推移** も自動で記録される。解き始め・`honban/main.cpp` の保存・思考ログの追加・
+     タスク（build / input / run / expand / submit）の終了・「解き終わった」のたびに、main.cpp を
+     経過時間つきで `honban/.history/<task_id>/NNN.cpp` に保存する（内容が変わらなければ新しいファイルは作らない。
+     タスクは終了コードも残すので、コンパイルエラーや実行時エラーの回数が分かる）。レビューで Claude が差分を読む
 3. **解き終わった** を押す
    - タイマーが止まり、difficulty を AtCoder Problems から自動取得（`problem-models.json`。
      拡張の globalStorage にキャッシュし、無い問題があれば1時間おきに取り直す）
@@ -62,3 +66,6 @@ C++ ファイルで `#include "` と打つと `library/` が、`#include "librar
 VSCode を再起動（またはコマンドパレットで `Developer: Reload Window`）すると有効になる。
 
 編集後は `Developer: Reload Window` で反映される。
+
+Windows / mac で同じ構成になる（拡張は Node の `path` / `fs` だけを使い、タスクの label は `.vscode/tasks.json` で両 OS 共通）。
+mac 側は `git pull` → `Developer: Reload Window` で、コードの推移の記録も含めて同じ状態になる。

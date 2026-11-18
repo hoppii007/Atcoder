@@ -15,6 +15,7 @@ const crypto = require("crypto");
 const timer = require("./timer");
 const picker = require("./picker");
 const difficulty = require("./difficulty");
+const code_history = require("./code_history");
 
 const VIEW_ID = "atcoderShojin.panel";
 const KEY_CURRENT = "atcoderShojin.current"; // 進行中の問題（無ければ null）
@@ -51,7 +52,32 @@ function push_log(cur, text) {
   cur.log.push({ ms: timer.elapsed_ms(), text: t });
   return true;
 }
+/** エディタで開いている honban/main.cpp の内容（未保存の編集を含む）。開いていなければ undefined。 */
+function editor_main_text(root) {
+  const doc = vscode.workspace.textDocuments.find((d) => code_history.same_path(d.uri.fsPath, code_history.main_path(root)));
+  return doc ? doc.getText() : undefined;
+}
+
+/**
+ * 進行中の問題があれば main.cpp のスナップショットを取る（コードの推移の記録。code_history.js 参照）。
+ * 画面の再描画はしない（入力中の思考ログを上書きしないため）。
+ */
+async function record_code(event, text, exit) {
+  const cur = get_current();
+  const root = picker.find_root();
+  if (!cur || !root) return;
+  if (code_history.snapshot(root, cur, timer.elapsed_ms(), event, text, exit)) {
+    await ctx.workspaceState.update(KEY_CURRENT, cur);
+  }
+}
+
 async function set_current(cur) {
+  // 呼び出し側が古い cur を持っている間（モーダル表示中など）に増えたスナップショットを失わない
+  const stored = ctx.workspaceState.get(KEY_CURRENT, null);
+  if (cur && stored && stored.problem && stored.problem.task_id === cur.problem.task_id &&
+      (stored.code_timeline || []).length > (cur.code_timeline || []).length) {
+    cur.code_timeline = stored.code_timeline;
+  }
   await ctx.workspaceState.update(KEY_CURRENT, cur);
   post_state();
 }
@@ -133,8 +159,12 @@ async function begin(problem) {
     }
   }
   await vscode.env.openExternal(vscode.Uri.parse(problem.url));
-  await set_current({ problem, phase: "solving", date: today_iso(), log: [], draft: "", difficulty: null });
+  const root = picker.find_root();
+  if (cur) code_history.clear(root, cur.problem.task_id);
+  code_history.clear(root, problem.task_id);
+  await set_current({ problem, phase: "solving", date: today_iso(), log: [], draft: "", difficulty: null, code_timeline: [] });
   await timer.reset_and_start();
+  await record_code("start", editor_main_text(root));
 }
 
 async function begin_random() {
@@ -165,6 +195,7 @@ async function finish() {
   const cur = get_current();
   if (!cur) return;
   await timer.pause();
+  await record_code("finish", editor_main_text(picker.find_root()));
   cur.phase = "finishing";
   cur.minutes = Math.max(1, Math.round(timer.elapsed_ms() / 60000));
   await set_current(cur);
@@ -212,6 +243,9 @@ async function record(msg) {
     time_spent_min: Number.isFinite(minutes) ? minutes : null,
     // 思考ログ（時刻付きの原文）。ノートに原文で残り、レビュー時に Claude が分析する
     thought_log: cur.log.map((e) => ({ elapsed: fmt_elapsed(e.ms), text: e.text })),
+    // コードの推移（区切りの操作ごとの main.cpp のスナップショット。files は code_history_dir 以下）
+    code_history_dir: code_history.rel_history_dir(cur.problem.task_id),
+    code_timeline: code_history.to_session(get_current() || cur, fmt_elapsed),
   };
   const pending = read_pending(root);
   if (pending && pending.task_id !== session.task_id) {
@@ -221,6 +255,7 @@ async function record(msg) {
       "上書きして記録"
     );
     if (!ok) return;
+    code_history.clear(root, pending.task_id);
   }
   fs.mkdirSync(path.join(root, "honban"), { recursive: true });
   fs.writeFileSync(session_path(root), JSON.stringify(session, null, 2) + "\n", "utf8");
@@ -242,6 +277,7 @@ async function abort() {
     "破棄"
   );
   if (!ok) return;
+  code_history.clear(picker.find_root(), cur.problem.task_id);
   await timer.reset();
   await set_current(null);
 }
@@ -275,6 +311,7 @@ async function on_message(msg) {
       if (cur && push_log(cur, msg.text)) {
         cur.draft = "";
         await set_current(cur);
+        await record_code("log", editor_main_text(picker.find_root()));
       }
       break;
     case "log_delete":
@@ -633,6 +670,17 @@ function activate(context) {
       w.onDidDelete(post_state);
       return w;
     })(),
+    // コードの推移: main.cpp の保存と、ビルド・実行などのタスク終了ごとにスナップショットを取る
+    vscode.workspace.onDidSaveTextDocument((doc) => {
+      const root = picker.find_root();
+      if (root && code_history.same_path(doc.uri.fsPath, code_history.main_path(root))) {
+        record_code("save", doc.getText());
+      }
+    }),
+    vscode.tasks.onDidEndTaskProcess((e) => {
+      const name = e.execution.task.name;
+      if (code_history.TRACKED_TASKS.has(name)) record_code(name, undefined, e.exitCode);
+    }),
     vscode.commands.registerCommand("atcoderShojin.open", () =>
       vscode.commands.executeCommand(`${VIEW_ID}.focus`)
     ),
