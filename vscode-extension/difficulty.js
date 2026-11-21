@@ -84,4 +84,4 @@ async function get_difficulty(storage_dir, task_id) {
   return { difficulty: clip(model.difficulty), experimental: !!model.is_experimental };
 }
 
-module.exports = { get_difficulty };
+module.exports = { get_difficulty, cache_path: cache_file };

@@ -27,3 +27,6 @@ submit.cpp
 # clangd 用のコンパイルフラグ（PC 依存のため追跡しない。scripts/setup_clangd.py で生成）
 compile_flags.txt
 template.hpp.gch.cxx
+
+# estimate_rating.py が拡張のキャッシュを見つけられなかったときに取得する difficulty モデル
+scripts/.cache/
