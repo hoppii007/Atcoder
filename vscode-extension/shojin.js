@@ -83,11 +83,11 @@ async function set_current(cur) {
   post_state();
 }
 
-function today_iso() {
+/** 今の日時（ローカル）を "YYYY-MM-DD HH:mm" で返す。同じ日の挑戦を解いた順に並べるため時刻まで持つ。 */
+function now_iso() {
   const d = new Date();
-  const m = String(d.getMonth() + 1).padStart(2, "0");
-  const day = String(d.getDate()).padStart(2, "0");
-  return `${d.getFullYear()}-${m}-${day}`;
+  const p2 = (x) => String(x).padStart(2, "0");
+  return `${d.getFullYear()}-${p2(d.getMonth() + 1)}-${p2(d.getDate())} ${p2(d.getHours())}:${p2(d.getMinutes())}`;
 }
 
 function session_path(root) {
@@ -169,7 +169,7 @@ async function begin(problem) {
   const root = picker.find_root();
   if (cur) code_history.clear(root, cur.problem.task_id);
   code_history.clear(root, problem.task_id);
-  await set_current({ problem, phase: "solving", date: today_iso(), log: [], draft: "", difficulty: null, code_timeline: [] });
+  await set_current({ problem, phase: "solving", date: now_iso(), log: [], draft: "", difficulty: null, code_timeline: [] });
   await timer.reset_and_start();
   await record_code("start", editor_main_text(root));
 }

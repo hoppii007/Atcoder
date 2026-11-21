@@ -84,8 +84,15 @@ def parse_note(path: Path):
         return None, []
     task_id = m.group(1)
     attempts = []
-    # "### 第N回 — YYYY-MM-DD" ごとに区切る
-    parts = re.split(r"^### 第\d+回\s*[—-]\s*(\S+)\s*$", text, flags=re.M)
+    # "### 第N回 — YYYY-MM-DD HH:mm" ごとに区切る（時刻は省略可。時刻なしの旧い回は同じ日の先頭に並ぶ）
+    heading = r"^### 第\d+回\s*[—-]\s*(\d{4}-\d{2}-\d{2}(?: \d{2}:\d{2})?)\s*$"
+    n_heads = len(re.findall(r"^### 第\d+回", text, flags=re.M))
+    n_ok = len(re.findall(heading, text, flags=re.M))
+    if n_heads != n_ok:
+        # 形式の崩れた見出しの回は推定から抜け落ちるので、黙らずに知らせる
+        print(f"warning: {path}: 日時を読めない挑戦回の見出しが {n_heads - n_ok} 件あります"
+              "（形式は '### 第N回 — YYYY-MM-DD HH:mm'）", file=sys.stderr)
+    parts = re.split(heading, text, flags=re.M)
     for date, body in zip(parts[1::2], parts[2::2]):
         sm = re.search(r"^- solved:(.*)$", body, re.M)
         tm = re.search(r"^- time_spent_min:(.*)$", body, re.M)
@@ -121,7 +128,7 @@ def collect(since: str | None, include_untimed: bool = False, start: str = START
 
 
 def all_attempts(include_untimed: bool = False, start: str = START_DATE) -> list[dict]:
-    """全ノートの全挑戦回を時系列（日付 → 問題 ID → 回の順）に並べる。"""
+    """全ノートの全挑戦回を時系列（日時 → 問題 ID → 回の順）に並べる。"""
     out = []
     for path in sorted(PROBLEMS_DIR.glob("*/*.md")):
         task_id, attempts = parse_note(path)

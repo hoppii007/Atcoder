@@ -27,7 +27,7 @@ description: 精進パネルで記録した問題（honban/.session.json + honba
    contest_id      … 例 "abc318"
    url             … 問題ページ
    note_path       … 例 "problems/abc318/abc318_f.md"
-   date            … 解き始めた日（YYYY-MM-DD）
+   date            … 解き始めた日時（YYYY-MM-DD HH:mm。旧形式の session は YYYY-MM-DD のみ）
    difficulty      … AtCoder Problems の値（無ければ null）
    solved          … 自力AC / 解説AC / 未AC（本人がパネルで選んだもの）
    time_spent_min  … タイマーの値（本人が修正した場合はその値）
@@ -121,7 +121,8 @@ description: 精進パネルで記録した問題（honban/.session.json + honba
 **再挑戦（既存ノートへの第N回追記）では「## 問題」と frontmatter の difficulty は書き換えない。**
 
 既存の `### 第N回` を数えて **次の回** として末尾に追記する（古い回が上・新しい回が下）。
-見出しの日付は session の `date`。1回分のエントリに含めるもの:
+見出しの日付は session の `date` を**時刻まで含めてそのまま**書く（例 `### 第1回 — 2026-11-22 01:30`。
+推定レートが同じ日の挑戦を解いた順に並べるのに使う）。1回分のエントリに含めるもの:
 
 - `solved` / `time_spent_min`（session の値をそのまま）、`つまずき分類`（手順4(b)）
 - **思考ログ** — session の `thought_log` を「- mm:ss 本文」の箇条書きで原文のまま転記する（書き換えない。

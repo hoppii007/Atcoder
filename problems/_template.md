@@ -25,7 +25,7 @@ confidence: 未分類 # 確定 / 候補 / 未分類（tags の確信度。問題
 
 ## 挑戦履歴
 
-### 第1回 — YYYY-MM-DD
+### 第1回 — YYYY-MM-DD HH:mm
 
 - solved: # 自力AC / 解説AC / 未AC（弱点分析の要）
 - time_spent_min: # 精進パネルのタイマー値
