@@ -1,4 +1,67 @@
 {
+  "bfs": {
+    "prefix": "sni_bfs",
+    "body": [
+      "//型を入力",
+      "queue<$1> q;",
+      "",
+      "//ここでスタート地点を入れてく",
+      "",
+      "while(!q.empty()){",
+      "    $1 now = q.front();",
+      "    q.pop();",
+      "",
+      "    //ここで次の奴らを追加していく",
+      "",
+      "}"
+    ],
+    "description": "型を入力"
+  },
+  "bit_bruteforce": {
+    "prefix": "sni_bit_bruteforce",
+    "body": [
+      "//bit全探索",
+      "//要素数$1（state: 0〜2^$1-1 の各部分集合, bitj: 各要素の添字 0〜$1-1）",
+      "rep(state,1LL<<$1){",
+      "",
+      "    rep(bitj,$1){",
+      "        //1のところ",
+      "        if(state&(1LL<<bitj)){",
+      "",
+      "        }",
+      "        //0のところ",
+      "        else{",
+      "",
+      "        }",
+      "    }",
+      "}"
+    ],
+    "description": "bit全探索"
+  },
+  "monoid_max": {
+    "prefix": "sni_monoid_max",
+    "body": [
+      "ll op_max(ll a, ll b){ return max(a, b); }",
+      "ll e_max(){ return -inf; }",
+      "using max_monoid = monoid<ll, op_max, e_max>;"
+    ]
+  },
+  "monoid_min": {
+    "prefix": "sni_monoid_min",
+    "body": [
+      "ll op_min(ll a, ll b){ return min(a, b); }",
+      "ll e_min(){ return inf; }",
+      "using min_monoid = monoid<ll, op_min, e_min>;"
+    ]
+  },
+  "monoid_sum": {
+    "prefix": "sni_monoid_sum",
+    "body": [
+      "ll op_sum(ll a, ll b){ return a + b; }",
+      "ll e_sum(){ return 0; }",
+      "using sum_monoid = monoid<ll, op_sum, e_sum>;"
+    ]
+  },
   "binary_search": {
     "prefix": "sni_binary_search",
     "body": [
@@ -76,24 +139,6 @@
     ],
     "description": "fr$1[i] := iより右にある最初のhogeのindex"
   },
-  "bfs": {
-    "prefix": "sni_bfs",
-    "body": [
-      "//型を入力",
-      "queue<$1> q;",
-      "",
-      "//ここでスタート地点を入れてく",
-      "",
-      "while(!q.empty()){",
-      "    $1 now = q.front();",
-      "    q.pop();",
-      "",
-      "    //ここで次の奴らを追加していく",
-      "",
-      "}"
-    ],
-    "description": "型を入力"
-  },
   "map_custom_comp": {
     "prefix": "sni_map_custom_comp",
     "body": [
@@ -111,51 +156,6 @@
       "map<$1,$2,comp_map> m;"
     ],
     "description": "trueだったら第1引数が手前に来る"
-  },
-  "bit_bruteforce": {
-    "prefix": "sni_bit_bruteforce",
-    "body": [
-      "//bit全探索",
-      "//要素数$1（state: 0〜2^$1-1 の各部分集合, bitj: 各要素の添字 0〜$1-1）",
-      "rep(state,1LL<<$1){",
-      "",
-      "    rep(bitj,$1){",
-      "        //1のところ",
-      "        if(state&(1LL<<bitj)){",
-      "",
-      "        }",
-      "        //0のところ",
-      "        else{",
-      "",
-      "        }",
-      "    }",
-      "}"
-    ],
-    "description": "bit全探索"
-  },
-  "monoid_max": {
-    "prefix": "sni_monoid_max",
-    "body": [
-      "ll op_max(ll a, ll b){ return max(a, b); }",
-      "ll e_max(){ return -inf; }",
-      "using max_monoid = monoid<ll, op_max, e_max>;"
-    ]
-  },
-  "monoid_min": {
-    "prefix": "sni_monoid_min",
-    "body": [
-      "ll op_min(ll a, ll b){ return min(a, b); }",
-      "ll e_min(){ return inf; }",
-      "using min_monoid = monoid<ll, op_min, e_min>;"
-    ]
-  },
-  "monoid_sum": {
-    "prefix": "sni_monoid_sum",
-    "body": [
-      "ll op_sum(ll a, ll b){ return a + b; }",
-      "ll e_sum(){ return 0; }",
-      "using sum_monoid = monoid<ll, op_sum, e_sum>;"
-    ]
   },
   "next_permu": {
     "prefix": "sni_next_permu",
