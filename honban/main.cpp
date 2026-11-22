@@ -1,29 +1,28 @@
 #include "template.hpp"  // 先頭に置くこと（プリコンパイル済みヘッダが効く条件）
-#include "library/Math/arg_comp.cpp"
-#include "library/Math/coordinate_compression.cpp"
-#include "library/interval_scheduling.cpp"
+
+ll f(vll& to, vll& a, ll now){
+    if(a[to[now]] == -1) return to[now];
+    return to[now] = f(to, a, to[now]);
+}
 
 int main(){
-	cinll(n);
-	cinvpll(p, n);
-
-	vpll ps;
-	rep(i, n) {
-		ps.pb({p[i].fst-1, p[i].snd});
-		ps.pb({p[i].fst, p[i].snd-1});
-	}
-	sort(all(ps), arg_comp);
-
-	// 偏角ソート後のインデックスを保存
-	auto idx = coordinate_compression(ps, arg_comp);
-
-	vpll t;
-	rep(i, n){
-		t.pb({idx[{p[i].fst, p[i].snd-1}], idx[{p[i].fst-1, p[i].snd}]});
-	}
-
-	cout << interval_scheduling(t).size() << endl;
-
-	
-	return 0;
+    ll n = (1LL << 20);
+    vll ans(n, -1);
+    vll to(n);
+    rep(i, n) to[i] = i;
+    cinll(q);
+    while(q--){
+        cinll(t, x);
+        //cout << t << " " << x << endl;
+        if(t == 1){
+            ll h = x%n;
+            ll nxt = f(to, ans, h);
+            ans[nxt] = x;
+            to[nxt] = (to[nxt]+1)%n;
+        }
+        else{
+            cout << ans[x%n] << endl;
+        }
+    }
+    return 0;
 }
