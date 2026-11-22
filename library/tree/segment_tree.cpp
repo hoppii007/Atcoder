@@ -73,3 +73,44 @@ public:
         return os;
     }
 };
+
+/**
+ * @brief セグメント木の定番 3 種（点代入・区間取得、ll の配列）
+ *
+ *   point_change_sum … 点代入・区間和
+ *   point_change_max … 点代入・区間最大
+ *   point_change_min … 点代入・区間最小
+ *
+ * 共通の操作（T は上の 3 つのどれか。中身は segtree<monoid<ll, ...>> そのもの）:
+ *   T seg(a)          … vll a から構築  O(N)
+ *   T seg(n)          … 長さ n で構築。初期値は単位元（和: 0、最大: -inf、最小: inf）  O(N)
+ *   seg.change(i, x)  … a[i] = x  O(log N)
+ *   seg.get(i)        … a[i]  O(1)
+ *   seg.get(l, r)     … [l, r) の和／最大／最小（l == r なら単位元）  O(log N)
+ *   cout << seg       … 葉 a[0..n) を空白区切りで出力（デバッグ用）
+ *
+ * @note 区間は半開区間 [l, r)（0-indexed）
+ * @note 点加算は seg.change(i, seg.get(i) + x)
+ *
+ * @code
+ * point_change_sum seg(a);
+ * seg.change(2, 10);          // a[2] を 10 に
+ * ll s = seg.get(1, 4);       // a[1] + a[2] + a[3]
+ *
+ * point_change_min mn(n);     // 全 inf
+ * mn.change(i, x);
+ * ll m = mn.get(l, r);
+ * @endcode
+ */
+namespace segtree_presets{
+    ll op_sum(ll a, ll b){ return a + b; }
+    ll e_sum(){ return 0; }
+    ll op_max(ll a, ll b){ return max(a, b); }
+    ll e_max(){ return -inf; }
+    ll op_min(ll a, ll b){ return min(a, b); }
+    ll e_min(){ return inf; }
+}
+
+using point_change_sum = segtree<monoid<ll, segtree_presets::op_sum, segtree_presets::e_sum>>;
+using point_change_max = segtree<monoid<ll, segtree_presets::op_max, segtree_presets::e_max>>;
+using point_change_min = segtree<monoid<ll, segtree_presets::op_min, segtree_presets::e_min>>;
