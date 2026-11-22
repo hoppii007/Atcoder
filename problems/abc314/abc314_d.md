@@ -93,4 +93,4 @@ t_Q x_Q c_Q
 ## 問題全体のメモ
 
 - タイムスタンプ型の2例目（1例目 abc278_d: 全体代入＋点加算）。全体操作が「代入」「大小変換」のように直前の値を上書きするものは、最後の1回だけ時刻つきで持てば足りる。
-- 使用ライブラリ: library/string/to_lower.cpp, library/string/to_upper.cpp（記録時は to_lower_one.cpp / to_upper_one.cpp。記録後に to_lower / to_upper の char オーバーロードへ統合）
+- 使用ライブラリ: library/string/to_upper_lower.cpp（記録時は to_lower_one.cpp / to_upper_one.cpp。記録後に to_upper / to_lower の char オーバーロードとして1ファイルに統合）

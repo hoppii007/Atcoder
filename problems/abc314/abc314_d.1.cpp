@@ -1,6 +1,5 @@
 #include "template.hpp"  // 先頭に置くこと（プリコンパイル済みヘッダが効く条件）
-#include "library/string/to_lower.cpp"
-#include "library/string/to_upper.cpp"
+#include "library/string/to_upper_lower.cpp"
 
 int main(){
     cinll(n);
