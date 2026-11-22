@@ -16,7 +16,7 @@ int main(){
 	sort(all(ps), arg_comp);
 
 	// 偏角ソート後のインデックスを保存
-	auto idx = coordinate_compression(ps, arg_comp);
+	auto [idx, idx_val] = coordinate_compression(ps, arg_comp);
 
 	vpll t;
 	rep(i, n){
