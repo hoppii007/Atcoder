@@ -13,8 +13,15 @@ AtCoder Problems（kenkoooo）の problem-models.json にある 2 つのモデ�
 両方の対数尤度と弱い事前分布 N(prior_mean, prior_sd^2) を足し、θ を格子上で評価して
 事後分布の最頻値（MAP）と 80% 区間を出す。「正答のみ」「速度のみ」「総合」の 3 本を並べる。
 
+古い記録の減衰（AtCoder 本家のレートに寄せる）:
+    本家はコンテスト i 回前のパフォーマンスに 0.9^i の重みを掛ける（日数ではなく回数で減衰）。
+    ここでは 1 挑戦ごとに DECAY 倍し、最新の挑戦の重みを 1 とする（k 回前の挑戦は DECAY^k）。
+    本家の 1 回はコンテスト 1 回（C〜F の 4〜5 問ぶんの情報）なので、DECAY = 0.9^(1/5) として
+    「5 問で 0.9 倍」に揃える。1 問ごとに 0.9 にすると実質 10 問ぶんの情報しか残らず、推定が暴れる。
+    回数は使う挑戦回すべて（解き直しで置き換わった古い回も含む）で数える。--decay 1 で減衰なし。
+
 注意:
-- 各問題は最新回の結果を使う（--since を付けると、その日以降の回のうち最新）。
+- 各問題は最新回の結果を使い、古い挑戦ほど重みを下げる（上の「古い記録の減衰」）（--since を付けると、その日以降の回のうち最新）。
 - time_spent_min が空の回は既定で使わない（精進パネルで計っていない回。まとめて登録した過去分など）。
   時間の無い自力AC は速度の補正がかからず推定を押し上げるため。--include-untimed で含める。
 - START_DATE（2026-11-01）より前の回は既定で使わない。それ以前はまとめて登録した記録で、
@@ -50,6 +57,7 @@ EXTENSION_CACHE = (
 LOCAL_CACHE = ROOT / "scripts/.cache/problem-models.json"
 
 START_DATE = "2026-11-01"  # これより前の回は使わない（既定）
+DECAY = 0.9 ** (1 / 5)     # 1 挑戦ごとの重みの減衰率（5 問で 0.9 倍。モジュール docstring 参照）
 THETA_LO, THETA_HI, THETA_STEP = -1000, 4000, 1
 
 
@@ -119,12 +127,26 @@ def collect(since: str | None, include_untimed: bool = False, start: str = START
         task_id, attempts = parse_note(path)
         if not task_id:
             continue
-        attempts = [a for a in attempts if usable(a, include_untimed, start)]
+        attempts = [{"no": no, **a} for no, a in enumerate(attempts, 1) if usable(a, include_untimed, start)]
         if since:
             attempts = [a for a in attempts if a["date"] >= since]
         if attempts:
             rows.append({"id": task_id, **attempts[-1]})
     return rows
+
+
+def attach_weights(rows: list[dict], models: dict, since: str | None, include_untimed: bool, start: str,
+                   decay: float):
+    """rows の各回に重み decay^k（k = その回より新しい挑戦回の数、since 以降で数える）を付ける。
+
+    数え方は history() と揃える（difficulty モデルの無い問題の回は数えない）。
+    """
+    order = [a for a in all_attempts(include_untimed, start)
+             if (not since or a["date"] >= since) and models.get(a["id"], {}).get("difficulty") is not None]
+    last = len(order) - 1
+    rank = {(a["id"], a["no"]): last - i for i, a in enumerate(order)}
+    for r in rows:
+        r["weight"] = decay ** rank[(r["id"], r["no"])]
 
 
 def all_attempts(include_untimed: bool = False, start: str = START_DATE) -> list[dict]:
@@ -151,22 +173,26 @@ def attempt_loglik_grid(models: dict, a: dict) -> list[float]:
 
 
 def history(models: dict, prior_mean: float, prior_sd: float, include_untimed: bool = False,
-            start: str = START_DATE) -> list[dict]:
-    """挑戦のたびの総合推定（その時点までの記録で、各問題は最新回を使う）。"""
+            start: str = START_DATE, decay: float = DECAY) -> list[dict]:
+    """挑戦のたびの総合推定（その時点までの記録で、各問題は最新回を使い、古い回ほど軽くする）。"""
     total = [0.0] * len(THETAS)
-    current = {}  # 問題 ID → その問題の最新回の対数尤度の列
+    current = {}  # 問題 ID → (その問題の最新回の対数尤度の列, それを足したときの step)
     points = []
+    step = 0  # 使った挑戦回の数（重みの減衰を数える単位）
     for a in all_attempts(include_untimed, start):
         md = models.get(a["id"])
         if not md or md.get("difficulty") is None:
             continue
         grid = attempt_loglik_grid(models, a)
+        # 既存の項をすべて decay 倍し、新しい回を重み 1 で足す
+        total = [decay * x + y for x, y in zip(total, grid)]
         old = current.get(a["id"])
-        if old is None:
-            total = [x + y for x, y in zip(total, grid)]
-        else:
-            total = [x - o + y for x, o, y in zip(total, old, grid)]
-        current[a["id"]] = grid
+        if old is not None:
+            # 解き直した問題は古い回を外す（今の重みは decay^(この回までの step 差)）
+            w = decay ** (step + 1 - old[1])
+            total = [x - w * o for x, o in zip(total, old[0])]
+        step += 1
+        current[a["id"]] = (grid, step)
         m, lo, hi = posterior_from_grid(total, prior_mean, prior_sd)
         points.append({"date": a["date"], "id": a["id"], "no": a["no"], "solved": a["solved"],
                        "time_min": a["time_min"], "difficulty": to_display(md["difficulty"]),
@@ -236,12 +262,14 @@ def main():
     ap.add_argument("--json", action="store_true", help="結果を JSON で出力する")
     ap.add_argument("--start", default=START_DATE, help=f"この日付より前の回は使わない（既定 {START_DATE}）")
     ap.add_argument("--include-untimed", action="store_true", help="time_spent_min が空の回も使う")
+    ap.add_argument("--decay", type=float, default=DECAY,
+                    help=f"1 挑戦ごとの重みの減衰率（既定 {DECAY:.4f} = 0.9^(1/5)。1 で減衰なし）")
     ap.add_argument("--history", action="store_true", help="挑戦ごとの総合推定の推移を出す（--json と併用）")
     args = ap.parse_args()
 
     models = load_models(args.models)
     if args.history:
-        points = history(models, args.prior_mean, args.prior_sd, args.include_untimed, args.start)
+        points = history(models, args.prior_mean, args.prior_sd, args.include_untimed, args.start, args.decay)
         if args.json:
             print(json.dumps(points, ensure_ascii=False))
         else:
@@ -251,6 +279,7 @@ def main():
     rows = collect(args.since, args.include_untimed, args.start)
     missing = [r["id"] for r in rows if r["id"] not in models or models[r["id"]].get("difficulty") is None]
     rows = [r for r in rows if r["id"] not in missing]
+    attach_weights(rows, models, args.since, args.include_untimed, args.start, args.decay)
     if not rows:
         if args.json:
             print(json.dumps({"n": 0, "estimates": {}}, ensure_ascii=False))
@@ -262,10 +291,10 @@ def main():
     time_rows = [r for r in rows if r["solved"] == "自力AC" and r["time_min"] and has_time_model(models[r["id"]])]
 
     def ll_solve(t):
-        return sum(loglik_solve(t, models[r["id"]], r["solved"] == "自力AC") for r in solve_rows)
+        return sum(r["weight"] * loglik_solve(t, models[r["id"]], r["solved"] == "自力AC") for r in solve_rows)
 
     def ll_time(t):
-        return sum(loglik_time(t, models[r["id"]], r["time_min"]) for r in time_rows)
+        return sum(r["weight"] * loglik_time(t, models[r["id"]], r["time_min"]) for r in time_rows)
 
     results = [
         ("正答のみ", ll_solve, len(solve_rows)),
