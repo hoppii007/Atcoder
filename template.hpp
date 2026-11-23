@@ -13,6 +13,9 @@
 #define cinvvll(a,n,m) vvll a(n,vll(m)); rep(i,n) rep(j,m) cin>>a[i][j];
 #define cinvs(a,n) vs a(n); rep(i,n) cin>>a[i];
 #define cinvpll(a,n) vpll a(n); rep(i,n) cin>>a[i].fst>>a[i].snd;
+// 1-indexed の辺 m 本 "u v" を読み、0-indexed の隣接リスト vvll g(n) を宣言して作る
+#define cin_directed_graph(g,n,m) vvll g(n); rep(i,m){ ll u_, v_; cin>>u_>>v_; u_--; v_--; g[u_].pb(v_); }
+#define cin_undirected_graph(g,n,m) vvll g(n); rep(i,m){ ll u_, v_; cin>>u_>>v_; u_--; v_--; g[u_].pb(v_); g[v_].pb(u_); }
 //繰り返し系
 #define rep1(n) for(ll i=0;i<n;i++)
 #define rep2(i,n) for(ll i=0;i<n;i++)
