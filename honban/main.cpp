@@ -1,34 +1,19 @@
 #include "template.hpp"  // 先頭に置くこと（プリコンパイル済みヘッダが効く条件）
-#include <numeric>
-
-// vectorを、長さkずつに分割
-vvll split_vec_k(vll &a, ll k){
-    vvll ret;
-    vll t;
-    rep(i, a.size()){
-        if(i!=0 && i%k == 0){
-            ret.pb(t);
-            t.clear();
-        }
-        t.pb(a[i]);
-    }
-    ret.pb(t);
-    return ret;
-}
+#include "library/Math/mod_ll.cpp"
 
 int main(){
-    cinll(n, d, p);
-    cinvll(f, n);
-    sort(all(f));
-    reverse(all(f));
-    vvll sp = split_vec_k(f, d);
-    ll ans = 0;
-    rep(i, sp.size()){
-        ll total = accumulate(all(sp[i]), 0LL);
-        //cout << sp[i] << " :" << total << endl; 
-        if(total >= p) ans += p;
-        else ans += total;
+    cinll(n, m, k);
+    // dp[i][j] := i番目まで考えて、合計がjになる通りの数
+    vector<vector<modll>> dp(n, vector<modll>(k+1, 0));
+    rep(i, 1, min(k, m)+1) dp[0][i] = 1;
+
+    rep(i, 1, n) rep(j, 1, k+1) {
+        // dp[i][j]を設定していく
+        // i番目を1にするか、2にするか、...min(j-1, m)にするかのどれか
+        rep(jj, 1, min(j, m+1)) dp[i][j] += dp[i-1][j-jj];
     }
+    modll ans = 0;
+    rep(i, k+1) ans += dp[n-1][i];
     cout << ans << endl;
     return 0;
 }
